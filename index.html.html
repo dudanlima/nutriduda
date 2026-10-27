@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acompanhamento Nutricional</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:"Times New Roman",Times,serif;background:linear-gradient(160deg,#BC788D 0%,#910D38 55%,#541625 100%);color:#230E0F;min-height:100vh;display:flex;flex-direction:column}
+header{background:#910D38;color:#fff;padding:18px 20px;text-align:center;border-bottom:3px solid #230E0F}
+header h1{margin:0;font-size:24px}
+header p{margin:6px 0 0;font-size:16px;color:#f3dfe6}
+main{flex:1;max-width:960px;width:100%;margin:0 auto;padding:28px 16px}
+.intro{text-align:center;margin-bottom:24px;color:#fff}
+.intro h2{font-size:22px;margin:0 0 8px}
+.intro p{margin:0;font-size:17px;color:#f3dfe6}
+.cards{display:flex;flex-wrap:wrap;gap:20px;justify-content:center}
+.card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(35,14,15,.25);padding:24px;flex:1 1 380px;max-width:440px;display:flex;flex-direction:column;border-top:6px solid #910D38}
+.card:nth-child(2){border-top-color:#541625}
+.card h3{margin:0 0 8px;font-size:21px;color:#910D38}
+.card p{margin:0 0 16px;font-size:16px;color:#4a2a31;line-height:1.5;flex:1}
+.card ul{margin:0 0 18px;padding-left:18px;font-size:16px;color:#230E0F;line-height:1.7}
+button{background:#910D38;color:#fff;border:none;border-radius:8px;padding:12px 18px;font-family:"Times New Roman",Times,serif;font-size:17px;cursor:pointer;width:100%}
+button:hover{background:#541625}
+button.verde{background:#541625}
+button.verde:hover{background:#230E0F}
+.aviso{margin-top:28px;background:#fff;border-left:4px solid #910D38;border-radius:8px;padding:12px 14px;font-size:16px;color:#230E0F;box-shadow:0 2px 8px rgba(35,14,15,.15)}
+footer{text-align:center;font-size:15px;color:#fff;padding:16px;background:#230E0F}
+@media (max-width:480px){
+  header h1{font-size:21px}
+  .card{padding:18px}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Acompanhamento Nutricional</h1>
+  <p>Área de trabalho e acompanhamento de pacientes</p>
+</header>
+
+<main>
+  <section class="intro">
+    <h2>Quem está acessando?</h2>
+    <p>Escolha a sua entrada. Cada uma terá acesso próprio.</p>
+  </section>
+
+  <div class="cards">
+    <div class="card">
+      <h3>Sou nutricionista</h3>
+      <p>Acesso completo para gerenciar pacientes, avaliações e planos alimentares.</p>
+      <ul>
+        <li>Lista de pacientes</li>
+        <li>Avaliações e medidas</li>
+        <li>Modelos de plano e substituições</li>
+      </ul>
+      <button onclick="emBreve('nutricionista')">Entrar como nutricionista</button>
+    </div>
+
+    <div class="card">
+      <h3>Sou paciente</h3>
+      <p>Acesso para acompanhar o seu plano alimentar e a sua evolução.</p>
+      <ul>
+        <li>Plano alimentar atual</li>
+        <li>Registro de refeições</li>
+        <li>Recados do seu nutricionista</li>
+      </ul>
+      <button class="verde" onclick="emBreve('paciente')">Entrar como paciente</button>
+    </div>
+  </div>
+
+  <div class="aviso">
+    <strong>Versão inicial de teste.</strong> Esta tela ainda não tem login real nem armazena dados de pacientes. Use apenas informações fictícias até que o acesso protegido seja implementado.
+  </div>
+</main>
+
+<footer>Acompanhamento Nutricional · versão de teste</footer>
+
+<script>
+function emBreve(area) {
+  const nome = area === 'nutricionista' ? 'do nutricionista' : 'do paciente';
+  alert('A área ' + nome + ' será criada na próxima etapa.');
+}
+</script>
+</body>
+</html>
