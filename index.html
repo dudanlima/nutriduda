@@ -2,37 +2,32 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#230E0F">
-<title>Nutricionista</title>
+<title>Acompanhamento Nutricional</title>
 <style>
-:root{--escuro:#230E0F;--vinho:#541625;--dourado:#EDDA9F;--rosa-claro:#BC788D;--cream:#F7EFE5}
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%}
-body{font-family:"Times New Roman",Times,serif;color:var(--cream);min-height:100vh;display:flex;flex-direction:column;background:linear-gradient(rgba(35,14,15,.55),rgba(35,14,15,.75)),url("ceu.jpg") center/cover fixed,var(--escuro)}
-.topo{display:flex;justify-content:flex-end;padding:20px clamp(16px,4vw,40px)}
-.btn{font:inherit;cursor:pointer;padding:10px 20px;border-radius:10px;border:1px solid var(--rosa-claro);background:rgba(35,14,15,.85);color:var(--cream);transition:background .2s}
-.btn:hover{background:rgba(84,22,37,.95)}
-main{flex:1;display:flex;align-items:center;justify-content:center;padding:24px}
-.centro{display:flex;flex-direction:column;align-items:center;text-align:center}
-.logo{display:block;width:min(420px,80vw);height:auto;margin-bottom:34px}
-.entrar{font:inherit;cursor:pointer;padding:12px 56px;border:none;border-radius:10px;background:var(--dourado);color:var(--escuro);font-size:clamp(18px,3vw,22px);transition:transform .2s}
-.entrar:hover{transform:translateY(-2px)}
+body{font-family:"Times New Roman",Times,serif;color:#EDDA9F;background:#230E0F url(ceu.jpg) center/cover fixed no-repeat;min-height:100vh;display:flex;flex-direction:column;position:relative}
+body::before{content:"";position:fixed;inset:0;background:rgba(84,22,37,.82);z-index:0}
+header,main{position:relative;z-index:1}
+header{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:10px;padding:14px 20px;background:rgba(35,14,15,.9)}
+.painel-link{padding:10px 18px;border:1px solid #EDDA9F;border-radius:8px;color:#EDDA9F;text-decoration:none;font-size:16px}
+.painel-link:hover{background:#EDDA9F;color:#230E0F}
+main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;text-align:center}
+.logo{width:min(440px,84vw);height:auto;display:block;margin:0 auto 44px}
+.entrar{display:inline-block;padding:14px 56px;background:#EDDA9F;color:#230E0F;border-radius:8px;text-decoration:none;font-size:18px;font-weight:bold}
+.entrar:hover{filter:brightness(1.05)}
+@media(max-width:480px){.painel-link{width:100%;text-align:center}.entrar{padding:14px 40px}}
 </style>
 </head>
 <body>
-<header class="topo">
-  <button class="btn" id="btn-painel" type="button">Painel do nutricionista</button>
+<header>
+<a class="painel-link" href="painel/index.html">Painel do nutricionista</a>
 </header>
 <main>
-  <section class="centro">
-    <img class="logo" src="2.svg" alt="Logotipo">
-    <button class="entrar" id="btn-entrar" type="button">Entrar</button>
-  </section>
+<img class="logo" src="2.svg" alt="Acompanhamento Nutricional">
+<a class="entrar" href="painel/index.html">Entrar</a>
 </main>
-<script>
-document.getElementById("btn-painel").onclick=()=>alert("O painel do nutricionista será criado na próxima etapa.");
-document.getElementById("btn-entrar").onclick=()=>alert("O acesso dos pacientes será criado na próxima etapa.");
-</script>
 </body>
 </html>
