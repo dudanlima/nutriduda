@@ -3,60 +3,61 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#230E0F">
+<meta name="theme-color" content="#7A816C">
 <title>Painel da nutricionista</title>
 <style>
-:root{--escuro:#230E0F;--vinho:#541625;--french:#910D38;--velvet:#9D4060;--rosa:#BC788D;--dourado:#EDDA9F;--cream:#F7EFE5;--linha:rgba(145,13,56,.22)}
+:root{--sage:#7A816C;--rose:#D1A9A5;--rust:#AE6965;--oak:#A58B71;--bone:#E5DFD6;--ink:#3B332C;--branco:#FFFFFF;--linha:rgba(59,51,44,.18)}
 *{box-sizing:border-box}
-body{margin:0;font-family:"Times New Roman",Times,serif;color:var(--escuro);background:var(--cream);min-height:100vh}
+body{margin:0;font-family:"Times New Roman",Times,serif;color:var(--ink);background:var(--bone);min-height:100vh}
 button,input,textarea{font:inherit}
 button{cursor:pointer}
 .app{display:grid;grid-template-columns:230px minmax(0,1fr);min-height:100vh}
-aside{background:var(--escuro);color:var(--cream);padding:24px 16px;border-right:1px solid rgba(188,120,141,.3)}
-.menu button{display:block;width:100%;text-align:left;margin-bottom:8px;padding:11px 14px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--cream);font-size:16px}
-.menu button:hover{background:rgba(188,120,141,.15)}
-.menu button.ativo{background:var(--french);border-color:var(--rosa)}
-main{padding:clamp(18px,3vw,34px);min-width:0}
+aside{background:var(--sage);padding:28px 16px}
+.menu button{display:block;width:100%;text-align:left;margin-bottom:8px;padding:11px 14px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--bone);font-size:16px}
+.menu button:hover{background:rgba(229,223,214,.18)}
+.menu button.ativo{background:var(--bone);color:var(--ink);border-color:var(--bone)}
+main{padding:clamp(18px,3vw,36px);min-width:0}
 .view{display:none}
-header.topo{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:24px}
-h1{margin:0;font-weight:normal;font-size:clamp(26px,4vw,34px);color:var(--vinho)}
-h3{margin:0 0 6px;font-weight:normal;font-size:20px;color:var(--vinho)}
-.btn{padding:10px 18px;border-radius:8px;border:1px solid var(--french);background:var(--french);color:var(--cream)}
+header.topo{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:26px}
+h1{margin:0;font-weight:normal;font-size:clamp(26px,4vw,34px);color:var(--rust)}
+h3{margin:0 0 6px;font-weight:normal;font-size:20px;color:var(--rust)}
+.btn{padding:10px 18px;border-radius:8px;border:1px solid var(--rust);background:var(--rust);color:var(--bone)}
 .btn:hover{filter:brightness(1.08)}
-.btn.sec{background:transparent;color:var(--vinho);border-color:var(--rosa)}
+.btn.sec{background:transparent;color:var(--rust);border-color:var(--oak)}
 .btn.peq{padding:6px 12px;font-size:14px}
-.btn.perigo{border-color:#9b1c31;background:transparent;color:#9b1c31}
-.painel{background:#fff;border:1px solid var(--linha);border-radius:14px;padding:clamp(16px,3vw,24px);box-shadow:0 6px 20px rgba(35,14,15,.06)}
+.btn.perigo{background:transparent;color:var(--rust);border-color:var(--rust)}
+.painel{background:var(--branco);border:1px solid var(--linha);border-radius:14px;padding:clamp(16px,3vw,24px)}
 .mes{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
-.mes strong{font-weight:normal;color:var(--vinho);font-size:20px;text-transform:capitalize}
+.mes strong{font-weight:normal;color:var(--rust);font-size:20px;text-transform:capitalize}
 .cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
-.dia-sem{text-align:center;color:var(--velvet);font-size:14px;padding:4px}
-.dia{min-height:78px;padding:6px;border:1px solid var(--linha);border-radius:8px;background:#fbf6f2;color:var(--escuro);text-align:left;overflow:hidden}
-.dia.fora{opacity:.4}
-.dia.sel{border-color:var(--french);background:rgba(188,120,141,.25)}
-.dia .n{display:block;color:var(--vinho);margin-bottom:4px}
-.dia .ev{display:block;font-size:12px;background:var(--french);color:var(--cream);border-radius:4px;padding:2px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dia-sem{text-align:center;color:var(--sage);font-size:14px;padding:4px;font-weight:bold}
+.dia{min-height:78px;padding:6px;border:1px solid var(--linha);border-radius:8px;background:#FAF7F2;color:var(--ink);text-align:left;overflow:hidden}
+.dia.fora{opacity:.42}
+.dia.sel{border:2px solid var(--rust);background:var(--rose)}
+.dia .n{display:block;margin-bottom:4px;font-weight:bold;color:var(--ink)}
+.dia .ev{display:block;font-size:12px;background:var(--rust);color:var(--bone);border-radius:4px;padding:2px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lista-dia{margin-top:18px}
 .item{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--linha)}
 .item:last-child{border-bottom:0}
-.hora{color:var(--french);white-space:nowrap;font-weight:bold}
-.vazio{color:var(--velvet);padding:14px 0}
+.hora{color:var(--rust);white-space:nowrap;font-weight:bold}
+.vazio{color:var(--sage);padding:14px 0}
 .pacientes{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
-.perfil-card{padding:22px 14px;text-align:center;border:1px solid var(--linha);border-radius:16px;background:#fff;cursor:pointer}
-.perfil-card:hover,.perfil-card:focus{border-color:var(--french);outline:none}
-.perfil-card p{margin:4px 0;color:#6b3a47;font-size:15px}
-.foto{width:96px;height:96px;border-radius:50%;margin:0 auto 12px;border:2px solid var(--rosa);overflow:hidden;background:#f1dfe4;color:var(--vinho);display:flex;align-items:center;justify-content:center;font-size:30px}
+.perfil-card{padding:22px 14px;text-align:center;border:1px solid var(--linha);border-radius:16px;background:var(--branco);cursor:pointer}
+.perfil-card:hover,.perfil-card:focus{border-color:var(--rust);outline:none;box-shadow:0 0 0 2px var(--rose)}
+.perfil-card p{margin:4px 0;font-size:15px}
+.foto{width:96px;height:96px;border-radius:50%;margin:0 auto 12px;border:2px solid var(--sage);overflow:hidden;background:var(--rose);color:var(--ink);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:bold}
 .foto img{width:100%;height:100%;object-fit:cover}
 .form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.campo label{display:block;color:var(--vinho);margin-bottom:5px}
-.campo input,.campo textarea{width:100%;padding:10px;border:1px solid var(--linha);border-radius:7px;background:#fff;color:var(--escuro)}
+.campo label{display:block;color:var(--sage);margin-bottom:5px}
+.campo input,.campo textarea{width:100%;padding:10px;border:1px solid var(--linha);border-radius:7px;background:var(--branco);color:var(--ink)}
+.campo input:focus,.campo textarea:focus{outline:none;border-color:var(--rust)}
 .campo textarea{min-height:90px;resize:vertical}
 .campo.largo{grid-column:1/-1}
 .acoes{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
 .detalhes{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
-.det{border:1px solid var(--linha);border-radius:9px;padding:12px;background:#fbf6f2}
-.det strong{display:block;color:var(--velvet);font-weight:normal;margin-bottom:4px}
-.aviso{margin:0 0 18px;padding:12px 14px;border-left:3px solid var(--french);background:rgba(188,120,141,.18);border-radius:5px;font-size:15px;line-height:1.45}
+.det{border:1px solid var(--linha);border-radius:9px;padding:12px;background:#FAF7F2}
+.det strong{display:block;color:var(--sage);font-weight:bold;margin-bottom:4px}
+.aviso{margin:0 0 18px;padding:12px 14px;border-left:4px solid var(--rust);background:var(--rose);border-radius:5px;font-size:15px;line-height:1.45;color:var(--ink)}
 @media(max-width:760px){
 .app{grid-template-columns:1fr}
 aside{padding:14px}
@@ -126,7 +127,7 @@ aside{padding:14px}
 </div>
 
 <script>
-const KEY="painelNutricionistaEduarda";
+const KEY="painelNutricionista";
 const hoje=new Date();
 const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -171,7 +172,7 @@ cal.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{sel=b.dataset.d;rende
 const [ya,ma,da]=sel.split("-").map(Number);
 document.getElementById("dia-titulo").textContent=new Date(ya,ma-1,da).toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
 const lista=S.appointments.filter(x=>x.data===sel).sort((p,q)=>p.hora.localeCompare(q.hora));
-document.getElementById("dia-lista").innerHTML=lista.length?lista.map(x=>`<div class="item"><span><strong>${esc(pname(x.pid))}</strong>${x.obs?`<br><span style="color:var(--velvet)">${esc(x.obs)}</span>`:""}</span><span class="hora">${esc(x.hora)}</span></div>`).join(""):'<div class="vazio">Nenhum atendimento neste dia.</div>';
+document.getElementById("dia-lista").innerHTML=lista.length?lista.map(x=>`<div class="item"><span><strong>${esc(pname(x.pid))}</strong>${x.obs?`<br><span style="color:var(--sage)">${esc(x.obs)}</span>`:""}</span><span class="hora">${esc(x.hora)}</span></div>`).join(""):'<div class="vazio">Nenhum atendimento neste dia.</div>';
 }
 document.getElementById("ant").onclick=()=>{cur=new Date(cur.getFullYear(),cur.getMonth()-1,1);renderAgenda()};
 document.getElementById("prox").onclick=()=>{cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);renderAgenda()};
@@ -198,7 +199,7 @@ function abrirPerfil(id){
 const p=S.patients.find(x=>x.id===id);if(!p)return;
 const ap=S.appointments.filter(x=>x.pid===id).sort((a,b)=>(a.data+a.hora).localeCompare(b.data+b.hora));
 const fmt=d=>{const [y,m,dd]=d.split("-");return dd+"/"+m+"/"+y};
-document.getElementById("perfil").innerHTML=`<header class="topo"><div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap"><div class="foto" style="width:120px;height:120px;margin:0;font-size:40px">${p.foto?`<img src="${esc(p.foto)}" alt="">`:esc(iniciais(p.nome))}</div><div><h1>${esc(p.nome)}</h1><p style="color:var(--velvet);margin:6px 0 0">${esc(p.objetivo||"Objetivo não informado")}</p></div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sec" id="voltar">Voltar</button><button class="btn perigo" id="excluir">Excluir paciente</button></div></header>
+document.getElementById("perfil").innerHTML=`<header class="topo"><div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap"><div class="foto" style="width:120px;height:120px;margin:0;font-size:40px">${p.foto?`<img src="${esc(p.foto)}" alt="">`:esc(iniciais(p.nome))}</div><div><h1>${esc(p.nome)}</h1><p style="color:var(--sage);margin:6px 0 0">${esc(p.objetivo||"Objetivo não informado")}</p></div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sec" id="voltar">Voltar</button><button class="btn perigo" id="excluir">Excluir paciente</button></div></header>
 <div class="painel"><div class="detalhes">
 <div class="det"><strong>Idade</strong>${p.idade!==""&&p.idade!=null?esc(p.idade)+" anos":"Não informada"}</div>
 <div class="det"><strong>Telefone</strong>${esc(p.telefone||"Não informado")}</div>
