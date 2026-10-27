@@ -4,26 +4,35 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#230E0F">
-<title>Acompanhamento Nutricional</title>
-<link rel="stylesheet" href="css/estilo.css">
+<title>Nutricionista</title>
+<style>
+:root{--escuro:#230E0F;--vinho:#541625;--dourado:#EDDA9F;--rosa-claro:#BC788D;--cream:#F7EFE5}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{font-family:"Times New Roman",Times,serif;color:var(--cream);min-height:100vh;display:flex;flex-direction:column;background:linear-gradient(rgba(35,14,15,.55),rgba(35,14,15,.75)),url("ceu.jpg") center/cover fixed,var(--escuro)}
+.topo{display:flex;justify-content:flex-end;padding:20px clamp(16px,4vw,40px)}
+.btn{font:inherit;cursor:pointer;padding:10px 20px;border-radius:10px;border:1px solid var(--rosa-claro);background:rgba(35,14,15,.85);color:var(--cream);transition:background .2s}
+.btn:hover{background:rgba(84,22,37,.95)}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:24px}
+.centro{display:flex;flex-direction:column;align-items:center;text-align:center}
+.logo{display:block;width:min(420px,80vw);height:auto;margin-bottom:34px}
+.entrar{font:inherit;cursor:pointer;padding:12px 56px;border:none;border-radius:10px;background:var(--dourado);color:var(--escuro);font-size:clamp(18px,3vw,22px);transition:transform .2s}
+.entrar:hover{transform:translateY(-2px)}
+</style>
 </head>
 <body>
-<header class="topbar">
-  <div class="logo">
-    <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="none" stroke="#EDDA9F" stroke-width="2"/><path d="M24 12c-6 6-6 18 0 24 6-6 6-18 0-24z" fill="#BC788D"/></svg>
-    <span>Acompanhamento Nutricional</span>
-  </div>
+<header class="topo">
   <button class="btn" id="btn-painel" type="button">Painel do nutricionista</button>
 </header>
 <main>
-  <section class="box">
-    <h1>Acompanhamento Nutricional</h1>
-    <p>Escolha como deseja entrar</p>
-    <a class="btn primary" href="login/index.html">Entrar</a>
+  <section class="centro">
+    <img class="logo" src="2.svg" alt="Logotipo">
+    <button class="entrar" id="btn-entrar" type="button">Entrar</button>
   </section>
 </main>
 <script>
 document.getElementById("btn-painel").onclick=()=>alert("O painel do nutricionista será criado na próxima etapa.");
+document.getElementById("btn-entrar").onclick=()=>alert("O acesso dos pacientes será criado na próxima etapa.");
 </script>
 </body>
 </html>
