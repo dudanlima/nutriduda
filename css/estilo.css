@@ -1,0 +1,15 @@
+:root{--escuro:#230E0F;--vinho:#541625;--dourado:#EDDA9F;--rosa-claro:#BC788D;--cream:#F7EFE5}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{font-family:"Times New Roman",Times,serif;color:var(--cream);min-height:100vh;display:flex;flex-direction:column;background:linear-gradient(160deg,rgba(35,14,15,.78),rgba(84,22,37,.9)),url("../imagens/ceu.jpg") center/cover fixed,var(--escuro)}
+.topbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:16px clamp(16px,4vw,40px);background:rgba(35,14,15,.85);border-bottom:1px solid rgba(188,120,141,.35)}
+.logo{display:flex;align-items:center;gap:10px;color:var(--dourado);font-size:clamp(18px,3.5vw,24px)}
+.logo svg{width:34px;height:34px;flex:0 0 auto}
+.btn{font:inherit;cursor:pointer;padding:11px 20px;border-radius:8px;border:1px solid var(--rosa-claro);background:transparent;color:var(--cream);text-decoration:none;display:inline-block;transition:background .2s,transform .2s}
+.btn:hover{background:rgba(188,120,141,.25);transform:translateY(-1px)}
+.btn.primary{background:var(--vinho);border-color:var(--dourado);color:var(--dourado);font-size:clamp(18px,3vw,22px);padding:14px 44px}
+.btn.primary:hover{background:rgba(84,22,37,.85)}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:24px}
+.box{text-align:center;width:min(440px,100%);padding:clamp(28px,6vw,48px);border:1px solid rgba(188,120,141,.4);border-radius:18px;background:rgba(35,14,15,.6);backdrop-filter:blur(6px)}
+.box h1{margin:0 0 8px;font-weight:normal;font-size:clamp(26px,5vw,36px);color:var(--cream)}
+.box p{margin:0 0 30px;color:var(--rosa-claro)}
