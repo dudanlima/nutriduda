@@ -263,6 +263,40 @@
     .model-editor { margin-top: 18px; }
     .model-editor .notice { margin-top: 0; }
     .hidden { display: none !important; }
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 14px;
+    }
+    .profile-card {
+      padding: 20px 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .18s ease, transform .18s ease;
+    }
+    .profile-card:hover, .profile-card:focus {
+      border-color: var(--strawberry);
+      transform: translateY(-2px);
+      outline: none;
+    }
+    .profile-card p { margin: 4px 0; color: var(--muted); overflow-wrap: anywhere; }
+    .avatar {
+      width: 96px;
+      height: 96px;
+      margin: 0 auto 12px;
+      border: 2px solid var(--strawberry);
+      border-radius: 50%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--cream);
+      background: var(--vinho-tinto);
+      font-size: 30px;
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-lg { width: 130px; height: 130px; margin: 0; font-size: 44px; flex: 0 0 auto; }
+    .profile-hero { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 18px; }
     #toast { min-height: 22px; margin-top: 10px; color: var(--strawberry); }
     @media (max-width: 760px) {
       .layout { grid-template-columns: 1fr; padding-top: 14px; }
@@ -299,7 +333,7 @@
             <h1>Agenda</h1>
             <p class="muted">Visualize os pacientes agendados e organize seus atendimentos.</p>
           </div>
-          <button class="btn primary" data-go="pacientes">Cadastrar paciente</button>
+          <button class="btn primary" data-go="cadastro">Cadastrar paciente</button>
         </div>
 
         <div class="stats">
@@ -334,9 +368,34 @@
       </section>
 
       <section class="view" id="view-pacientes">
+        <div class="agenda-head">
+          <div>
+            <h1>Pacientes</h1>
+            <p class="muted">Perfis dos seus pacientes. Clique em um perfil para ver as informações.</p>
+          </div>
+          <button class="btn primary" data-go="cadastro">Cadastrar paciente</button>
+        </div>
+        <div class="profile-grid" id="patient-list"></div>
+      </section>
+
+      <section class="view" id="view-cadastro">
         <h1>Cadastrar paciente</h1>
         <p class="muted">O agendamento é opcional. Preencha data e horário para colocar a consulta na agenda.</p>
         <form id="patient-form">
+          <div class="form-grid">
+            <div class="field">
+              <label for="patient-age">Idade</label>
+              <input id="patient-age" type="number" min="0" max="120" placeholder="Idade">
+            </div>
+            <div class="field">
+              <label for="patient-goal">Objetivo</label>
+              <input id="patient-goal" maxlength="120" placeholder="Ex.: emagrecimento">
+            </div>
+            <div class="field">
+              <label for="patient-photo">Foto do perfil (opcional)</label>
+              <input id="patient-photo" type="file" accept="image/*">
+            </div>
+          </div>
           <div class="form-grid">
             <div class="field">
               <label for="patient-name">Nome do paciente</label>
@@ -365,527 +424,5 @@
             <button class="btn" type="button" data-go="inicio">Voltar à agenda</button>
           </div>
         </form>
-        <h2 style="margin-top:28px">Pacientes cadastrados</h2>
-        <div class="grid" id="patient-list"></div>
-      </section>
 
-      <section class="view" id="view-modelos">
-        <h1>Modelos de plano</h1>
-        <p class="muted">Escolha um modelo para registrar sua própria estrutura e observações.</p>
-        <div class="grid" id="model-list"></div>
-
-        <div class="model-editor hidden" id="model-editor">
-          <div class="notice">
-            Este espaço é um roteiro editável, não uma prescrição. Preencha com critérios
-            definidos na sua formação e supervisão profissional.
-          </div>
-          <h2 id="model-title"></h2>
-          <div class="field">
-            <label for="model-notes">Estrutura e observações do modelo</label>
-            <textarea id="model-notes" placeholder="Registre aqui a estrutura que você está desenvolvendo."></textarea>
-          </div>
-          <div class="form-actions">
-            <button class="btn primary" id="save-model">Salvar modelo</button>
-            <button class="btn" id="close-model">Fechar</button>
-          </div>
-        </div>
-      </section>
-
-      <section class="view" id="view-substituicoes">
-        <h1>Catálogo de substituições</h1>
-        <p class="muted">Cadastre as porções verificadas e a fonte de consulta.</p>
-        <div class="notice">
-          Os registros de exemplo começam sem porções e fontes conferidas, por isso aparecem
-          como pendentes. Não representam equivalências nutricionais validadas.
-        </div>
-
-        <form id="sub-form">
-          <div class="form-grid">
-            <div class="field">
-              <label for="original">Alimento original</label>
-              <input id="original" required maxlength="120" placeholder="Ex.: alimento original">
-            </div>
-            <div class="field">
-              <label for="alternativa">Alternativa</label>
-              <input id="alternativa" required maxlength="120" placeholder="Ex.: alternativa a conferir">
-            </div>
-            <div class="field">
-              <label for="porcao">Porção conferida</label>
-              <input id="porcao" maxlength="160" placeholder="Deixe em branco se ainda não conferiu">
-            </div>
-            <div class="field">
-              <label for="fonte">Fonte</label>
-              <input id="fonte" maxlength="200" placeholder="Livro, tabela, artigo ou outra referência">
-            </div>
-          </div>
-          <div class="form-actions">
-            <button class="btn primary" type="submit" id="sub-submit">Adicionar ao catálogo</button>
-            <button class="btn hidden" type="button" id="cancel-edit">Cancelar edição</button>
-          </div>
-        </form>
-
-        <div class="toolbar">
-          <input id="search" type="search" placeholder="Buscar alimento, alternativa ou fonte">
-          <button class="btn" id="clear-examples" type="button">Limpar exemplos</button>
-          <button class="btn" id="export-csv" type="button">Baixar CSV</button>
-        </div>
-
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Alimento original</th>
-                <th>Alternativa</th>
-                <th>Porção conferida</th>
-                <th>Fonte</th>
-                <th>Status</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody id="sub-rows"></tbody>
-          </table>
-        </div>
-      </section>
-    </div>
-  </main>
-
-  <script>
-    const STORE_KEY = "acompanhamentoNutricionalNutriV1";
-
-    const templates = [
-      ["emagrecimento", "Emagrecimento"],
-      ["glp1-emagrecimento", "Emagrecimento com uso de análogos de GLP-1"],
-      ["lactose-emagrecimento", "Emagrecimento para intolerância à lactose"],
-      ["celiaca-emagrecimento", "Emagrecimento para celíacos"],
-      ["gluten-emagrecimento", "Emagrecimento para intolerância ao glúten"],
-      ["glp1-hipertrofia", "Hipertrofia com uso de análogos de GLP-1"],
-      ["lactose-hipertrofia", "Hipertrofia para intolerância à lactose"],
-      ["celiaca-hipertrofia", "Hipertrofia para celíacos"],
-      ["gluten-hipertrofia", "Hipertrofia para intolerância ao glúten"],
-      ["vitaminas", "Reposição de vitaminas"],
-      ["manutencao", "Manutenção de peso"]
-    ];
-
-    const starterExamples = [
-      { id: "ex-1", original: "Exemplo: arroz cozido", alternativa: "Exemplo: batata cozida", porcao: "", fonte: "", example: true },
-      { id: "ex-2", original: "Exemplo: leite de vaca", alternativa: "Exemplo: bebida vegetal", porcao: "", fonte: "", example: true },
-      { id: "ex-3", original: "Exemplo: pão", alternativa: "Exemplo: tapioca", porcao: "", fonte: "", example: true },
-      { id: "ex-4", original: "Exemplo: frango", alternativa: "Exemplo: ovo", porcao: "", fonte: "", example: true },
-      { id: "ex-5", original: "Exemplo: banana", alternativa: "Exemplo: maçã", porcao: "", fonte: "", example: true }
-    ];
-
-    function makeStarterPatients() {
-      const names = ["Marina Costa", "Lucas Almeida", "Beatriz Santos", "Rafael Oliveira", "Camila Rocha"];
-      const month = new Date();
-      const lastDay = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
-      return names.map((name, index) => ({
-        id: "paciente-ex-" + (index + 1),
-        name,
-        phone: "",
-        example: true,
-        appointmentDate: [
-          Math.min(3, lastDay),
-          Math.min(7, lastDay),
-          Math.min(12, lastDay),
-          Math.min(18, lastDay),
-          Math.min(24, lastDay)
-        ][index]
-      }));
-    }
-
-    function makeStarterAppointments(patients) {
-      const month = new Date();
-      const days = [3, 7, 12, 18, 24];
-      const times = ["09:00", "10:30", "13:00", "14:30", "16:00"];
-      return patients.map((patient, index) => {
-        const day = Math.min(days[index], new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate());
-        return {
-          id: "agenda-ex-" + (index + 1),
-          patientId: patient.id,
-          patientName: patient.name,
-          date: `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`,
-          time: times[index],
-          note: "Agendamento de exemplo",
-          example: true
-        };
-      });
-    }
-
-    function safeLoad() {
-      try {
-        const raw = localStorage.getItem(STORE_KEY);
-        const data = raw ? JSON.parse(raw) : {};
-        const patients = Array.isArray(data.patients) ? data.patients : makeStarterPatients();
-        return {
-          substitutions: Array.isArray(data.substitutions) ? data.substitutions : starterExamples,
-          notes: data.notes && typeof data.notes === "object" ? data.notes : {},
-          patients,
-          appointments: Array.isArray(data.appointments) ? data.appointments : makeStarterAppointments(patients)
-        };
-      } catch {
-        const patients = makeStarterPatients();
-        return {
-          substitutions: starterExamples,
-          notes: {},
-          patients,
-          appointments: makeStarterAppointments(patients)
-        };
-      }
-    }
-
-    let state = safeLoad();
-    let selectedModel = "";
-    let editingId = "";
-    let calendarCursor = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-    let selectedDate = dateKey(new Date());
-
-    function dateKey(date) {
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    }
-
-    function localDate(key) {
-      const [year, month, day] = key.split("-").map(Number);
-      return new Date(year, month - 1, day);
-    }
-
-    function persist() {
-      try {
-        localStorage.setItem(STORE_KEY, JSON.stringify(state));
-        return true;
-      } catch {
-        toast("O navegador não conseguiu salvar. Confira as configurações de armazenamento.");
-        return false;
-      }
-    }
-
-    function escapeHtml(value) {
-      return String(value ?? "").replace(/[&<>"']/g, char => ({
-        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
-      }[char]));
-    }
-
-    function toast(message) {
-      const el = document.getElementById("toast");
-      if (el) {
-        el.textContent = message;
-        window.setTimeout(() => { if (el.textContent === message) el.textContent = ""; }, 3500);
-      }
-    }
-
-    function showView(name) {
-      document.querySelectorAll(".view").forEach(view => view.classList.toggle("active", view.id === "view-" + name));
-      document.querySelectorAll(".nav button").forEach(button => button.classList.toggle("active", button.dataset.view === name));
-      if (name === "substituicoes") renderSubs();
-      if (name === "pacientes") renderPatients();
-      if (name === "inicio") renderCalendar();
-    }
-
-    function renderCalendar() {
-      const grid = document.getElementById("calendar-grid");
-      if (!grid) return;
-      const year = calendarCursor.getFullYear();
-      const month = calendarCursor.getMonth();
-      document.getElementById("month-label").textContent =
-        new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(calendarCursor);
-
-      const weekdays = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
-      const firstDay = new Date(year, month, 1);
-      const offset = (firstDay.getDay() + 6) % 7;
-      const start = new Date(year, month, 1 - offset);
-      let html = weekdays.map(day => `<div class="weekday">${day}</div>`).join("");
-
-      for (let i = 0; i < 42; i++) {
-        const day = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
-        const key = dateKey(day);
-        const events = state.appointments.filter(item => item.date === key);
-        html += `<button type="button" class="day-cell ${day.getMonth() !== month ? "outside" : ""} ${key === selectedDate ? "selected" : ""}" data-date="${key}">
-          <span class="day-number">${day.getDate()}</span>
-          ${events.slice(0, 2).map(item => `<span class="day-event">${escapeHtml(item.time)} ${escapeHtml(item.patientName)}</span>`).join("")}
-          ${events.length > 2 ? `<span class="day-event">+${events.length - 2} mais</span>` : ""}
-        </button>`;
-      }
-
-      grid.innerHTML = html;
-      grid.querySelectorAll("[data-date]").forEach(button => {
-        button.addEventListener("click", () => {
-          selectedDate = button.dataset.date;
-          renderCalendar();
-        });
-      });
-
-      const monthPrefix = `${year}-${String(month + 1).padStart(2, "0")}`;
-      document.getElementById("stat-agendados").textContent =
-        String(state.appointments.filter(item => item.date.startsWith(monthPrefix)).length);
-      document.getElementById("stat-pacientes").textContent = String(state.patients.length);
-
-      const chosen = localDate(selectedDate);
-      document.getElementById("selected-date-title").textContent =
-        "Agendamentos de " + new Intl.DateTimeFormat("pt-BR", { dateStyle: "full" }).format(chosen);
-      const dayItems = state.appointments
-        .filter(item => item.date === selectedDate)
-        .sort((a, b) => a.time.localeCompare(b.time));
-      document.getElementById("day-appointments").innerHTML = dayItems.length
-        ? dayItems.map(item => `<div class="appointment-item">
-            <span><strong>${escapeHtml(item.patientName)}</strong>${item.note ? `<br><span class="muted">${escapeHtml(item.note)}</span>` : ""}</span>
-            <span class="appointment-time">${escapeHtml(item.time)}</span>
-          </div>`).join("")
-        : '<div class="empty">Nenhum atendimento agendado para este dia.</div>';
-    }
-
-    function renderPatients() {
-      const list = document.getElementById("patient-list");
-      if (!list) return;
-      document.getElementById("stat-pacientes").textContent = String(state.patients.length);
-      if (!state.patients.length) {
-        list.innerHTML = '<div class="empty">Nenhum paciente cadastrado.</div>';
-        return;
-      }
-      list.innerHTML = state.patients.map(patient => {
-        const count = state.appointments.filter(item => item.patientId === patient.id).length;
-        return `<article class="card patient-card">
-          <h3>${escapeHtml(patient.name)}</h3>
-          <p>${patient.phone ? escapeHtml(patient.phone) : "Telefone não informado"}</p>
-          <p>${count} agendamento(s)</p>
-        </article>`;
-      }).join("");
-    }
-
-    document.getElementById("prev-month").addEventListener("click", () => {
-      calendarCursor = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth() - 1, 1);
-      renderCalendar();
-    });
-
-    document.getElementById("next-month").addEventListener("click", () => {
-      calendarCursor = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth() + 1, 1);
-      renderCalendar();
-    });
-
-    document.getElementById("today-month").addEventListener("click", () => {
-      const today = new Date();
-      calendarCursor = new Date(today.getFullYear(), today.getMonth(), 1);
-      selectedDate = dateKey(today);
-      renderCalendar();
-    });
-
-    document.getElementById("patient-form").addEventListener("submit", event => {
-      event.preventDefault();
-      const date = document.getElementById("appointment-date").value;
-      const time = document.getElementById("appointment-time").value;
-      if (Boolean(date) !== Boolean(time)) {
-        toast("Preencha data e horário juntos para criar o agendamento.");
-        return;
-      }
-
-      const patient = {
-        id: "pac-" + Date.now() + "-" + Math.random().toString(16).slice(2),
-        name: document.getElementById("patient-name").value.trim(),
-        phone: document.getElementById("patient-phone").value.trim(),
-        example: false
-      };
-      state.patients.unshift(patient);
-
-      if (date && time) {
-        state.appointments.push({
-          id: "agenda-" + Date.now() + "-" + Math.random().toString(16).slice(2),
-          patientId: patient.id,
-          patientName: patient.name,
-          date,
-          time,
-          note: document.getElementById("appointment-note").value.trim(),
-          example: false
-        });
-        selectedDate = date;
-        const parsed = localDate(date);
-        calendarCursor = new Date(parsed.getFullYear(), parsed.getMonth(), 1);
-      }
-
-      if (persist()) {
-        event.target.reset();
-        renderPatients();
-        renderCalendar();
-        toast("Paciente cadastrado neste navegador.");
-        if (date && time) showView("inicio");
-      }
-    });
-
-    document.querySelectorAll("[data-view]").forEach(button => {
-      button.addEventListener("click", () => showView(button.dataset.view));
-    });
-
-    document.querySelectorAll("[data-go]").forEach(button => {
-      button.addEventListener("click", () => showView(button.dataset.go));
-    });
-
-    function renderModels() {
-      const list = document.getElementById("model-list");
-      list.innerHTML = templates.map(([id, title]) => `
-        <article class="card">
-          <h3>${escapeHtml(title)}</h3>
-          <p>Estruture este modelo com suas observações e critérios profissionais.</p>
-          <button class="btn open-model" data-model="${escapeHtml(id)}">Abrir modelo</button>
-        </article>
-      `).join("");
-
-      list.querySelectorAll(".open-model").forEach(button => {
-        button.addEventListener("click", () => openModel(button.dataset.model));
-      });
-      document.getElementById("stat-modelos").textContent = String(templates.length);
-    }
-
-    function openModel(id) {
-      selectedModel = id;
-      const template = templates.find(item => item[0] === id);
-      if (!template) return;
-      document.getElementById("model-title").textContent = template[1];
-      document.getElementById("model-notes").value = state.notes[id] || "";
-      document.getElementById("model-editor").classList.remove("hidden");
-      document.getElementById("model-editor").scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-
-    document.getElementById("save-model").addEventListener("click", () => {
-      if (!selectedModel) return;
-      state.notes[selectedModel] = document.getElementById("model-notes").value;
-      if (persist()) toast("Modelo salvo neste navegador.");
-    });
-
-    document.getElementById("close-model").addEventListener("click", () => {
-      document.getElementById("model-editor").classList.add("hidden");
-      selectedModel = "";
-    });
-
-    function statusOf(item) {
-      return item.porcao.trim() && item.fonte.trim() ? "Conferido" : "Pendente";
-    }
-
-    function renderSubs() {
-      const query = document.getElementById("search").value.trim().toLowerCase();
-      const records = state.substitutions.filter(item =>
-        [item.original, item.alternativa, item.porcao, item.fonte].join(" ").toLowerCase().includes(query)
-      );
-      const rows = document.getElementById("sub-rows");
-
-      if (!records.length) {
-        rows.innerHTML = '<tr><td class="empty" colspan="6">Nenhum registro encontrado.</td></tr>';
-      } else {
-        rows.innerHTML = records.map(item => {
-          const ready = statusOf(item) === "Conferido";
-          return `
-            <tr>
-              <td>${escapeHtml(item.original)}</td>
-              <td>${escapeHtml(item.alternativa)}</td>
-              <td>${escapeHtml(item.porcao || "Não informada")}</td>
-              <td>${escapeHtml(item.fonte || "Não informada")}</td>
-              <td><span class="tag ${ready ? "ready" : "pending"}">${ready ? "Conferido" : "Pendente"}</span></td>
-              <td>
-                <button class="btn small edit-sub" data-id="${escapeHtml(item.id)}">Editar</button>
-                ${item.example ? "" : `<button class="btn small danger delete-sub" data-id="${escapeHtml(item.id)}">Excluir</button>`}
-              </td>
-            </tr>
-          `;
-        }).join("");
-      }
-
-      rows.querySelectorAll(".edit-sub").forEach(button => {
-        button.addEventListener("click", () => editSub(button.dataset.id));
-      });
-      rows.querySelectorAll(".delete-sub").forEach(button => {
-        button.addEventListener("click", () => deleteSub(button.dataset.id));
-      });
-
-      document.getElementById("stat-sub").textContent = String(state.substitutions.length);
-      document.getElementById("stat-pendentes").textContent =
-        String(state.substitutions.filter(item => statusOf(item) === "Pendente").length);
-    }
-
-    document.getElementById("sub-form").addEventListener("submit", event => {
-      event.preventDefault();
-      const record = {
-        id: editingId || "sub-" + Date.now() + "-" + Math.random().toString(16).slice(2),
-        original: document.getElementById("original").value.trim(),
-        alternativa: document.getElementById("alternativa").value.trim(),
-        porcao: document.getElementById("porcao").value.trim(),
-        fonte: document.getElementById("fonte").value.trim(),
-        example: false
-      };
-
-      if (editingId) {
-        state.substitutions = state.substitutions.map(item => item.id === editingId ? record : item);
-      } else {
-        state.substitutions.unshift(record);
-      }
-
-      if (persist()) {
-        event.target.reset();
-        editingId = "";
-        document.getElementById("sub-submit").textContent = "Adicionar ao catálogo";
-        document.getElementById("cancel-edit").classList.add("hidden");
-        renderSubs();
-        toast("Registro salvo neste navegador.");
-      }
-    });
-
-    function editSub(id) {
-      const item = state.substitutions.find(record => record.id === id);
-      if (!item) return;
-      editingId = id;
-      document.getElementById("original").value = item.original;
-      document.getElementById("alternativa").value = item.alternativa;
-      document.getElementById("porcao").value = item.porcao;
-      document.getElementById("fonte").value = item.fonte;
-      document.getElementById("sub-submit").textContent = "Salvar alterações";
-      document.getElementById("cancel-edit").classList.remove("hidden");
-      document.getElementById("original").scrollIntoView({ behavior: "smooth", block: "center" });
-      document.getElementById("original").focus();
-    }
-
-    function deleteSub(id) {
-      state.substitutions = state.substitutions.filter(item => item.id !== id);
-      if (persist()) {
-        renderSubs();
-        toast("Registro excluído.");
-      }
-    }
-
-    document.getElementById("cancel-edit").addEventListener("click", () => {
-      editingId = "";
-      document.getElementById("sub-form").reset();
-      document.getElementById("sub-submit").textContent = "Adicionar ao catálogo";
-      document.getElementById("cancel-edit").classList.add("hidden");
-    });
-
-    document.getElementById("search").addEventListener("input", renderSubs);
-
-    document.getElementById("clear-examples").addEventListener("click", () => {
-      state.substitutions = state.substitutions.filter(item => !item.example);
-      if (persist()) {
-        renderSubs();
-        toast("Exemplos removidos. Seus registros foram mantidos.");
-      }
-    });
-
-    document.getElementById("export-csv").addEventListener("click", () => {
-      const rows = [["Alimento original", "Alternativa", "Porção conferida", "Fonte", "Status"]];
-      state.substitutions.forEach(item => rows.push([
-        item.original, item.alternativa, item.porcao, item.fonte, statusOf(item)
-      ]));
-
-      const csv = rows.map(row =>
-        row.map(value => '"' + String(value ?? "").replace(/"/g, '""') + '"').join(",")
-      ).join("\r\n");
-
-      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "catalogo-substituicoes.csv";
-      link.click();
-      URL.revokeObjectURL(url);
-    });
-
-    renderModels();
-    renderSubs();
-    renderCalendar();
-    renderPatients();
-  </script>
-</body>
-</html>
+Não consegui aplicar essa mudança no arquivo desta vez. Me peça de novo que eu refaço o arquivo inteiro com ela.
