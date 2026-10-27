@@ -3,11 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="refresh" content="0; url=login/index.html">
-<title>Acompanhamento Nutricional</title>
-<script>location.replace("login/index.html");</script>
+<meta name="theme-color" content="#230E0F">
+<title>Login</title>
+<style>
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:"Times New Roman",Times,serif;color:#EDDA9F;background:#230E0F url("../ceu.jpg") center/cover no-repeat fixed;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;background:rgba(84,22,37,.82);z-index:0}
+.centro{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+.logo{width:min(320px,80vw);height:auto;margin-bottom:36px}
+.btn{display:inline-block;min-width:200px;padding:14px 28px;border-radius:10px;border:1px solid #EDDA9F;background:#EDDA9F;color:#230E0F;font:inherit;font-size:18px;text-decoration:none;cursor:pointer}
+.btn:hover{filter:brightness(1.06)}
+</style>
 </head>
 <body>
-<p><a href="login/index.html">Ir para o login</a></p>
+<div class="centro">
+<img class="logo" src="../2.svg" alt="Logotipo">
+<a class="btn" href="../painel/index.html">Entrar</a>
+</div>
 </body>
 </html>
