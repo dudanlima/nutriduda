@@ -11,11 +11,24 @@
 body{margin:0;font-family:"Times New Roman",Times,serif;color:var(--ink);background:var(--bone);min-height:100vh}
 button,input,textarea{font:inherit}
 button{cursor:pointer}
-.app{display:grid;grid-template-columns:230px minmax(0,1fr);min-height:100vh}
-aside{background:var(--sage);padding:28px 16px}
-.menu button{display:block;width:100%;text-align:left;margin-bottom:8px;padding:11px 14px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--bone);font-size:16px}
+.app{--sb:230px;display:grid;grid-template-columns:var(--sb) minmax(0,1fr);min-height:100vh;transition:grid-template-columns .25s ease}
+.app.recolhido{--sb:76px}
+aside{background:var(--sage);padding:28px 16px;position:sticky;top:0;height:100vh;overflow:hidden;color:var(--bone)}
+.app.recolhido aside{padding:28px 10px}
+.topo-menu{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:18px;min-height:40px}
+.app.recolhido .topo-menu{justify-content:center}
+.marca{font-size:17px;white-space:nowrap;overflow:hidden}
+.app.recolhido .marca{display:none}
+.alternar{background:transparent;border:1px solid var(--rose);color:var(--bone);border-radius:8px;width:40px;height:40px;min-width:40px;display:flex;align-items:center;justify-content:center;padding:0}
+.alternar:hover{background:var(--rose);color:var(--sage)}
+.alternar svg{width:20px;height:20px;stroke:currentColor;stroke-width:2;fill:none}
+.menu button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin-bottom:8px;padding:11px 14px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--bone);font-size:16px;white-space:nowrap}
 .menu button:hover{background:rgba(229,223,214,.18)}
 .menu button.ativo{background:var(--bone);color:var(--ink);border-color:var(--bone)}
+.menu .ini{display:none;width:36px;height:36px;min-width:36px;border:1px solid currentColor;border-radius:50%;align-items:center;justify-content:center;font-size:13px}
+.app.recolhido .menu .ini{display:flex}
+.app.recolhido .menu .rot{display:none}
+.app.recolhido .menu button{justify-content:center;padding:11px 0}
 main{padding:clamp(18px,3vw,36px);min-width:0}
 .view{display:none}
 header.topo{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:26px}
@@ -59,10 +72,16 @@ h3{margin:0 0 6px;font-weight:normal;font-size:20px;color:var(--rust)}
 .det strong{display:block;color:var(--sage);font-weight:bold;margin-bottom:4px}
 .aviso{margin:0 0 18px;padding:12px 14px;border-left:4px solid var(--rust);background:var(--rose);border-radius:5px;font-size:15px;line-height:1.45;color:var(--ink)}
 @media(max-width:760px){
-.app{grid-template-columns:1fr}
-aside{padding:14px}
-.menu{display:flex;flex-wrap:wrap;gap:6px}
-.menu button{width:auto;flex:1 1 auto;text-align:center;margin:0}
+.app,.app.recolhido{grid-template-columns:1fr}
+aside,.app.recolhido aside{position:static;height:auto;overflow:visible;padding:12px 14px}
+.topo-menu,.app.recolhido .topo-menu{margin-bottom:0;justify-content:space-between}
+.app.recolhido .marca{display:block}
+.menu{display:none;flex-direction:column;margin-top:12px}
+.app:not(.recolhido) .menu{display:flex}
+.menu button,.app.recolhido .menu button{width:100%;margin:0 0 8px;justify-content:flex-start;padding:11px 14px}
+.menu .ini{display:none}
+.menu .rot{display:inline}
+.app.recolhido .menu .rot{display:inline}
 .form{grid-template-columns:1fr}
 .dia{min-height:56px;padding:3px}
 .dia .ev{font-size:10px}
@@ -70,14 +89,20 @@ aside{padding:14px}
 </style>
 </head>
 <body>
-<div class="app">
+<div class="app" id="app">
 <aside>
+<div class="topo-menu">
+<span class="marca">Menu</span>
+<button class="alternar" id="alternar" aria-label="Recolher menu" aria-expanded="true">
+<svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+</div>
 <nav class="menu">
-<button data-v="agenda" class="ativo">Agenda</button>
-<button data-v="pacientes">Pacientes</button>
-<button data-v="modelos">Modelos de plano</button>
-<button data-v="substituicoes">Substituições</button>
-<button data-v="cadastro">Cadastrar paciente</button>
+<button data-v="agenda" class="ativo"><span class="ini">AG</span><span class="rot">Agenda</span></button>
+<button data-v="pacientes"><span class="ini">PA</span><span class="rot">Pacientes</span></button>
+<button data-v="modelos"><span class="ini">MO</span><span class="rot">Modelos de plano</span></button>
+<button data-v="substituicoes"><span class="ini">SU</span><span class="rot">Substituições</span></button>
+<button data-v="cadastro"><span class="ini">CA</span><span class="rot">Cadastrar paciente</span></button>
 </nav>
 </aside>
 <main>
@@ -127,6 +152,24 @@ aside{padding:14px}
 </div>
 
 <script>
+const app=document.getElementById("app");
+const alt=document.getElementById("alternar");
+const mq=matchMedia("(max-width:760px)");
+function aplicar(r){
+app.classList.toggle("recolhido",r);
+alt.setAttribute("aria-expanded",String(!r));
+alt.setAttribute("aria-label",r?"Expandir menu":"Recolher menu");
+}
+let salvo=null;
+try{salvo=localStorage.getItem("menuRecolhido")}catch(e){}
+aplicar(salvo!==null?salvo==="1":mq.matches);
+alt.onclick=()=>{
+const r=!app.classList.contains("recolhido");
+aplicar(r);
+try{localStorage.setItem("menuRecolhido",r?"1":"0")}catch(e){}
+};
+document.querySelectorAll(".menu button").forEach(b=>b.addEventListener("click",()=>{if(mq.matches)aplicar(true)}));
+
 const KEY="painelNutricionista";
 const hoje=new Date();
 const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
