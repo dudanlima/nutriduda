@@ -19,16 +19,16 @@ aside.recolhido{width:72px;padding:22px 10px}
 .titulo-menu{font-size:17px;white-space:nowrap}
 aside.recolhido .titulo-menu,aside.recolhido .rotulo{display:none}
 .menu{display:flex;flex-direction:column;gap:8px}
-.menu a,.menu button{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1px solid transparent;border-radius:8px;color:#E5DFD6;text-decoration:none;font:inherit;font-size:17px;white-space:nowrap;background:transparent;text-align:left;cursor:pointer;width:100%}
-.menu a:hover,.menu button:hover{background:rgba(229,223,214,.18)}
-.menu a.ativo,.menu button.ativo{background:#E5DFD6;color:#7A816C;border-color:#E5DFD6}
+.menu button{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1px solid transparent;border-radius:8px;color:#E5DFD6;font:inherit;font-size:17px;white-space:nowrap;background:transparent;text-align:left;cursor:pointer;width:100%}
+.menu button:hover{background:rgba(229,223,214,.18)}
+.menu button.ativo{background:#E5DFD6;color:#7A816C;border-color:#E5DFD6}
 .icone{width:22px;text-align:center;flex-shrink:0;font-weight:bold;color:#D1A9A5}
-.menu a.ativo .icone,.menu button.ativo .icone{color:#AE6965}
+.menu button.ativo .icone{color:#AE6965}
 main{flex:1;min-width:0;padding:clamp(18px,3vw,36px)}
 header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;margin-bottom:24px}
 .botao-topo{padding:10px 18px;border:1px solid #D1A9A5;border-radius:8px;color:#E5DFD6;text-decoration:none;font-size:16px;background:rgba(122,129,108,.35);cursor:pointer;font-family:inherit}
 .botao-topo:hover{background:#D1A9A5;color:#7A816C}
-.cartao{background:rgba(229,223,214,.94);border:1px solid #D1A9A5;border-radius:14px;padding:clamp(22px,4vw,40px);box-shadow:0 8px 24px rgba(59,51,44,.18)}
+.cartao{background:rgba(229,223,214,.94);border:1px solid #D1A9A5;border-radius:14px;padding:clamp(22px,4vw,40px);box-shadow:0 8px 24px rgba(59,51,44,.18);margin-bottom:20px}
 .cartao h1{margin:0 0 10px;font-weight:normal;font-size:clamp(26px,4vw,38px);color:#7A816C}
 .cartao p{margin:0 0 14px;font-size:18px;line-height:1.5}
 .destaque{color:#AE6965;font-style:italic}
@@ -38,11 +38,12 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 .caixa{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:10px;padding:16px;text-align:center}
 .caixa strong{display:block;font-size:26px;color:#7A816C}
 .caixa span{font-size:15px;color:#A58B71}
-.acoes{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+.acoes{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;align-items:center}
 .btn{padding:12px 20px;border:1px solid #7A816C;border-radius:10px;background:#7A816C;color:#FFFFFF;font:inherit;font-size:17px;cursor:pointer}
 .btn:hover{background:#AE6965;border-color:#AE6965}
 .btn.secundario{background:transparent;color:#7A816C}
 .btn.secundario:hover{background:#D1A9A5;color:#7A816C;border-color:#D1A9A5}
+.btn.perigo{background:#AE6965;border-color:#AE6965}
 .lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-top:10px}
 .perfil{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:14px;padding:18px 12px;text-align:center;cursor:pointer;color:#3B332C;font:inherit}
 .perfil:hover{border-color:#7A816C;box-shadow:0 4px 14px rgba(59,51,44,.15)}
@@ -62,14 +63,42 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 .info div{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:10px;padding:12px}
 .info small{display:block;color:#A58B71;font-size:14px}
 .info span{font-size:17px}
+.agenda-grade{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px;align-items:start}
+.cal-topo{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-topo strong{font-size:22px;font-weight:normal;color:#7A816C}
+.seta{width:38px;height:38px;border:1px solid #7A816C;border-radius:8px;background:#FFFFFF;color:#7A816C;font-size:18px;cursor:pointer}
+.seta:hover{background:#D1A9A5;border-color:#D1A9A5}
+.semana,.dias{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.semana span{text-align:center;font-size:14px;color:#A58B71;padding:4px 0}
+.dia{position:relative;aspect-ratio:1/1;border:1px solid #D1A9A5;border-radius:8px;background:#FFFFFF;color:#3B332C;font:inherit;font-size:16px;cursor:pointer;padding:0}
+.dia:hover{border-color:#7A816C}
+.dia.vazio-dia{background:transparent;border-color:transparent;cursor:default}
+.dia.hoje{border:2px solid #7A816C}
+.dia.selecionado{background:#7A816C;color:#FFFFFF;border-color:#7A816C}
+.dia.tem::after{content:"";position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:#AE6965}
+.dia.selecionado.tem::after{background:#FFFFFF}
+.dia-titulo{font-size:20px;color:#7A816C;margin:0 0 10px}
+.consulta{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:10px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.consulta b{font-weight:normal;font-size:17px}
+.consulta small{display:block;color:#A58B71;font-size:14px}
+.consulta button{padding:6px 10px;border:1px solid #AE6965;border-radius:6px;background:transparent;color:#AE6965;font:inherit;cursor:pointer;font-size:14px}
+.consulta button:hover{background:#AE6965;color:#FFFFFF}
 .oculto{display:none!important}
+.form-agenda{display:grid;gap:12px;margin-top:10px}
+.form-agenda label{display:flex;flex-direction:column;gap:6px;font-size:16px}
+.form-agenda input,.form-agenda select,.form-agenda textarea{font:inherit;font-size:16px;padding:10px;border:1px solid #A58B71;border-radius:8px;background:#FFFFFF;color:#3B332C}
+#home-cal .dia{aspect-ratio:auto;min-height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px}
+#home-cal .dia .qtd{font-size:13px;color:#AE6965}
+#home-cal .dia.tem::after{bottom:4px}
+#home-cal .semana span{font-size:15px}
+@media(max-width:900px){.agenda-grade{grid-template-columns:1fr}}
 @media(max-width:700px){
   .app{flex-direction:column}
   aside{width:100%;padding:14px 16px}
   aside.recolhido{width:100%;padding:14px 16px}
   aside.recolhido .titulo-menu,aside.recolhido .rotulo{display:inline}
   .menu{flex-direction:row;flex-wrap:wrap}
-  .menu a,.menu button{flex:1 1 auto;justify-content:center;width:auto}
+  .menu button{flex:1 1 auto;justify-content:center;width:auto}
   .rotulo{display:inline}
   aside.fechado .menu{display:none}
   .botao-topo{width:100%;text-align:center}
@@ -86,9 +115,9 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 </div>
 <nav class="menu">
 <button data-visao="boas-vindas"><span class="icone">I</span><span class="rotulo">Início</span></button>
+<button data-visao="agenda"><span class="icone">A</span><span class="rotulo">Agenda</span></button>
 <button data-visao="pacientes"><span class="icone">P</span><span class="rotulo">Pacientes</span></button>
 <button data-visao="cadastro"><span class="icone">+</span><span class="rotulo">Cadastrar paciente</span></button>
-<button data-visao="agenda"><span class="icone">A</span><span class="rotulo">Agenda</span></button>
 <button data-visao="configuracoes"><span class="icone">C</span><span class="rotulo">Configurações</span></button>
 </nav>
 </aside>
@@ -98,13 +127,56 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 </header>
 
 <section class="visao ativa" id="boas-vindas">
+<div class="cartao" id="home-cal">
+<h1>Sua agenda</h1>
+<p>Todas as consultas marcadas. Para incluir ou alterar, use <span class="destaque">Agenda</span> no menu.</p>
+<div class="cal-topo">
+<button class="seta" id="home-anterior" aria-label="Mês anterior">&lsaquo;</button>
+<strong id="home-mes-titulo"></strong>
+<button class="seta" id="home-proximo" aria-label="Próximo mês">&rsaquo;</button>
+</div>
+<div class="semana"><span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span></div>
+<div class="dias" id="home-dias"></div>
+<h2 class="dia-titulo" style="margin-top:24px">Consultas do mês</h2>
+<div id="home-consultas"></div>
+<p class="vazio oculto" id="home-sem">Nenhuma consulta marcada neste mês.</p>
+</div>
 <div class="cartao">
 <h1>Bem-vinda ao seu painel</h1>
-<p>Use o menu para acessar seus <span class="destaque">pacientes</span>, cadastrar um novo e acompanhar a <span class="destaque">agenda</span>.</p>
+<p>Use o menu para acessar sua <span class="destaque">agenda</span>, seus <span class="destaque">pacientes</span> e cadastrar um novo.</p>
 <div class="grade">
 <div class="caixa"><strong id="total-pacientes">0</strong><span>Pacientes cadastrados</span></div>
-<div class="caixa"><strong>0</strong><span>Consultas hoje</span></div>
+<div class="caixa"><strong id="total-hoje">0</strong><span>Consultas hoje</span></div>
 <div class="caixa"><strong>0</strong><span>Planos em andamento</span></div>
+</div>
+</div>
+</section>
+
+<section class="visao" id="agenda">
+<div class="agenda-grade">
+<div class="cartao">
+<div class="cal-topo">
+<button class="seta" id="mes-anterior" aria-label="Mês anterior">&lsaquo;</button>
+<strong id="mes-titulo"></strong>
+<button class="seta" id="mes-proximo" aria-label="Próximo mês">&rsaquo;</button>
+</div>
+<div class="semana"><span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span></div>
+<div class="dias" id="dias"></div>
+<div class="acoes" style="margin:14px 0 0"><button class="btn secundario" id="ir-hoje">Hoje</button></div>
+</div>
+<div class="cartao">
+<h2 class="dia-titulo" id="dia-titulo"></h2>
+<div id="consultas-dia"></div>
+<p class="vazio" id="sem-consultas">Nenhuma consulta neste dia.</p>
+<h2 class="dia-titulo" style="margin-top:22px">Agendar consulta</h2>
+<p id="aviso-sem-pacientes" class="vazio oculto">Cadastre um paciente antes de agendar uma consulta.</p>
+<form id="form-agenda" class="form-agenda">
+<label>Paciente<select name="paciente" id="select-paciente" required></select></label>
+<label>Data<input type="date" name="data" id="input-data" required></label>
+<label>Horário<input type="time" name="hora" required></label>
+<label>Observação<textarea name="obs" rows="2"></textarea></label>
+<div class="acoes"><button type="submit" class="btn" id="btn-agendar">Agendar</button></div>
+</form>
 </div>
 </div>
 </section>
@@ -138,7 +210,7 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 <div><small>Restrições alimentares</small><span id="perfil-restricoes"></span></div>
 <div><small>Observações</small><span id="perfil-obs"></span></div>
 </div>
-<div class="acoes" style="margin-top:20px"><button class="btn" id="excluir" style="background:#AE6965;border-color:#AE6965">Excluir paciente</button></div>
+<div class="acoes" style="margin-top:20px"><button class="btn perigo" id="excluir">Excluir paciente</button></div>
 </div>
 </section>
 
@@ -164,13 +236,6 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 </div>
 </section>
 
-<section class="visao" id="agenda">
-<div class="cartao">
-<h1>Agenda</h1>
-<p>Aqui ficará o calendário com os pacientes agendados.</p>
-</div>
-</section>
-
 <section class="visao" id="configuracoes">
 <div class="cartao">
 <h1>Configurações</h1>
@@ -186,10 +251,24 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
     menu.classList.toggle('recolhido');
     menu.classList.toggle('fechado');
   });
-  var pacientes=[];
+
+  var pacientes=[], consultas=[];
   try{pacientes=JSON.parse(localStorage.getItem('pacientes')||'[]');}catch(e){pacientes=[];}
-  function salvar(){try{localStorage.setItem('pacientes',JSON.stringify(pacientes));}catch(e){}}
-  function esc(t){var d=document.createElement('div');d.textContent=t||'';return d.innerHTML;}
+  try{consultas=JSON.parse(localStorage.getItem('consultas')||'[]');}catch(e){consultas=[];}
+  function salvarPacientes(){try{localStorage.setItem('pacientes',JSON.stringify(pacientes));}catch(e){}}
+  function salvarConsultas(){try{localStorage.setItem('consultas',JSON.stringify(consultas));}catch(e){}}
+
+  var meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  function pad(n){return (n<10?'0':'')+n;}
+  function iso(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+  function esc(t){var d=document.createElement('div');d.textContent=t==null?'':String(t);return d.innerHTML;}
+  function br(s){var p=s.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+
+  var hoje=new Date();
+  var hojeIso=iso(hoje);
+  var selecionado=hojeIso;
+  var visao=new Date(hoje.getFullYear(),hoje.getMonth(),1);
+
   function mostrar(v){
     document.querySelectorAll('.visao').forEach(function(s){s.classList.remove('ativa')});
     var alvo=document.getElementById(v)||document.getElementById('boas-vindas');
@@ -198,7 +277,10 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
       b.classList.toggle('ativo',b.dataset.visao===v);
     });
     if(v==='pacientes')renderLista();
+    if(v==='agenda')renderAgenda();
+    if(v==='boas-vindas')renderHome();
   }
+
   function renderLista(){
     var lista=document.getElementById('lista');
     lista.innerHTML='';
@@ -212,6 +294,7 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
       lista.appendChild(c);
     });
   }
+
   function abrirPerfil(i){
     var p=pacientes[i];
     if(!p)return;
@@ -228,12 +311,99 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
     document.getElementById('perfil-restricoes').textContent=p.restricoes||'';
     document.getElementById('perfil-obs').textContent=p.obs||'';
     document.getElementById('excluir').onclick=function(){
-      if(confirm('Excluir este paciente?')){pacientes.splice(i,1);salvar();mostrar('pacientes');}
+      if(confirm('Excluir este paciente?')){pacientes.splice(i,1);salvarPacientes();mostrar('pacientes');}
     };
     document.querySelectorAll('.visao').forEach(function(s){s.classList.remove('ativa')});
     document.getElementById('perfil').classList.add('ativa');
     document.querySelectorAll('.menu button[data-visao]').forEach(function(b){b.classList.toggle('ativo',b.dataset.visao==='pacientes');});
   }
+
+  function renderAgenda(){
+    document.getElementById('mes-titulo').textContent=meses[visao.getMonth()]+' de '+visao.getFullYear();
+    var grade=document.getElementById('dias');
+    grade.innerHTML='';
+    var primeiro=new Date(visao.getFullYear(),visao.getMonth(),1).getDay();
+    var total=new Date(visao.getFullYear(),visao.getMonth()+1,0).getDate();
+    for(var k=0;k<primeiro;k++){
+      var v=document.createElement('span');v.className='dia vazio-dia';grade.appendChild(v);
+    }
+    for(var d=1;d<=total;d++){
+      var data=new Date(visao.getFullYear(),visao.getMonth(),d);
+      var s=iso(data);
+      var b=document.createElement('button');
+      b.className='dia';
+      b.textContent=d;
+      if(s===hojeIso)b.classList.add('hoje');
+      if(s===selecionado)b.classList.add('selecionado');
+      if(consultas.some(function(c){return c.data===s;}))b.classList.add('tem');
+      (function(s){b.addEventListener('click',function(){selecionado=s;document.getElementById('input-data').value=s;renderAgenda();});})(s);
+      grade.appendChild(b);
+    }
+    renderDia();
+    renderPacientesSelect();
+    document.getElementById('total-hoje').textContent=consultas.filter(function(c){return c.data===hojeIso;}).length;
+  }
+
+  function renderDia(){
+    document.getElementById('dia-titulo').textContent=br(selecionado);
+    var box=document.getElementById('consultas-dia');
+    box.innerHTML='';
+    var lista=consultas.map(function(c,i){return {c:c,i:i};}).filter(function(x){return x.c.data===selecionado;});
+    lista.sort(function(a,b){return a.c.hora<b.c.hora?-1:1;});
+    document.getElementById('sem-consultas').classList.toggle('oculto',lista.length>0);
+    lista.forEach(function(x){
+      var el=document.createElement('div');
+      el.className='consulta';
+      el.innerHTML='<div><b>'+esc(x.c.hora)+' · '+esc(x.c.paciente)+'</b>'+(x.c.obs?'<small>'+esc(x.c.obs)+'</small>':'')+'</div><button type="button">Remover</button>';
+      el.querySelector('button').addEventListener('click',function(){
+        if(confirm('Remover esta consulta?')){consultas.splice(x.i,1);salvarConsultas();renderAgenda();}
+      });
+      box.appendChild(el);
+    });
+  }
+
+  function renderPacientesSelect(){
+    var sel=document.getElementById('select-paciente');
+    var semP=pacientes.length===0;
+    sel.innerHTML='';
+    pacientes.forEach(function(p){
+      var o=document.createElement('option');
+      o.value=p.nome;o.textContent=p.nome;sel.appendChild(o);
+    });
+    sel.disabled=semP;
+    document.getElementById('btn-agendar').disabled=semP;
+    document.getElementById('aviso-sem-pacientes').classList.toggle('oculto',!semP);
+    document.getElementById('input-data').value=selecionado;
+  }
+
+  document.getElementById('mes-anterior').addEventListener('click',function(){
+    visao=new Date(visao.getFullYear(),visao.getMonth()-1,1);renderAgenda();
+  });
+  document.getElementById('mes-proximo').addEventListener('click',function(){
+    visao=new Date(visao.getFullYear(),visao.getMonth()+1,1);renderAgenda();
+  });
+  document.getElementById('ir-hoje').addEventListener('click',function(){
+    selecionado=hojeIso;visao=new Date(hoje.getFullYear(),hoje.getMonth(),1);renderAgenda();
+  });
+
+  document.getElementById('form-agenda').addEventListener('submit',function(e){
+    e.preventDefault();
+    var f=e.target;
+    if(!f.paciente.value)return;
+    consultas.push({
+      paciente:f.paciente.value,
+      data:f.data.value,
+      hora:f.hora.value,
+      obs:f.obs.value.trim()
+    });
+    salvarConsultas();
+    selecionado=f.data.value;
+    var p=f.data.value.split('-');
+    visao=new Date(parseInt(p[0],10),parseInt(p[1],10)-1,1);
+    f.hora.value='';f.obs.value='';
+    renderAgenda();
+  });
+
   document.querySelectorAll('.menu button[data-visao]').forEach(function(b){
     b.addEventListener('click',function(){mostrar(b.dataset.visao);});
   });
@@ -254,12 +424,56 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
       restricoes:f.restricoes.value.trim(),
       obs:f.obs.value.trim()
     });
-    salvar();
+    salvarPacientes();
     f.reset();
     mostrar('pacientes');
   });
+
+  document.getElementById('input-data').value=selecionado;
+  document.getElementById('total-pacientes').textContent=pacientes.length;
+  document.getElementById('total-hoje').textContent=consultas.filter(function(c){return c.data===hojeIso;}).length;
+  var homeVisao=new Date(hoje.getFullYear(),hoje.getMonth(),1);
+  document.getElementById('home-anterior').addEventListener('click',function(){
+    homeVisao=new Date(homeVisao.getFullYear(),homeVisao.getMonth()-1,1);renderHome();
+  });
+  document.getElementById('home-proximo').addEventListener('click',function(){
+    homeVisao=new Date(homeVisao.getFullYear(),homeVisao.getMonth()+1,1);renderHome();
+  });
+  function renderHome(){
+    var ano=homeVisao.getFullYear(), mes=homeVisao.getMonth();
+    document.getElementById('home-mes-titulo').textContent=meses[mes]+' de '+ano;
+    var grade=document.getElementById('home-dias');
+    grade.innerHTML='';
+    var primeiro=new Date(ano,mes,1).getDay();
+    var total=new Date(ano,mes+1,0).getDate();
+    for(var k=0;k<primeiro;k++){
+      var v=document.createElement('span');v.className='dia vazio-dia';grade.appendChild(v);
+    }
+    var prefixo=ano+'-'+pad(mes+1)+'-';
+    for(var d=1;d<=total;d++){
+      var s=prefixo+pad(d);
+      var noDia=consultas.filter(function(c){return c.data===s;}).length;
+      var b=document.createElement('button');
+      b.className='dia';
+      b.innerHTML='<span>'+d+'</span>'+(noDia?'<span class="qtd">'+noDia+' consulta'+(noDia>1?'s':'')+'</span>':'');
+      if(s===hojeIso)b.classList.add('hoje');
+      if(noDia)b.classList.add('tem');
+      (function(s){b.addEventListener('click',function(){selecionado=s;document.getElementById('input-data').value=s;mostrar('agenda');});})(s);
+      grade.appendChild(b);
+    }
+    var lista=document.getElementById('home-consultas');
+    lista.innerHTML='';
+    var doMes=consultas.filter(function(c){return String(c.data).indexOf(prefixo)===0;});
+    doMes.sort(function(a,b){return a.data===b.data?(a.hora<b.hora?-1:1):(a.data<b.data?-1:1);});
+    document.getElementById('home-sem').classList.toggle('oculto',doMes.length>0);
+    doMes.forEach(function(c){
+      var el=document.createElement('div');
+      el.className='consulta';
+      el.innerHTML='<div><b>'+br(c.data)+' · '+esc(c.hora)+' · '+esc(c.paciente)+'</b>'+(c.obs?'<small>'+esc(c.obs)+'</small>':'')+'</div>';
+      lista.appendChild(el);
+    });
+  }
   mostrar('boas-vindas');
-  renderLista();
 })();
 </script>
 </body>
