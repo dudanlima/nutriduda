@@ -15,8 +15,8 @@ header{display:flex;justify-content:flex-end;padding:14px 20px}
 .painel-link{padding:10px 18px;border:1px solid #D1A9A5;border-radius:8px;color:#E5DFD6;text-decoration:none;font-size:16px;background:rgba(122,129,108,.35)}
 .painel-link:hover{background:#D1A9A5;color:#7A816C}
 .centro{min-height:calc(100vh - 60px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
-.logo{width:min(440px,84vw);height:clamp(140px,28vh,220px);background:url("../2.svg") center/contain no-repeat;margin:0 0 24px}
-.btn{display:inline-block;min-width:220px;padding:14px 28px;border-radius:10px;border:1px solid #D1A9A5;background:rgba(229,223,214,.92);color:#7A816C;font:inherit;font-size:18px;font-weight:bold;text-decoration:none;cursor:pointer}
+.logo{width:min(440px,84vw);height:auto;display:block;margin:0 auto}
+.btn{display:inline-block;min-width:220px;margin-top:40px;padding:14px 28px;border-radius:10px;border:1px solid #D1A9A5;background:rgba(229,223,214,.92);color:#7A816C;font:inherit;font-size:18px;font-weight:bold;text-decoration:none;cursor:pointer}
 .btn:hover{background:#D1A9A5;color:#7A816C}
 @media(max-width:480px){.painel-link{width:100%;text-align:center}}
 </style>
@@ -26,7 +26,7 @@ header{display:flex;justify-content:flex-end;padding:14px 20px}
 <a class="painel-link" href="../painel/index.html">Painel do nutricionista</a>
 </header>
 <div class="centro">
-<div class="logo" role="img" aria-label="Eduarda Nogueira, Nutricionista"></div>
+<img class="logo" src="../2.svg" alt="Eduarda Nogueira, Nutricionista">
 <a class="btn" href="../painel/index.html">Entrar</a>
 </div>
 </body>
