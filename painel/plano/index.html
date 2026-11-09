@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#7A816C">
+<title>Plano alimentar</title>
+<style>
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:"Times New Roman",Times,serif;color:#3B332C;background:#7A816C url("../../ceu.jpg") center/cover no-repeat fixed;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;background:rgba(122,129,108,.55);z-index:0}
+.app{position:relative;z-index:1;display:flex;min-height:100vh}
+aside{width:230px;flex-shrink:0;background:rgba(122,129,108,.92);color:#E5DFD6;padding:22px 16px;transition:width .25s,padding .25s;overflow:hidden}
+aside.recolhido{width:72px;padding:22px 10px}
+.topo-menu{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:8px}
+.alternar{width:38px;height:38px;border:1px solid #D1A9A5;border-radius:8px;background:transparent;color:#E5DFD6;font-size:20px;flex-shrink:0;cursor:pointer}
+.alternar:hover{background:#D1A9A5;color:#7A816C}
+.titulo-menu{font-size:17px;white-space:nowrap}
+aside.recolhido .titulo-menu,aside.recolhido .rotulo{display:none}
+.menu{display:flex;flex-direction:column;gap:8px}
+.menu a{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1px solid transparent;border-radius:8px;color:#E5DFD6;text-decoration:none;font-size:17px;white-space:nowrap}
+.menu a:hover{background:rgba(229,223,214,.18)}
+.menu a.ativo{background:#E5DFD6;color:#7A816C;border-color:#E5DFD6}
+.icone{width:22px;text-align:center;flex-shrink:0;font-weight:bold;color:#D1A9A5}
+.menu a.ativo .icone{color:#AE6965}
+main{flex:1;min-width:0;padding:clamp(18px,3vw,36px)}
+.cabecalho{display:flex;justify-content:flex-end;margin-bottom:24px}
+.botao-topo{padding:10px 18px;border:1px solid #D1A9A5;border-radius:8px;color:#E5DFD6;text-decoration:none;font-size:16px;background:rgba(122,129,108,.35)}
+.botao-topo:hover{background:#D1A9A5;color:#7A816C}
+.cartao{background:rgba(229,223,214,.94);border:1px solid #D1A9A5;border-radius:14px;padding:clamp(22px,4vw,40px);box-shadow:0 8px 24px rgba(59,51,44,.18);margin-bottom:20px}
+.cartao h1{margin:0 0 10px;font-weight:normal;font-size:clamp(26px,4vw,38px);color:#7A816C}
+.cartao p{margin:0 0 14px;font-size:18px;line-height:1.5}
+.destaque{color:#AE6965;font-style:italic}
+.oculto{display:none!important}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:10px}
+.form label{display:flex;flex-direction:column;gap:6px;font-size:16px}
+.form input,.form select{font:inherit;font-size:16px;padding:10px;border:1px solid #A58B71;border-radius:8px;background:#FFFFFF;color:#3B332C}
+.acoes{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;align-items:center}
+.btn{padding:12px 20px;border:1px solid #7A816C;border-radius:10px;background:#7A816C;color:#FFFFFF;font:inherit;font-size:17px;cursor:pointer}
+.btn:hover{background:#AE6965;border-color:#AE6965}
+.btn.secundario{background:transparent;color:#7A816C}
+.btn.secundario:hover{background:#D1A9A5;color:#7A816C;border-color:#D1A9A5}
+.btn:disabled{opacity:.5;cursor:default}
+.vazio{font-style:italic;color:#A58B71;margin-top:14px}
+.numeros{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:14px 0}
+.caixa{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:10px;padding:16px;text-align:center}
+.caixa strong{display:block;font-size:26px;color:#7A816C}
+.caixa span{font-size:15px;color:#A58B71}
+.sub{font-size:20px;color:#7A816C;margin:22px 0 10px;font-weight:normal}
+.refeicao{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:10px;padding:12px;margin-bottom:10px}
+.refeicao b{font-weight:normal;font-size:17px}
+.refeicao small{display:block;color:#A58B71;font-size:14px}
+.prompt{width:100%;min-height:200px;font:inherit;font-size:15px;padding:12px;border:1px solid #A58B71;border-radius:8px;background:#FFFFFF;color:#3B332C;resize:vertical}
+@media(max-width:700px){
+  .app{flex-direction:column}
+  aside,aside.recolhido{width:100%;padding:14px 16px}
+  aside.recolhido .titulo-menu,aside.recolhido .rotulo{display:inline}
+  .menu{flex-direction:row;flex-wrap:wrap}
+  .menu a{flex:1 1 auto;justify-content:center}
+  .rotulo{display:inline}
+  aside.fechado .menu{display:none}
+  .botao-topo{width:100%;text-align:center}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside id="menu">
+<div class="topo-menu">
+<span class="titulo-menu">Menu</span>
+<button class="alternar" id="alternar" aria-label="Recolher ou expandir menu">&#9776;</button>
+</div>
+<nav class="menu">
+<a href="../index.html"><span class="icone">I</span><span class="rotulo">Início</span></a>
+<a href="../index.html"><span class="icone">A</span><span class="rotulo">Agenda</span></a>
+<a class="ativo" href="index.html"><span class="icone">N</span><span class="rotulo">Plano alimentar</span></a>
+<a href="../index.html"><span class="icone">P</span><span class="rotulo">Pacientes</span></a>
+<a href="../index.html"><span class="icone">+</span><span class="rotulo">Cadastrar paciente</span></a>
+<a href="../index.html"><span class="icone">C</span><span class="rotulo">Configurações</span></a>
+</nav>
+</aside>
+<main>
+<header class="cabecalho">
+<a class="botao-topo" href="../../login/index.html">Sair</a>
+</header>
+<section class="cartao">
+<h1>Plano alimentar</h1>
+<p>Escolha a paciente, confira os dados e monte o plano. Os valores são estimativas para a nutricionista revisar.</p>
+<p class="vazio oculto" id="pl-aviso">Cadastre um paciente primeiro, no painel, para montar o plano.</p>
+<div class="form">
+<label>Paciente<select id="pl-paciente"></select></label>
+<label>Sexo<select id="pl-sexo"><option value="f">Feminino</option><option value="m">Masculino</option></select></label>
+<label>Idade (anos)<input type="number" id="pl-idade" min="0" max="120"></label>
+<label>Peso (kg)<input type="text" id="pl-peso"></label>
+<label>Altura (m)<input type="text" id="pl-altura" placeholder="Ex.: 1,65"></label>
+<label>Atividade física<select id="pl-ativ"><option value="1.2">Sedentária</option><option value="1.375">Leve (1 a 3 dias por semana)</option><option value="1.55" selected>Moderada (3 a 5 dias por semana)</option><option value="1.725">Intensa (6 a 7 dias por semana)</option></select></label>
+<label>Objetivo<select id="pl-obj"><option value="emagrecimento">Emagrecimento</option><option value="manutencao">Manutenção</option><option value="hipertrofia">Hipertrofia</option></select></label>
+</div>
+<div class="acoes"><button class="btn" id="pl-calcular">Montar plano</button><button class="btn secundario" id="pl-salvar">Salvar plano</button></div>
+</section>
+<section class="cartao oculto" id="pl-resultado"></section>
+</main>
+</div>
+<script>
+(function(){
+  function $(id){return document.getElementById(id);}
+  var pacientes=[],planos={},atual=null;
+  try{pacientes=JSON.parse(localStorage.getItem('pacientes')||'[]');}catch(e){pacientes=[];}
+  try{planos=JSON.parse(localStorage.getItem('planos')||'{}');}catch(e){planos={};}
+  function salvarPlanos(){try{localStorage.setItem('planos',JSON.stringify(planos));}catch(e){}}
+  function esc(t){var d=document.createElement('div');d.textContent=t==null?'':String(t);return d.innerHTML;}
+  function num(v){return parseFloat(String(v).replace(',','.'))||0;}
+  var REFEICOES=[['Café da manhã',0.20],['Lanche da manhã',0.10],['Almoço',0.30],['Lanche da tarde',0.10],['Jantar',0.25],['Ceia',0.05]];
+  var OBJ={emagrecimento:['Emagrecimento',-400,1.8],manutencao:['Manutenção',0,1.4],hipertrofia:['Hipertrofia',300,2.0]};
+
+  $('alternar').addEventListener('click',function(){
+    var m=$('menu');m.classList.toggle('recolhido');m.classList.toggle('fechado');
+  });
+
+  function popular(){
+    var sel=$('pl-paciente'),ant=sel.value;
+    sel.innerHTML='';
+    pacientes.forEach(function(p){var o=document.createElement('option');o.value=p.nome;o.textContent=p.nome;sel.appendChild(o);});
+    if(ant)sel.value=ant;
+    sel.disabled=pacientes.length===0;
+    $('pl-aviso').classList.toggle('oculto',pacientes.length>0);
+    preencher();
+  }
+
+  function preencher(){
+    var nome=$('pl-paciente').value,p=null;
+    pacientes.forEach(function(x){if(!p&&x.nome===nome)p=x;});
+    if(p){
+      $('pl-idade').value=p.idade||'';
+      $('pl-peso').value=p.peso||'';
+      $('pl-altura').value=p.altura||'';
+    }
+    atual=null;
+    if(planos[nome]){atual=planos[nome];mostrar(atual);}
+    else{$('pl-resultado').classList.add('oculto');$('pl-resultado').innerHTML='';}
+  }
+
+  function calcular(){
+    var idade=num($('pl-idade').value),peso=num($('pl-peso').value),alt=num($('pl-altura').value);
+    var r=$('pl-resultado');
+    $('pl-salvar').textContent='Salvar plano';
+    if(!idade||!peso||!alt){
+      atual=null;
+      r.classList.remove('oculto');
+      r.innerHTML='<p class="vazio">Preencha idade, peso e altura para montar o plano.</p>';
+      return false;
+    }
+    var sexo=$('pl-sexo').value,fa=num($('pl-ativ').value),ob=$('pl-obj').value;
+    var tmb=10*peso+6.25*alt*100-5*idade+(sexo==='m'?5:-161);
+    var get=Math.round(tmb*fa);
+    var kcal=Math.round((get+OBJ[ob][1])/10)*10;
+    var prot=Math.round(peso*OBJ[ob][2]);
+    var gord=Math.round(kcal*0.25/9);
+    var carb=Math.round((kcal-prot*4-gord*9)/4);
+    var refs=[],sk=0,sp=0,sc=0,sg=0;
+    REFEICOES.forEach(function(x,i){
+      var u=i===REFEICOES.length-1;
+      var k=u?kcal-sk:Math.round(kcal*x[1]/5)*5;
+      var pr=u?prot-sp:Math.round(prot*x[1]);
+      var c=u?carb-sc:Math.round(carb*x[1]);
+      var g=u?gord-sg:Math.round(gord*x[1]);
+      sk+=k;sp+=pr;sc+=c;sg+=g;
+      refs.push({nome:x[0],kcal:k,prot:pr,carb:c,gord:g});
+    });
+    atual={paciente:$('pl-paciente').value,objetivo:OBJ[ob][0],sexo:sexo,idade:idade,peso:peso,alt:alt,fa:fa,tmb:Math.round(tmb),get:get,kcal:kcal,prot:prot,carb:carb,gord:gord,refs:refs};
+    mostrar(atual);
+    return true;
+  }
+
+  function mostrar(d){
+    var r=$('pl-resultado');
+    r.classList.remove('oculto');
+    var linhas=d.refs.map(function(x){return '<div class="refeicao"><b>'+esc(x.nome)+'</b><small>'+x.kcal+' kcal · P '+x.prot+' g · C '+x.carb+' g · G '+x.gord+' g</small></div>';}).join('');
+    var pedido='Monte um plano alimentar para '+d.paciente+' (objetivo: '+d.objetivo.toLowerCase()+').\n'
+      +'Dados: '+(d.sexo==='m'?'masculino':'feminino')+', '+d.idade+' anos, '+d.peso+' kg, '+String(Number(d.alt).toFixed(2)).replace('.',',')+' m, fator de atividade '+String(d.fa).replace('.',',')+'.\n'
+      +'Metas diárias: '+d.kcal+' kcal; proteínas '+d.prot+' g; carboidratos '+d.carb+' g; gorduras '+d.gord+' g.\n'
+      +'Distribuição por refeição:\n'
+      +d.refs.map(function(x){return '- '+x.nome+': '+x.kcal+' kcal (P '+x.prot+' g, C '+x.carb+' g, G '+x.gord+' g)';}).join('\n')+'\n'
+      +'Para cada refeição, sugira alimentos comuns no Brasil com medida caseira e gramas, batendo com as metas da refeição. Mostre o total de cada refeição. A nutricionista vai revisar.';
+    r.innerHTML='<h1>Plano de '+esc(d.paciente)+'</h1>'
+      +'<p>Objetivo: <span class="destaque">'+esc(d.objetivo)+'</span></p>'
+      +'<div class="numeros">'
+      +'<div class="caixa"><strong>'+d.get+'</strong><span>kcal de gasto (GET)</span></div>'
+      +'<div class="caixa"><strong>'+d.kcal+'</strong><span>kcal por dia (meta)</span></div>'
+      +'<div class="caixa"><strong>'+d.prot+' g</strong><span>Proteínas</span></div>'
+      +'<div class="caixa"><strong>'+d.carb+' g</strong><span>Carboidratos</span></div>'
+      +'<div class="caixa"><strong>'+d.gord+' g</strong><span>Gorduras</span></div>'
+      +'</div>'
+      +'<p>TMB estimada em '+d.tmb+' kcal (Mifflin-St Jeor). Estimativa inicial: a nutricionista ajusta conforme a evolução.</p>'
+      +'<h2 class="sub">Distribuição por refeição</h2>'+linhas
+      +'<h2 class="sub">Pedido para o Gestor IA</h2>'
+      +'<p>Copie e envie no chat para montar os alimentos de cada refeição com medidas.</p>'
+      +'<textarea class="prompt" id="pl-pedido" readonly>'+esc(pedido)+'</textarea>'
+      +'<div class="acoes"><button class="btn" id="pl-copiar">Copiar pedido</button></div>';
+  }
+
+  $('pl-paciente').addEventListener('change',preencher);
+  $('pl-calcular').addEventListener('click',calcular);
+  $('pl-salvar').addEventListener('click',function(){
+    var b=this;
+    if(calcular()&&atual&&atual.paciente){
+      planos[atual.paciente]=atual;
+      salvarPlanos();
+      b.textContent='Plano salvo';
+    }
+  });
+  $('pl-resultado').addEventListener('click',function(e){
+    if(e.target.id!=='pl-copiar')return;
+    var t=$('pl-pedido');
+    t.select();
+    var ok=false;
+    try{if(navigator.clipboard){navigator.clipboard.writeText(t.value);ok=true;}}catch(err){}
+    if(!ok){try{document.execCommand('copy');}catch(err2){}}
+    e.target.textContent='Copiado';
+  });
+
+  popular();
+})();
+</script>
+</body>
+</html>
