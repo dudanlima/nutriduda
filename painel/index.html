@@ -91,6 +91,11 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 #home-cal .dia .qtd{font-size:13px;color:#AE6965}
 #home-cal .dia.tem::after{bottom:4px}
 #home-cal .semana span{font-size:15px}
+.numeros{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:14px 0}
+.refeicao{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:10px;padding:12px;margin-bottom:10px}
+.refeicao b{font-weight:normal;font-size:17px}
+.refeicao small{display:block;color:#A58B71;font-size:14px}
+.prompt{width:100%;min-height:200px;font:inherit;font-size:15px;padding:12px;border:1px solid #A58B71;border-radius:8px;background:#FFFFFF;color:#3B332C;resize:vertical}
 @media(max-width:900px){.agenda-grade{grid-template-columns:1fr}}
 @media(max-width:700px){
   .app{flex-direction:column}
@@ -116,6 +121,7 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 <nav class="menu">
 <button data-visao="boas-vindas"><span class="icone">I</span><span class="rotulo">Início</span></button>
 <button data-visao="agenda"><span class="icone">A</span><span class="rotulo">Agenda</span></button>
+<button onclick="location.href='plano/index.html'"><span class="icone">N</span><span class="rotulo">Plano alimentar</span></button>
 <button data-visao="pacientes"><span class="icone">P</span><span class="rotulo">Pacientes</span></button>
 <button data-visao="cadastro"><span class="icone">+</span><span class="rotulo">Cadastrar paciente</span></button>
 <button data-visao="configuracoes"><span class="icone">C</span><span class="rotulo">Configurações</span></button>
@@ -181,6 +187,24 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 </div>
 </section>
 
+<section class="visao" id="plano">
+<div class="cartao">
+<h1>Plano alimentar</h1>
+<p>Escolha a paciente, confira os dados e monte o plano. Os valores são estimativas para a nutricionista revisar.</p>
+<div class="form">
+<label>Paciente<select id="pl-paciente"></select></label>
+<label>Sexo<select id="pl-sexo"><option value="f">Feminino</option><option value="m">Masculino</option></select></label>
+<label>Idade (anos)<input type="number" id="pl-idade" min="0" max="120"></label>
+<label>Peso (kg)<input type="text" id="pl-peso"></label>
+<label>Altura (m)<input type="text" id="pl-altura" placeholder="Ex.: 1,65"></label>
+<label>Atividade física<select id="pl-ativ"><option value="1.2">Sedentária</option><option value="1.375">Leve (1 a 3 dias por semana)</option><option value="1.55" selected>Moderada (3 a 5 dias por semana)</option><option value="1.725">Intensa (6 a 7 dias por semana)</option></select></label>
+<label>Objetivo<select id="pl-obj"><option value="emagrecimento">Emagrecimento</option><option value="manutencao">Manutenção</option><option value="hipertrofia">Hipertrofia</option></select></label>
+</div>
+<div class="acoes" style="margin-top:16px"><button class="btn" id="pl-calcular">Montar plano</button><button class="btn secundario" id="pl-salvar">Salvar plano</button></div>
+<p class="vazio oculto" id="pl-aviso">Cadastre um paciente primeiro.</p>
+</div>
+<div class="cartao oculto" id="pl-resultado"></div>
+</section>
 <section class="visao" id="pacientes">
 <div class="cartao">
 <h1>Pacientes</h1>
@@ -278,6 +302,7 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
     });
     if(v==='pacientes')renderLista();
     if(v==='agenda')renderAgenda();
+    if(v==='plano')renderPlano();
     if(v==='boas-vindas')renderHome();
   }
 
@@ -473,6 +498,111 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
       lista.appendChild(el);
     });
   }
+  var planos={};
+  try{planos=JSON.parse(localStorage.getItem('planos')||'{}');}catch(e){planos={};}
+  function salvarPlanos(){try{localStorage.setItem('planos',JSON.stringify(planos));}catch(e){}}
+  function num(v){return parseFloat(String(v).replace(',','.'))||0;}
+  var REFEICOES=[['Café da manhã',0.20],['Lanche da manhã',0.10],['Almoço',0.30],['Lanche da tarde',0.10],['Jantar',0.25],['Ceia',0.05]];
+  var OBJ={emagrecimento:['Emagrecimento',-400,1.8],manutencao:['Manutenção',0,1.4],hipertrofia:['Hipertrofia',300,2.0]};
+  var atual=null;
+  function renderPlano(){
+    var sel=document.getElementById('pl-paciente');
+    var anterior=sel.value;
+    sel.innerHTML='';
+    pacientes.forEach(function(p){var o=document.createElement('option');o.value=p.nome;o.textContent=p.nome;sel.appendChild(o);});
+    if(anterior)sel.value=anterior;
+    var semP=pacientes.length===0;
+    sel.disabled=semP;
+    document.getElementById('pl-aviso').classList.toggle('oculto',!semP);
+    preencherPlano();
+  }
+  function preencherPlano(){
+    var nome=document.getElementById('pl-paciente').value;
+    var p=null;
+    pacientes.forEach(function(x){if(x.nome===nome&&!p)p=x;});
+    if(p){
+      document.getElementById('pl-idade').value=p.idade||'';
+      document.getElementById('pl-peso').value=p.peso||'';
+      document.getElementById('pl-altura').value=p.altura||'';
+    }
+    atual=null;
+    var r=document.getElementById('pl-resultado');
+    if(planos[nome]){atual=planos[nome];mostrarPlano(atual);}
+    else{r.classList.add('oculto');r.innerHTML='';}
+  }
+  function calcularPlano(){
+    var idade=num(document.getElementById('pl-idade').value);
+    var peso=num(document.getElementById('pl-peso').value);
+    var alt=num(document.getElementById('pl-altura').value);
+    var r=document.getElementById('pl-resultado');
+    if(!idade||!peso||!alt){
+      atual=null;
+      r.classList.remove('oculto');
+      r.innerHTML='<p class="vazio">Preencha idade, peso e altura para montar o plano.</p>';
+      return;
+    }
+    var sexo=document.getElementById('pl-sexo').value;
+    var fa=num(document.getElementById('pl-ativ').value);
+    var ob=document.getElementById('pl-obj').value;
+    var cm=alt*100;
+    var tmb=10*peso+6.25*cm-5*idade+(sexo==='m'?5:-161);
+    var get=Math.round(tmb*fa);
+    var kcal=Math.round((get+OBJ[ob][1])/10)*10;
+    var prot=Math.round(peso*OBJ[ob][2]);
+    var gord=Math.round(kcal*0.25/9);
+    var carb=Math.round((kcal-prot*4-gord*9)/4);
+    var refs=[],somaK=0,somaP=0,somaC=0,somaG=0;
+    REFEICOES.forEach(function(x,i){
+      var ultimo=i===REFEICOES.length-1;
+      var k=ultimo?kcal-somaK:Math.round(kcal*x[1]/5)*5;
+      var pr=ultimo?prot-somaP:Math.round(prot*x[1]);
+      var c=ultimo?carb-somaC:Math.round(carb*x[1]);
+      var g=ultimo?gord-somaG:Math.round(gord*x[1]);
+      somaK+=k;somaP+=pr;somaC+=c;somaG+=g;
+      refs.push({nome:x[0],kcal:k,prot:pr,carb:c,gord:g});
+    });
+    atual={paciente:document.getElementById('pl-paciente').value,objetivo:OBJ[ob][0],sexo:sexo,idade:idade,peso:peso,alt:alt,fa:fa,tmb:Math.round(tmb),get:get,kcal:kcal,prot:prot,carb:carb,gord:gord,refs:refs};
+    mostrarPlano(atual);
+  }
+  function mostrarPlano(d){
+    var r=document.getElementById('pl-resultado');
+    r.classList.remove('oculto');
+    var linhas=d.refs.map(function(x){return '<div class="refeicao"><b>'+esc(x.nome)+'</b><small>'+x.kcal+' kcal · P '+x.prot+' g · C '+x.carb+' g · G '+x.gord+' g</small></div>';}).join('');
+    var pedido='Monte um plano alimentar para '+d.paciente+' (objetivo: '+d.objetivo.toLowerCase()+').\n'
+      +'Dados: '+(d.sexo==='m'?'masculino':'feminino')+', '+d.idade+' anos, '+d.peso+' kg, '+String(d.alt.toFixed(2)).replace('.',',')+' m, fator de atividade '+String(d.fa).replace('.',',')+'.\n'
+      +'Metas diárias: '+d.kcal+' kcal; proteínas '+d.prot+' g; carboidratos '+d.carb+' g; gorduras '+d.gord+' g.\n'
+      +'Distribuição por refeição:\n'
+      +d.refs.map(function(x){return '- '+x.nome+': '+x.kcal+' kcal (P '+x.prot+' g, C '+x.carb+' g, G '+x.gord+' g)';}).join('\n')+'\n'
+      +'Para cada refeição, sugira alimentos comuns no Brasil com medida caseira e gramas, batendo com as metas da refeição. Mostre o total de cada refeição. A nutricionista vai revisar.';
+    r.innerHTML='<h1>Plano de '+esc(d.paciente)+'</h1>'
+      +'<p>Objetivo: <span class="destaque">'+esc(d.objetivo)+'</span></p>'
+      +'<div class="numeros">'
+      +'<div class="caixa"><strong>'+d.get+'</strong><span>kcal de gasto (GET)</span></div>'
+      +'<div class="caixa"><strong>'+d.kcal+'</strong><span>kcal por dia (meta)</span></div>'
+      +'<div class="caixa"><strong>'+d.prot+' g</strong><span>Proteínas</span></div>'
+      +'<div class="caixa"><strong>'+d.carb+' g</strong><span>Carboidratos</span></div>'
+      +'<div class="caixa"><strong>'+d.gord+' g</strong><span>Gorduras</span></div>'
+      +'</div>'
+      +'<p>TMB estimada em '+d.tmb+' kcal (Mifflin-St Jeor). Estimativa inicial: a nutricionista ajusta conforme a evolução.</p>'
+      +'<h2 class="dia-titulo">Distribuição por refeição</h2>'+linhas
+      +'<h2 class="dia-titulo" style="margin-top:22px">Pedido para o Gestor IA</h2>'
+      +'<p>Copie e envie no chat para montar os alimentos de cada refeição com medidas.</p>'
+      +'<textarea class="prompt" id="pl-pedido" readonly>'+esc(pedido)+'</textarea>'
+      +'<div class="acoes" style="margin-top:12px"><button class="btn" id="pl-copiar">Copiar pedido</button></div>';
+  }
+  document.getElementById('pl-paciente').addEventListener('change',preencherPlano);
+  document.getElementById('pl-calcular').addEventListener('click',calcularPlano);
+  document.getElementById('pl-salvar').addEventListener('click',function(){
+    if(!atual)calcularPlano();
+    if(atual&&atual.paciente){planos[atual.paciente]=atual;salvarPlanos();this.textContent='Plano salvo';}
+  });
+  document.getElementById('pl-resultado').addEventListener('click',function(e){
+    if(e.target.id!=='pl-copiar')return;
+    var t=document.getElementById('pl-pedido');
+    t.select();
+    try{navigator.clipboard.writeText(t.value);}catch(err){try{document.execCommand('copy');}catch(e2){}}
+    e.target.textContent='Copiado';
+  });
   mostrar('boas-vindas');
 })();
 </script>
