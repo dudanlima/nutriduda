@@ -159,7 +159,9 @@ main{flex:1;min-width:0;padding:clamp(18px,3vw,36px)}
     var sep=linhas[0].split(';').length>linhas[0].split(',').length?';':',';
     var cab=partir(linhas[0],sep).map(norm);
     function col(re){for(var i=0;i<cab.length;i++)if(re.test(cab[i]))return i;return -1;}
-    var iN=col(/alimento|descricao|nome/),iK=col(/kcal/);if(iK<0)iK=col(/energia/);
+    var iN=-1;
+    for(var q=0;q<cab.length;q++){if(/descri|alimento|nome/.test(cab[q])&&!/numer|codig|^id$|^cod/.test(cab[q])){iN=q;break;}}
+    var iK=col(/kcal/);if(iK<0)iK=col(/energia/);
     var iP=col(/proteina/),iL=col(/lipid|gordura/),iC=col(/carboidrat/);
     if(iN<0||iK<0||iP<0||iC<0)throw new Error('Não consegui ler esse arquivo: não achei as colunas de alimento, energia, proteína e carboidrato. Me envie a primeira linha do arquivo.');
     var out=[];
