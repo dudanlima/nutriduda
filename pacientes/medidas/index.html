@@ -1,1 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#7A816C">
+<title>Medidas do paciente</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{font-family:"Times New Roman",Times,serif;color:#3B332C;background:#7A816C url("../../ceu.jpg") center/cover no-repeat fixed;min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;background:rgba(122,129,108,.55);z-index:0}
+.app{position:relative;z-index:1;display:flex;min-height:100vh}
+aside{width:230px;flex-shrink:0;background:rgba(122,129,108,.92);color:#E5DFD6;padding:22px 16px;transition:width .25s,padding .25s;overflow:hidden}
+aside.recolhido{width:72px;padding:22px 10px}
+.topo-menu{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:8px}
+.alternar{width:38px;height:38px;border:1px solid #D1A9A5;border-radius:8px;background:transparent;color:#E5DFD6;font-size:20px;flex-shrink:0;cursor:pointer}
+.alternar:hover{background:#D1A9A5;color:#7A816C}
+.titulo-menu{font-size:17px;white-space:nowrap}
+aside.recolhido .titulo-menu,aside.recolhido .rotulo{display:none}
+.menu{display:flex;flex-direction:column;gap:8px}
+.menu a{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1px solid transparent;border-radius:8px;color:#E5DFD6;font-size:17px;white-space:nowrap;text-decoration:none}
+.menu a:hover{background:rgba(229,223,214,.18)}
+.menu a.ativo{background:#E5DFD6;color:#7A816C;border-color:#E5DFD6}
+.icone{width:22px;text-align:center;flex-shrink:0;font-weight:bold;color:#D1A9A5}
+.menu a.ativo .icone{color:#AE6965}
+main{flex:1;min-width:0;padding:clamp(18px,3vw,36px)}
+header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;margin-bottom:24px}
+.botao-topo{padding:10px 18px;border:1px solid #D1A9A5;border-radius:8px;color:#E5DFD6;text-decoration:none;font-size:16px;background:rgba(122,129,108,.35)}
+.botao-topo:hover{background:#D1A9A5;color:#7A816C}
+.cartao{background:rgba(229,223,214,.94);border:1px solid #D1A9A5;border-radius:14px;padding:clamp(18px,4vw,36px);box-shadow:0 8px 24px rgba(59,51,44,.18);margin-bottom:20px;min-width:0}
+.cartao h1{margin:0 0 10px;font-weight:normal;font-size:clamp(24px,4vw,36px);color:#7A816C;overflow-wrap:anywhere}
+.cartao h2{font-weight:normal;font-size:20px;color:#7A816C;margin:24px 0 10px}
+.cartao p{margin:0 0 12px;font-size:17px;line-height:1.5}
+.btn{padding:12px 20px;border:1px solid #7A816C;border-radius:10px;background:#7A816C;color:#FFFFFF;font:inherit;font-size:17px;cursor:pointer;text-decoration:none;display:inline-block}
+.btn:hover{background:#AE6965;border-color:#AE6965}
+.btn.secundario{background:transparent;color:#7A816C}
+.btn.secundario:hover{background:#D1A9A5;color:#7A816C;border-color:#D1A9A5}
+.acoes{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.form label{display:flex;flex-direction:column;gap:6px;font-size:15px}
+.form input,.form select{font:inherit;font-size:16px;padding:10px;border:1px solid #A58B71;border-radius:8px;background:#FFFFFF;color:#3B332C;max-width:100%;width:100%}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.card{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:12px;padding:14px;text-align:center}
+.card .rotulo-c{display:block;font-size:14px;color:#A58B71}
+.card .valor{display:block;font-size:22px;color:#7A816C;margin-top:4px}
+.card .detalhe{display:block;font-size:13px;color:#AE6965;margin-top:4px}
+.bloco{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:12px;padding:14px;margin-top:14px}
+.item{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center;padding:12px;margin-bottom:8px;background:#FFFFFF;border:1px solid #D1A9A5;border-radius:10px;font-size:16px}
+.item .txt{flex:1 1 220px;min-width:0;overflow-wrap:anywhere;line-height:1.5}
+.mini{font:inherit;font-size:14px;padding:6px 10px;border:1px solid #7A816C;border-radius:8px;background:transparent;color:#7A816C;cursor:pointer}
+.mini:hover{background:#D1A9A5;border-color:#D1A9A5}
+.caixa-tabela{overflow-x:auto;margin-top:6px}
+table{border-collapse:collapse;width:100%;min-width:520px;background:#FFFFFF;font-size:15px}
+th,td{border:1px solid #D1A9A5;padding:8px;text-align:center;white-space:nowrap}
+th{background:#E5DFD6;color:#7A816C;font-weight:normal}
+.vazio{font-style:italic;color:#A58B71;margin-top:10px}
+.msg{font-style:italic;color:#AE6965;min-height:20px;margin-top:10px}
+.nota{font-size:14px;color:#A58B71;font-style:italic;margin-top:12px}
+.oculto{display:none!important}
+@media(max-width:700px){
+  .app{flex-direction:column}
+  aside{width:100%;padding:14px 16px}
+  aside.recolhido{width:100%;padding:14px 16px}
+  aside.recolhido .titulo-menu,aside.recolhido .rotulo{display:inline}
+  .menu{flex-direction:row;flex-wrap:wrap}
+  .menu a{flex:1 1 auto;justify-content:center}
+  .rotulo{display:inline}
+  aside.fechado .menu{display:none}
+  .botao-topo{width:100%;text-align:center}
+  .btn{width:100%;text-align:center}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside id="menu">
+<div class="topo-menu">
+<span class="titulo-menu">Menu</span>
+<button class="alternar" id="alternar" aria-label="Recolher ou expandir menu">&#9776;</button>
+</div>
+<nav class="menu">
+<a href="../../painel/index.html"><span class="icone">I</span><span class="rotulo">Início</span></a>
+<a href="../../painel/index.html#agenda"><span class="icone">A</span><span class="rotulo">Agenda</span></a>
+<a href="../../painel/plano/index.html"><span class="icone">N</span><span class="rotulo">Plano alimentar</span></a>
+<a href="../index.html" class="ativo"><span class="icone">P</span><span class="rotulo">Pacientes</span></a>
+<a href="../cadastro.html"><span class="icone">+</span><span class="rotulo">Cadastrar paciente</span></a>
+<a href="../../painel/index.html#configuracoes"><span class="icone">C</span><span class="rotulo">Configurações</span></a>
+</nav>
+</aside>
+<main>
+<header class="cabecalho">
+<a class="botao-topo" href="../../login/index.html">Sair</a>
+</header>
+<div class="cartao" id="cartao"></div>
+</main>
+</div>
 
+<script>
+(function(){
+  var menu=document.getElementById('menu');
+  document.getElementById('alternar').addEventListener('click',function(){
+    menu.classList.toggle('recolhido');
+    menu.classList.toggle('fechado');
+  });
+
+  function ler(k,d){try{var v=JSON.parse(localStorage.getItem(k)||'null');return v==null?d:v;}catch(e){return d;}}
+  function gravar(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}}
+  function esc(t){var d=document.createElement('div');d.textContent=t==null?'':String(t);return d.innerHTML;}
+  function num(v){var n=parseFloat(String(v==null?'':v).replace(',','.'));return isNaN(n)?0:n;}
+  function fmt(v,c){return v?v.toFixed(c).replace('.',','):'-';}
+  function br(s){var p=String(s||'').split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:'Sem data';}
+
+  var pacientes=ler('pacientes',[]), medidas=ler('medidas',{});
+  var cartao=document.getElementById('cartao');
+  var idx=parseInt(new URLSearchParams(location.search).get('i'),10);
+
+  if(isNaN(idx)||!pacientes[idx]){
+    if(!pacientes.length){
+      cartao.innerHTML='<h1>Nenhum paciente cadastrado</h1><p>Cadastre um paciente primeiro.</p><div class="acoes"><a class="btn" href="../cadastro.html">Cadastrar paciente</a></div>';
+      return;
+    }
+    idx=0;
+  }
+
+  var CIRC=[['cintura','Cintura (cm)'],['quadril','Quadril (cm)'],['braco','Braço (cm)'],['coxaC','Coxa (cm)'],['panturrilha','Panturrilha (cm)']];
+  var DOB=[['peitoral','Peitoral (mm)'],['axilar','Axilar média (mm)'],['tricipital','Tricipital (mm)'],['subescapular','Subescapular (mm)'],['abdominal','Abdominal (mm)'],['suprailiaca','Suprailíaca (mm)'],['coxaD','Coxa (mm)']];
+
+  function classeImc(v){
+    if(v<18.5)return 'abaixo do peso';
+    if(v<25)return 'eutrofia';
+    if(v<30)return 'sobrepeso';
+    if(v<35)return 'obesidade grau I';
+    if(v<40)return 'obesidade grau II';
+    return 'obesidade grau III';
+  }
+
+  function calcular(e,p){
+    var r={imc:null,rcq:null,gord:null,magra:null,gorda:null,classe:''};
+    var alt=num(e.altura); if(alt>3)alt=alt/100;
+    var peso=num(e.peso);
+    if(peso>0&&alt>0){r.imc=peso/(alt*alt);r.classe=classeImc(r.imc);}
+    var cin=num(e.circ.cintura), qua=num(e.circ.quadril);
+    if(cin>0&&qua>0)r.rcq=cin/qua;
+    var idade=num(p.idade), d=e.dob, S=0, DC=0, ok=false;
+    if(e.sexo==='Masculino'){
+      if(num(d.peitoral)&&num(d.abdominal)&&num(d.coxaD)){
+        S=num(d.peitoral)+num(d.abdominal)+num(d.coxaD);
+        DC=1.10938-0.0008267*S+0.0000016*S*S-0.0002574*idade;ok=true;
+      }
+    }else if(e.sexo==='Feminino'){
+      if(num(d.tricipital)&&num(d.suprailiaca)&&num(d.coxaD)){
+        S=num(d.tricipital)+num(d.suprailiaca)+num(d.coxaD);
+        DC=1.0994921-0.0009929*S+0.0000023*S*S-0.0001392*idade;ok=true;
+      }
+    }
+    if(ok&&DC>0&&idade>0){
+      r.gord=495/DC-450;
+      if(r.gord>0&&peso>0){r.gorda=peso*r.gord/100;r.magra=peso-r.gorda;}
+    }
+    return r;
+  }
+
+  function coletar(){
+    var c={}, d={};
+    CIRC.forEach(function(x){c[x[0]]=document.querySelector('[data-c="'+x[0]+'"]').value.trim();});
+    DOB.forEach(function(x){d[x[0]]=document.querySelector('[data-d="'+x[0]+'"]').value.trim();});
+    return {
+      data:document.getElementById('m-data').value,
+      sexo:document.getElementById('m-sexo').value,
+      peso:document.getElementById('m-peso').value.trim(),
+      altura:document.getElementById('m-altura').value.trim(),
+      circ:c,dob:d
+    };
+  }
+
+  function render(){
+    var p=pacientes[idx], n=p.nome||'Paciente';
+    var L=medidas[n]||[];
+    var ult=L.length?L[L.length-1]:null;
+    var rUlt=ult?calcular(ult,p):null;
+    var pesoAtual=ult?num(ult.peso):num(p.peso);
+    var altAtual=ult?num(ult.altura):num(p.altura);
+
+    var opts=pacientes.map(function(x,i){return '<option value="'+i+'"'+(i===idx?' selected':'')+'>'+esc(x.nome||('Paciente '+(i+1)))+'</option>';}).join('');
+
+    var hist=L.slice().reverse().map(function(e,ri){
+      var i=L.length-1-ri, r=calcular(e,p);
+      var ant=i>0?L[i-1]:null, delta='';
+      if(ant&&num(ant.peso)&&num(e.peso)){
+        var dv=num(e.peso)-num(ant.peso);
+        delta=' · variação de peso: '+(dv>0?'+':'')+fmt(dv,1)+' kg';
+      }
+      return '<div class="item"><span class="txt"><b style="font-weight:normal">'+esc(br(e.data))+'</b>'
+        +' · peso '+esc(e.peso||'-')+' kg'
+        +(r.imc?' · IMC '+fmt(r.imc,1)+' ('+esc(r.classe)+')':'')
+        +(r.rcq?' · RCQ '+fmt(r.rcq,2):'')
+        +(r.gord!=null?' · gordura '+fmt(r.gord,1)+'%':'')
+        +esc(delta)+'</span>'
+        +'<button class="mini" type="button" data-rem="'+i+'">Remover</button></div>';
+    }).join('');
+
+    var cards='<div class="cards">'
+      +'<div class="card"><span class="rotulo-c">Peso atual (kg)</span><span class="valor">'+(pesoAtual?fmt(pesoAtual,1):'-')+'</span></div>'
+      +'<div class="card"><span class="rotulo-c">Altura (m)</span><span class="valor">'+(altAtual?fmt(altAtual>3?altAtual/100:altAtual,2):'-')+'</span></div>'
+      +'<div class="card"><span class="rotulo-c">IMC</span><span class="valor">'+(rUlt&&rUlt.imc?fmt(rUlt.imc,1):'-')+'</span><span class="detalhe">'+esc(rUlt?rUlt.classe:'')+'</span></div>'
+      +'<div class="card"><span class="rotulo-c">Relação cintura-quadril</span><span class="valor">'+(rUlt&&rUlt.rcq?fmt(rUlt.rcq,2):'-')+'</span></div>'
+      +'<div class="card"><span class="rotulo-c">Gordura corporal</span><span class="valor">'+(rUlt&&rUlt.gord!=null?fmt(rUlt.gord,1)+'%':'-')+'</span>'
+      +'<span class="detalhe">'+(rUlt&&rUlt.magra?'massa magra '+fmt(rUlt.magra,1)+' kg':'')+'</span></div>'
+      +'</div>';
+
+    cartao.innerHTML=
+      '<h1>Medidas de '+esc(n)+'</h1>'
+      +'<p>'+esc(p.objetivo||'Objetivo não informado')+' · '+esc(p.idade||'?')+' anos</p>'
+      +'<div class="acoes"><a class="btn secundario" href="../perfil/index.html?i='+idx+'">Voltar ao perfil</a></div>'
+      +'<div class="form"><label>Paciente<select id="sel-p">'+opts+'</select></label></div>'
+      +'<h2>Resultado da última avaliação</h2>'+cards
+      +'<p class="nota">Gordura corporal pela fórmula de Jackson e Pollock (3 dobras: homens, peitoral, abdominal e coxa; mulheres, tricipital, suprailíaca e coxa). Sem essas dobras e a idade, o percentual não é calculado.</p>'
+
+      +'<h2>Nova avaliação</h2>'
+      +'<div class="form">'
+      +'<label>Data<input type="date" id="m-data" value="'+new Date().toISOString().slice(0,10)+'"></label>'
+      +'<label>Sexo<select id="m-sexo"><option value="">Não informado</option><option value="Feminino">Feminino</option><option value="Masculino">Masculino</option></select></label>'
+      +'<label>Peso (kg)<input type="text" id="m-peso" placeholder="Ex.: 68,5"></label>'
+      +'<label>Altura (m)<input type="text" id="m-altura" placeholder="Ex.: 1,65" value="'+esc(altAtual?(altAtual>3?altAtual/100:altAtual):'')+'"></label>'
+      +'</div>'
+      +'<h2>Circunferências</h2>'
+      +'<div class="form">'+CIRC.map(function(x){return '<label>'+x[1]+'<input type="text" data-c="'+x[0]+'"></label>';}).join('')+'</div>'
+      +'<h2>Dobras cutâneas</h2>'
+      +'<div class="form">'+DOB.map(function(x){return '<label>'+x[1]+'<input type="text" data-d="'+x[0]+'"></label>';}).join('')+'</div>'
+      +'<div class="acoes"><button class="btn" id="m-salvar">Salvar avaliação</button></div>'
+      +'<div class="msg" id="m-msg"></div>'
+
+      +'<h2>Histórico</h2>'
+      +(L.length?hist:'<p class="vazio">Nenhuma avaliação salva para esta paciente.</p>')
+      +(L.length>1?'<h2>Evolução</h2><div class="caixa-tabela"><table><tr><th>Data</th><th>Peso (kg)</th><th>Cintura (cm)</th><th>IMC</th><th>Gordura (%)</th></tr>'
+        +L.map(function(e){
+          var r=calcular(e,p);
+          return '<tr><td>'+esc(br(e.data))+'</td><td>'+esc(e.peso||'-')+'</td><td>'+esc(e.circ.cintura||'-')+'</td><td>'+(r.imc?fmt(r.imc,1):'-')+'</td><td>'+(r.gord!=null?fmt(r.gord,1):'-')+'</td></tr>';
+        }).join('')+'</table></div>':'');
+
+    if(!document.getElementById('m-sexo'))return;
+    document.getElementById('m-sexo').value=p.sexo||'';
+
+    document.getElementById('sel-p').addEventListener('change',function(){
+      idx=parseInt(this.value,10);
+      var u=new URL(location.href);u.searchParams.set('i',idx);history.replaceState(null,'',u.toString());
+      render();
+    });
+
+    document.getElementById('m-salvar').addEventListener('click',function(){
+      var msg=document.getElementById('m-msg');
+      var e=coletar();
+      if(!e.peso){msg.textContent='Informe pelo menos o peso.';return;}
+      if(!e.data){msg.textContent='Informe a data da avaliação.';return;}
+      if(!e.sexo){msg.textContent='Informe o sexo para calcular a gordura corporal.';return;}
+      if(!medidas[n])medidas[n]=[];
+      medidas[n].push(e);
+      medidas[n].sort(function(a,b){return a.data<b.data?-1:a.data>b.data?1:0;});
+      if(!gravar('medidas',medidas)){msg.textContent='Não foi possível salvar: o armazenamento do navegador está cheio.';return;}
+      render();
+      document.getElementById('m-msg').textContent='Avaliação salva.';
+    });
+
+    cartao.querySelectorAll('[data-rem]').forEach(function(b){
+      b.addEventListener('click',function(){
+        var i=+b.getAttribute('data-rem');
+        if(!confirm('Remover esta avaliação?'))return;
+        medidas[n].splice(i,1);
+        gravar('medidas',medidas);
+        render();
+      });
+    });
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
