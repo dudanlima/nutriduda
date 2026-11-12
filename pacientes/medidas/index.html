@@ -40,12 +40,12 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 .form{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
 .form label{display:flex;flex-direction:column;gap:6px;font-size:15px}
 .form input,.form select{font:inherit;font-size:16px;padding:10px;border:1px solid #A58B71;border-radius:8px;background:#FFFFFF;color:#3B332C;max-width:100%;width:100%}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
 .card{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:12px;padding:14px;text-align:center}
 .card .rotulo-c{display:block;font-size:14px;color:#A58B71}
 .card .valor{display:block;font-size:22px;color:#7A816C;margin-top:4px}
-.card .detalhe{display:block;font-size:13px;color:#AE6965;margin-top:4px}
-.bloco{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:12px;padding:14px;margin-top:14px}
+.card .detalhe{display:block;font-size:13px;color:#AE6965;margin-top:4px;line-height:1.35}
+.card .ref{display:block;font-size:12px;color:#A58B71;margin-top:6px;line-height:1.35}
 .item{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center;padding:12px;margin-bottom:8px;background:#FFFFFF;border:1px solid #D1A9A5;border-radius:10px;font-size:16px}
 .item .txt{flex:1 1 220px;min-width:0;overflow-wrap:anywhere;line-height:1.5}
 .mini{font:inherit;font-size:14px;padding:6px 10px;border:1px solid #7A816C;border-radius:8px;background:transparent;color:#7A816C;cursor:pointer}
@@ -56,7 +56,7 @@ th,td{border:1px solid #D1A9A5;padding:8px;text-align:center;white-space:nowrap}
 th{background:#E5DFD6;color:#7A816C;font-weight:normal}
 .vazio{font-style:italic;color:#A58B71;margin-top:10px}
 .msg{font-style:italic;color:#AE6965;min-height:20px;margin-top:10px}
-.nota{font-size:14px;color:#A58B71;font-style:italic;margin-top:12px}
+.nota{font-size:14px;color:#A58B71;font-style:italic;margin-top:12px;line-height:1.45}
 .oculto{display:none!important}
 @media(max-width:700px){
   .app{flex-direction:column}
@@ -107,56 +107,95 @@ th{background:#E5DFD6;color:#7A816C;font-weight:normal}
   function ler(k,d){try{var v=JSON.parse(localStorage.getItem(k)||'null');return v==null?d:v;}catch(e){return d;}}
   function gravar(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}}
   function esc(t){var d=document.createElement('div');d.textContent=t==null?'':String(t);return d.innerHTML;}
-  function num(v){var n=parseFloat(String(v==null?'':v).replace(',','.'));return isNaN(n)?0:n;}
-  function fmt(v,c){return v?v.toFixed(c).replace('.',','):'-';}
+  function num(v){
+    var s=String(v==null?'':v).trim().replace(',','.');
+    if(s==='')return null;
+    var n=parseFloat(s);
+    return isNaN(n)?null:n;
+  }
+  function fmt(v,c){return (v==null||isNaN(v))?'-':v.toFixed(c).replace('.',',');}
   function br(s){var p=String(s||'').split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:'Sem data';}
+  function altM(v){var a=num(v);if(a==null)return null;return a>3?a/100:a;}
 
   var pacientes=ler('pacientes',[]), medidas=ler('medidas',{});
   var cartao=document.getElementById('cartao');
   var idx=parseInt(new URLSearchParams(location.search).get('i'),10);
 
-  if(isNaN(idx)||!pacientes[idx]){
-    if(!pacientes.length){
-      cartao.innerHTML='<h1>Nenhum paciente cadastrado</h1><p>Cadastre um paciente primeiro.</p><div class="acoes"><a class="btn" href="../cadastro.html">Cadastrar paciente</a></div>';
-      return;
-    }
-    idx=0;
+  if(!pacientes.length){
+    cartao.innerHTML='<h1>Nenhum paciente cadastrado</h1><p>Cadastre um paciente primeiro.</p><div class="acoes"><a class="btn" href="../cadastro.html">Cadastrar paciente</a></div>';
+    return;
   }
+  if(isNaN(idx)||!pacientes[idx])idx=0;
 
   var CIRC=[['cintura','Cintura (cm)'],['quadril','Quadril (cm)'],['braco','Braço (cm)'],['coxaC','Coxa (cm)'],['panturrilha','Panturrilha (cm)']];
   var DOB=[['peitoral','Peitoral (mm)'],['axilar','Axilar média (mm)'],['tricipital','Tricipital (mm)'],['subescapular','Subescapular (mm)'],['abdominal','Abdominal (mm)'],['suprailiaca','Suprailíaca (mm)'],['coxaD','Coxa (mm)']];
 
+  function sexoDe(e,p){return e.sexo||p.sexo||'';}
+
   function classeImc(v){
-    if(v<18.5)return 'abaixo do peso';
-    if(v<25)return 'eutrofia';
-    if(v<30)return 'sobrepeso';
-    if(v<35)return 'obesidade grau I';
-    if(v<40)return 'obesidade grau II';
-    return 'obesidade grau III';
+    if(v<18.5)return ['Abaixo do peso','atencao'];
+    if(v<25)return ['Peso normal','sucesso'];
+    if(v<30)return ['Sobrepeso','atencao'];
+    if(v<35)return ['Obesidade grau I','perigo'];
+    if(v<40)return ['Obesidade grau II','perigo'];
+    return ['Obesidade grau III','perigo'];
+  }
+  function classeCintura(v,sexo){
+    if(sexo==='Masculino'){
+      if(v<94)return ['Sem risco','sucesso'];
+      if(v<102)return ['Risco aumentado','atencao'];
+      return ['Risco muito aumentado','perigo'];
+    }
+    if(v<80)return ['Sem risco','sucesso'];
+    if(v<88)return ['Risco aumentado','atencao'];
+    return ['Risco muito aumentado','perigo'];
+  }
+  function classeRcq(v,sexo){
+    var lim=sexo==='Masculino'?0.90:0.85;
+    return v<=lim?['Sem risco','sucesso']:['Risco aumentado','atencao'];
+  }
+  function classeGord(g,sexo,idade){
+    if(idade==null||idade<20||idade>39)return ['Faixa de 20 a 39 anos; confira a tabela da idade','neutro'];
+    if(sexo==='Masculino'){
+      if(g<6)return ['Essencial','atencao'];
+      if(g<14)return ['Atleta','sucesso'];
+      if(g<18)return ['Fitness','sucesso'];
+      if(g<25)return ['Aceitável','neutro'];
+      return ['Obesidade','perigo'];
+    }
+    if(g<14)return ['Essencial','atencao'];
+    if(g<21)return ['Atleta','sucesso'];
+    if(g<25)return ['Fitness','sucesso'];
+    if(g<32)return ['Aceitável','neutro'];
+    return ['Obesidade','perigo'];
   }
 
   function calcular(e,p){
-    var r={imc:null,rcq:null,gord:null,magra:null,gorda:null,classe:''};
-    var alt=num(e.altura); if(alt>3)alt=alt/100;
-    var peso=num(e.peso);
-    if(peso>0&&alt>0){r.imc=peso/(alt*alt);r.classe=classeImc(r.imc);}
+    var r={imc:null,rcq:null,gord:null,magra:null,gorda:null,cImc:null,cCin:null,cRcq:null,cGord:null};
+    var sexo=sexoDe(e,p), idade=num(p.idade);
+    var alt=altM(e.altura), peso=num(e.peso);
+    if(peso&&alt){
+      r.imc=peso/(alt*alt);
+      r.cImc=classeImc(r.imc);
+    }
     var cin=num(e.circ.cintura), qua=num(e.circ.quadril);
-    if(cin>0&&qua>0)r.rcq=cin/qua;
-    var idade=num(p.idade), d=e.dob, S=0, DC=0, ok=false;
-    if(e.sexo==='Masculino'){
-      if(num(d.peitoral)&&num(d.abdominal)&&num(d.coxaD)){
-        S=num(d.peitoral)+num(d.abdominal)+num(d.coxaD);
-        DC=1.10938-0.0008267*S+0.0000016*S*S-0.0002574*idade;ok=true;
-      }
-    }else if(e.sexo==='Feminino'){
-      if(num(d.tricipital)&&num(d.suprailiaca)&&num(d.coxaD)){
-        S=num(d.tricipital)+num(d.suprailiaca)+num(d.coxaD);
-        DC=1.0994921-0.0009929*S+0.0000023*S*S-0.0001392*idade;ok=true;
-      }
+    if(cin)r.cCin=classeCintura(cin,sexo);
+    if(cin&&qua){
+      r.rcq=cin/qua;
+      r.cRcq=classeRcq(r.rcq,sexo);
+    }
+    var S=0, DC=0, ok=false, d=e.dob;
+    if(sexo==='Masculino'&&num(d.peitoral)!=null&&num(d.abdominal)!=null&&num(d.coxaD)!=null){
+      S=num(d.peitoral)+num(d.abdominal)+num(d.coxaD);
+      DC=1.10938-0.0008267*S+0.0000016*S*S-0.0002574*idade;ok=true;
+    }else if(sexo==='Feminino'&&num(d.tricipital)!=null&&num(d.suprailiaca)!=null&&num(d.coxaD)!=null){
+      S=num(d.tricipital)+num(d.suprailiaca)+num(d.coxaD);
+      DC=1.0994921-0.0009929*S+0.0000023*S*S-0.0001392*idade;ok=true;
     }
     if(ok&&DC>0&&idade>0){
-      r.gord=495/DC-450;
-      if(r.gord>0&&peso>0){r.gorda=peso*r.gord/100;r.magra=peso-r.gorda;}
+      r.gord=(4.95/DC-4.5)*100;
+      r.cGord=classeGord(r.gord,sexo,idade);
+      if(peso){r.gorda=peso*r.gord/100;r.magra=peso-r.gorda;}
     }
     return r;
   }
@@ -174,26 +213,27 @@ th{background:#E5DFD6;color:#7A816C;font-weight:normal}
     };
   }
 
+  function tag(c){return c?'<span class="detalhe">'+esc(c[0])+'</span>':'';}
+
   function render(){
     var p=pacientes[idx], n=p.nome||'Paciente';
     var L=medidas[n]||[];
     var ult=L.length?L[L.length-1]:null;
     var rUlt=ult?calcular(ult,p):null;
     var pesoAtual=ult?num(ult.peso):num(p.peso);
-    var altAtual=ult?num(ult.altura):num(p.altura);
+    var altAtual=ult?altM(ult.altura):altM(p.altura);
 
     var opts=pacientes.map(function(x,i){return '<option value="'+i+'"'+(i===idx?' selected':'')+'>'+esc(x.nome||('Paciente '+(i+1)))+'</option>';}).join('');
 
     var hist=L.slice().reverse().map(function(e,ri){
-      var i=L.length-1-ri, r=calcular(e,p);
-      var ant=i>0?L[i-1]:null, delta='';
-      if(ant&&num(ant.peso)&&num(e.peso)){
+      var i=L.length-1-ri, r=calcular(e,p), ant=i>0?L[i-1]:null, delta='';
+      if(ant&&num(ant.peso)!=null&&num(e.peso)!=null){
         var dv=num(e.peso)-num(ant.peso);
         delta=' · variação de peso: '+(dv>0?'+':'')+fmt(dv,1)+' kg';
       }
       return '<div class="item"><span class="txt"><b style="font-weight:normal">'+esc(br(e.data))+'</b>'
         +' · peso '+esc(e.peso||'-')+' kg'
-        +(r.imc?' · IMC '+fmt(r.imc,1)+' ('+esc(r.classe)+')':'')
+        +(r.imc?' · IMC '+fmt(r.imc,1)+' ('+esc(r.cImc[0])+')':'')
         +(r.rcq?' · RCQ '+fmt(r.rcq,2):'')
         +(r.gord!=null?' · gordura '+fmt(r.gord,1)+'%':'')
         +esc(delta)+'</span>'
@@ -201,12 +241,17 @@ th{background:#E5DFD6;color:#7A816C;font-weight:normal}
     }).join('');
 
     var cards='<div class="cards">'
-      +'<div class="card"><span class="rotulo-c">Peso atual (kg)</span><span class="valor">'+(pesoAtual?fmt(pesoAtual,1):'-')+'</span></div>'
-      +'<div class="card"><span class="rotulo-c">Altura (m)</span><span class="valor">'+(altAtual?fmt(altAtual>3?altAtual/100:altAtual,2):'-')+'</span></div>'
-      +'<div class="card"><span class="rotulo-c">IMC</span><span class="valor">'+(rUlt&&rUlt.imc?fmt(rUlt.imc,1):'-')+'</span><span class="detalhe">'+esc(rUlt?rUlt.classe:'')+'</span></div>'
-      +'<div class="card"><span class="rotulo-c">Relação cintura-quadril</span><span class="valor">'+(rUlt&&rUlt.rcq?fmt(rUlt.rcq,2):'-')+'</span></div>'
-      +'<div class="card"><span class="rotulo-c">Gordura corporal</span><span class="valor">'+(rUlt&&rUlt.gord!=null?fmt(rUlt.gord,1)+'%':'-')+'</span>'
-      +'<span class="detalhe">'+(rUlt&&rUlt.magra?'massa magra '+fmt(rUlt.magra,1)+' kg':'')+'</span></div>'
+      +'<div class="card"><span class="rotulo-c">Peso atual (kg)</span><span class="valor">'+fmt(pesoAtual,1)+'</span></div>'
+      +'<div class="card"><span class="rotulo-c">Altura (m)</span><span class="valor">'+fmt(altAtual,2)+'</span></div>'
+      +'<div class="card"><span class="rotulo-c">IMC</span><span class="valor">'+(rUlt&&rUlt.imc?fmt(rUlt.imc,1):'-')+'</span>'+tag(rUlt&&rUlt.cImc)
+      +'<span class="ref">Referência: OMS (adultos)</span></div>'
+      +'<div class="card"><span class="rotulo-c">Cintura (cm)</span><span class="valor">'+(ult&&num(ult.circ.cintura)?fmt(num(ult.circ.cintura),1):'-')+'</span>'+tag(rUlt&&rUlt.cCin)
+      +'<span class="ref">Referência: OMS/IDF</span></div>'
+      +'<div class="card"><span class="rotulo-c">Relação cintura-quadril</span><span class="valor">'+(rUlt&&rUlt.rcq?fmt(rUlt.rcq,2):'-')+'</span>'+tag(rUlt&&rUlt.cRcq)
+      +'<span class="ref">Referência: OMS (H 0,90 · M 0,85)</span></div>'
+      +'<div class="card"><span class="rotulo-c">Gordura corporal</span><span class="valor">'+(rUlt&&rUlt.gord!=null?fmt(rUlt.gord,1)+'%':'-')+'</span>'+tag(rUlt&&rUlt.cGord)
+      +'<span class="detalhe">'+(rUlt&&rUlt.magra?'massa magra '+fmt(rUlt.magra,1)+' kg':'')+'</span>'
+      +'<span class="ref">Jackson e Pollock (3 dobras); classe: ACSM</span></div>'
       +'</div>';
 
     cartao.innerHTML=
@@ -215,14 +260,14 @@ th{background:#E5DFD6;color:#7A816C;font-weight:normal}
       +'<div class="acoes"><a class="btn secundario" href="../perfil/index.html?i='+idx+'">Voltar ao perfil</a></div>'
       +'<div class="form"><label>Paciente<select id="sel-p">'+opts+'</select></label></div>'
       +'<h2>Resultado da última avaliação</h2>'+cards
-      +'<p class="nota">Gordura corporal pela fórmula de Jackson e Pollock (3 dobras: homens, peitoral, abdominal e coxa; mulheres, tricipital, suprailíaca e coxa). Sem essas dobras e a idade, o percentual não é calculado.</p>'
+      +'<p class="nota">Gordura corporal pela fórmula de Jackson e Pollock (homens: peitoral, abdominal e coxa; mulheres: tricipital, suprailíaca e coxa). Sem essas dobras, a idade e o sexo, o percentual não é calculado. As dobras aparecem só como medida registrada, sem alerta.</p>'
 
       +'<h2>Nova avaliação</h2>'
       +'<div class="form">'
       +'<label>Data<input type="date" id="m-data" value="'+new Date().toISOString().slice(0,10)+'"></label>'
       +'<label>Sexo<select id="m-sexo"><option value="">Não informado</option><option value="Feminino">Feminino</option><option value="Masculino">Masculino</option></select></label>'
       +'<label>Peso (kg)<input type="text" id="m-peso" placeholder="Ex.: 68,5"></label>'
-      +'<label>Altura (m)<input type="text" id="m-altura" placeholder="Ex.: 1,65" value="'+esc(altAtual?(altAtual>3?altAtual/100:altAtual):'')+'"></label>'
+      +'<label>Altura (m)<input type="text" id="m-altura" placeholder="Ex.: 1,65" value="'+esc(altAtual?fmt(altAtual,2):'')+'"></label>'
       +'</div>'
       +'<h2>Circunferências</h2>'
       +'<div class="form">'+CIRC.map(function(x){return '<label>'+x[1]+'<input type="text" data-c="'+x[0]+'"></label>';}).join('')+'</div>'
@@ -239,7 +284,6 @@ th{background:#E5DFD6;color:#7A816C;font-weight:normal}
           return '<tr><td>'+esc(br(e.data))+'</td><td>'+esc(e.peso||'-')+'</td><td>'+esc(e.circ.cintura||'-')+'</td><td>'+(r.imc?fmt(r.imc,1):'-')+'</td><td>'+(r.gord!=null?fmt(r.gord,1):'-')+'</td></tr>';
         }).join('')+'</table></div>':'');
 
-    if(!document.getElementById('m-sexo'))return;
     document.getElementById('m-sexo').value=p.sexo||'';
 
     document.getElementById('sel-p').addEventListener('change',function(){
