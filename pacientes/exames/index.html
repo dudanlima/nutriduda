@@ -32,24 +32,25 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 .cartao h1{margin:0 0 10px;font-weight:normal;font-size:clamp(26px,4vw,38px);color:#7A816C}
 .cartao p{margin:0 0 14px;font-size:18px;line-height:1.5}
 .dia-titulo{font-size:20px;color:#7A816C;margin:22px 0 10px;font-weight:normal}
-.destaque{color:#AE6965;font-style:italic}
 .acoes{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;align-items:center}
 .btn{padding:12px 20px;border:1px solid #7A816C;border-radius:10px;background:#7A816C;color:#FFFFFF;font:inherit;font-size:17px;cursor:pointer;text-decoration:none;display:inline-block}
 .btn:hover{background:#AE6965;border-color:#AE6965}
-.btn:disabled{opacity:.5;cursor:default}
 .btn.secundario{background:transparent;color:#7A816C}
 .btn.secundario:hover{background:#D1A9A5;color:#7A816C;border-color:#D1A9A5}
 .form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:10px}
 .form label{display:flex;flex-direction:column;gap:6px;font-size:16px}
 .form input,.form select{font:inherit;font-size:16px;padding:10px;border:1px solid #A58B71;border-radius:8px;background:#FFFFFF;color:#3B332C;max-width:100%}
+.prev{margin-top:12px;min-height:28px;font-size:16px}
+.resumo{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:10px 0 6px}
+.caixa{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:10px;padding:14px;text-align:center}
+.caixa strong{display:block;font-size:26px;font-weight:normal;color:#7A816C}
+.caixa span{font-size:15px;color:#A58B71}
 .item{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center;padding:10px 12px;margin-bottom:8px;background:#FFFFFF;border:1px solid #D1A9A5;border-radius:10px;font-size:16px}
-.item span{flex:1 1 200px;min-width:0;overflow-wrap:anywhere}
+.item .txt{flex:1 1 220px;min-width:0;overflow-wrap:anywhere}
+.item small{display:block;color:#A58B71;font-size:14px;margin-top:2px}
 .mini{font:inherit;font-size:14px;padding:6px 10px;border:1px solid #7A816C;border-radius:8px;background:transparent;color:#7A816C;cursor:pointer}
 .mini:hover{background:#D1A9A5;border-color:#D1A9A5}
-.resultado{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:10px;padding:12px;margin-bottom:8px}
-.resultado b{font-weight:normal;font-size:17px;display:block;margin-top:6px}
-.resultado small{display:block;color:#A58B71;font-size:15px;margin-top:4px}
-.tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:14px;border:1px solid #A58B71;color:#3B332C}
+.tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:14px;border:1px solid #A58B71;color:#3B332C;white-space:nowrap}
 .tag.baixo,.tag.alto{border-color:#AE6965;color:#AE6965}
 .tag.alto{background:#D1A9A5;color:#3B332C}
 .tag.normal{border-color:#7A816C;color:#7A816C}
@@ -93,7 +94,7 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 <div class="cartao">
 <div class="acoes"><a class="btn secundario" id="voltar" href="../index.html">Voltar aos pacientes</a></div>
 <h1 id="titulo">Exames laboratoriais</h1>
-<p id="subtitulo">Lance os resultados com a referência do laudo. A IA compara cada valor com ela.</p>
+<p id="subtitulo">Escolha o exame e digite só o número do resultado. A classificação sai na hora, pela faixa de referência.</p>
 
 <div class="form">
 <label>Paciente<select id="sel-paciente"></select></label>
@@ -103,22 +104,28 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 <h2 class="dia-titulo">Novo resultado</h2>
 <div class="form">
 <label>Data da coleta<input type="date" id="ex-data"></label>
-<label>Exame<input type="text" id="ex-nome" placeholder="Ex.: Glicose em jejum"></label>
-<label>Resultado<input type="text" id="ex-valor" placeholder="Ex.: 98"></label>
-<label>Unidade<input type="text" id="ex-unid" placeholder="Ex.: mg/dL"></label>
-<label>Referência do laudo<input type="text" id="ex-ref" placeholder="Ex.: 70 a 99"></label>
+<label>Exame<select id="ex-exame"></select></label>
+<label id="campo-outro" class="oculto">Nome do exame<input type="text" id="ex-outro" placeholder="Ex.: Vitamina A"></label>
+<label>Sexo (para a faixa)<select id="ex-sexo"><option value="f">Feminino</option><option value="m">Masculino</option></select></label>
+<label>Resultado (número)<input type="text" id="ex-valor" inputmode="decimal" placeholder="Ex.: 98 ou 5,4"></label>
+<label>Unidade<input type="text" id="ex-unid"></label>
+<label>Referência mínima<input type="text" id="ex-min" inputmode="decimal" placeholder="vazio = sem mínimo"></label>
+<label>Referência máxima<input type="text" id="ex-max" inputmode="decimal" placeholder="vazio = sem máximo"></label>
 </div>
-<div class="acoes" style="margin-top:14px"><button class="btn" id="ex-add">Adicionar exame</button></div>
+<p class="prev" id="ex-prev"></p>
+<div class="acoes"><button class="btn" id="ex-add">Adicionar exame</button></div>
+<p class="vazio" id="ex-status"></p>
+
+<h2 class="dia-titulo">Resumo</h2>
+<div class="resumo">
+<div class="caixa"><strong id="n-normal">0</strong><span>Normais</span></div>
+<div class="caixa"><strong id="n-baixo">0</strong><span>Baixos</span></div>
+<div class="caixa"><strong id="n-alto">0</strong><span>Altos</span></div>
+</div>
 
 <h2 class="dia-titulo">Exames lançados</h2>
 <div id="ex-lista"></div>
-
-<div class="acoes"><button class="btn" id="ex-analisar">Analisar com IA</button></div>
-<p class="vazio" id="ex-status"></p>
-
-<h2 class="dia-titulo">Análise</h2>
-<div id="ex-analise"></div>
-<p class="nota">Análise de apoio, feita a partir dos dados lançados. A nutricionista confere cada resultado e decide a conduta.</p>
+<p class="nota">As faixas são de referência geral para adultos. Se o laudo do laboratório usar outros valores, ajuste os campos de referência antes de adicionar. A conduta é da nutricionista.</p>
 </div>
 
 <p class="vazio oculto" id="sem-pacientes">Nenhum paciente cadastrado. Cadastre um paciente primeiro.</p>
@@ -134,39 +141,114 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
     menu.classList.toggle('fechado');
   });
 
-  var pacientes=[], exames={}, analises={};
+  var G=[
+    ['Hematologia',[
+      ['Hemoglobina','g/dL',12,16,13.5,17.5],
+      ['Hematócrito','%',36,46,41,53],
+      ['Eritrócitos','milhões/mm³',4.0,5.2,4.5,5.9],
+      ['Leucócitos','/mm³',4000,11000],
+      ['Plaquetas','/mm³',150000,450000],
+      ['VCM','fL',80,100],
+      ['HCM','pg',27,33],
+      ['RDW','%',11.5,14.5]
+    ]],
+    ['Metabolismo glicídico',[
+      ['Glicemia de jejum','mg/dL',70,99],
+      ['Insulina de jejum','µUI/mL',2.6,24.9],
+      ['Hemoglobina glicada (HbA1c)','%',4,5.6]
+    ]],
+    ['Lipídios',[
+      ['Colesterol total','mg/dL',0,190],
+      ['LDL','mg/dL',0,130],
+      ['HDL','mg/dL',50,null,40,null],
+      ['VLDL','mg/dL',5,40],
+      ['Triglicerídeos','mg/dL',0,150]
+    ]],
+    ['Função hepática',[
+      ['TGO (AST)','U/L',0,31,0,41],
+      ['TGP (ALT)','U/L',0,33,0,41],
+      ['GGT','U/L',0,38,0,55],
+      ['Fosfatase alcalina','U/L',40,129],
+      ['Bilirrubina total','mg/dL',0.2,1.2],
+      ['Bilirrubina direta','mg/dL',0,0.3]
+    ]],
+    ['Função renal',[
+      ['Ureia','mg/dL',15,45],
+      ['Creatinina','mg/dL',0.6,1.1,0.7,1.3],
+      ['Ácido úrico','mg/dL',2.5,6,3.5,7.2],
+      ['Sódio','mEq/L',135,145],
+      ['Potássio','mEq/L',3.5,5.1]
+    ]],
+    ['Proteínas',[
+      ['Albumina','g/dL',3.5,5.2],
+      ['Proteína total','g/dL',6,8.3],
+      ['Proteína C reativa','mg/L',0,5]
+    ]],
+    ['Minerais e vitaminas',[
+      ['Ferritina','ng/mL',15,150,30,400],
+      ['Ferro sérico','µg/dL',60,170],
+      ['Cálcio total','mg/dL',8.5,10.5],
+      ['Magnésio','mg/dL',1.7,2.2],
+      ['Fósforo','mg/dL',2.5,4.5],
+      ['Zinco','µg/dL',70,120],
+      ['Vitamina D (25-OH)','ng/mL',30,100],
+      ['Vitamina B12','pg/mL',200,900],
+      ['Ácido fólico','ng/mL',3,17]
+    ]],
+    ['Tireoide',[
+      ['TSH','µUI/mL',0.4,4],
+      ['T4 livre','ng/dL',0.8,1.8]
+    ]]
+  ];
+  var CAT=[];
+  G.forEach(function(g){g[1].forEach(function(e){CAT.push(e);});});
+
+  var pacientes=[], exames={};
   try{pacientes=JSON.parse(localStorage.getItem('pacientes')||'[]');}catch(e){pacientes=[];}
   try{exames=JSON.parse(localStorage.getItem('exames')||'{}');}catch(e){exames={};}
-  try{analises=JSON.parse(localStorage.getItem('analises')||'{}');}catch(e){analises={};}
-  function salvar(){
-    try{
-      localStorage.setItem('exames',JSON.stringify(exames));
-      localStorage.setItem('analises',JSON.stringify(analises));
-    }catch(e){}
-  }
+  function salvar(){try{localStorage.setItem('exames',JSON.stringify(exames));}catch(e){}}
 
-  function pad(n){return (n<10?'0':'')+n;}
-  function br(s){var p=String(s).split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:s;}
+  function br(s){var p=String(s||'').split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:'Sem data';}
   function esc(t){var d=document.createElement('div');d.textContent=t==null?'':String(t);return d.innerHTML;}
-  function num(v){return parseFloat(String(v).replace(',','.'))||0;}
-  var ROT={baixo:'Baixo',normal:'Normal',alto:'Alto'};
+  function num(v){
+    var s=String(v==null?'':v).trim().replace(',','.');
+    if(s==='')return null;
+    var n=parseFloat(s);
+    return isNaN(n)||!/^-?\d/.test(s)?null:n;
+  }
+  function faixa(min,max){
+    if(min==null&&max==null)return 'sem referência';
+    if(max==null)return 'acima de '+min;
+    if(min==null||min===0)return 'até '+max;
+    return min+' a '+max;
+  }
+  function classif(v,min,max){
+    if(v==null)return 'sem';
+    if(min!=null&&v<min)return 'baixo';
+    if(max!=null&&v>max)return 'alto';
+    return 'normal';
+  }
+  var ROT={baixo:'Baixo',normal:'Normal',alto:'Alto',sem:'Sem referência'};
+  function rf(e,sexo){return (sexo==='m'&&e.length>4)?[e[4],e[5]]:[e[2],e[3]];}
 
-  var sel=document.getElementById('sel-paciente');
   var idx=parseInt(new URLSearchParams(location.search).get('i'),10);
   if(isNaN(idx)||!pacientes[idx])idx=pacientes.length?0:-1;
 
+  var selP=document.getElementById('sel-paciente');
+  var area=document.getElementById('area');
   if(!pacientes.length){
     document.getElementById('sem-pacientes').classList.remove('oculto');
-    sel.parentNode.classList.add('oculto');
+    selP.parentNode.classList.add('oculto');
+    area.classList.add('oculto');
   }else{
     pacientes.forEach(function(p,i){
       var o=document.createElement('option');
       o.value=i;o.textContent=p.nome||('Paciente '+(i+1));
-      sel.appendChild(o);
+      selP.appendChild(o);
     });
-    sel.value=String(idx);
-    sel.addEventListener('change',function(){
-      idx=parseInt(sel.value,10);
+    selP.value=String(idx);
+    selP.addEventListener('change',function(){
+      idx=parseInt(selP.value,10);
       var u=new URL(location.href);
       u.searchParams.set('i',idx);
       history.replaceState(null,'',u.toString());
@@ -174,54 +256,111 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
     });
   }
 
+  var selE=document.getElementById('ex-exame');
+  var k=0;
+  G.forEach(function(g){
+    var og=document.createElement('optgroup');og.label=g[0];
+    g[1].forEach(function(e){
+      var o=document.createElement('option');o.value=String(k);o.textContent=e[0];
+      og.appendChild(o);k++;
+    });
+    selE.appendChild(og);
+  });
+  var og2=document.createElement('optgroup');og2.label='Outros';
+  var oo=document.createElement('option');oo.value='outro';oo.textContent='Outro exame (digitar)';
+  og2.appendChild(oo);selE.appendChild(og2);
+
+  var sexoEl=document.getElementById('ex-sexo');
+  var unidEl=document.getElementById('ex-unid');
+  var minEl=document.getElementById('ex-min');
+  var maxEl=document.getElementById('ex-max');
+  var valEl=document.getElementById('ex-valor');
+  var outroEl=document.getElementById('ex-outro');
+
+  function preencherRef(){
+    var i=selE.value, outro=i==='outro';
+    document.getElementById('campo-outro').classList.toggle('oculto',!outro);
+    if(outro){unidEl.value='';minEl.value='';maxEl.value='';}
+    else{
+      var e=CAT[+i], r=rf(e,sexoEl.value);
+      unidEl.value=e[1];
+      minEl.value=r[0]==null?'':String(r[0]).replace('.',',');
+      maxEl.value=r[1]==null?'':String(r[1]).replace('.',',');
+    }
+    previa();
+  }
+  function previa(){
+    var prev=document.getElementById('ex-prev');
+    var v=num(valEl.value);
+    if(String(valEl.value).trim()===''){prev.innerHTML='';return;}
+    if(v==null){prev.innerHTML='<span class="tag sem">Sem referência</span> <small>Digite um número para classificar.</small>';return;}
+    var s=classif(v,num(minEl.value),num(maxEl.value));
+    prev.innerHTML='<span class="tag '+s+'">'+ROT[s]+'</span> <small>referência: '+esc(faixa(num(minEl.value),num(maxEl.value)))+'</small>';
+  }
+  selE.addEventListener('change',preencherRef);
+  sexoEl.addEventListener('change',preencherRef);
+  valEl.addEventListener('input',previa);
+  minEl.addEventListener('input',previa);
+  maxEl.addEventListener('input',previa);
+  preencherRef();
+
   function nome(){return idx>=0&&pacientes[idx]?pacientes[idx].nome:'';}
 
   function render(){
     var n=nome();
-    if(!n){document.getElementById('area').classList.add('oculto');return;}
-    document.getElementById('area').classList.remove('oculto');
+    if(!n){area.classList.add('oculto');return;}
+    area.classList.remove('oculto');
     document.getElementById('titulo').textContent='Exames de '+n;
     document.getElementById('voltar').href='../perfil/index.html?i='+idx;
-    document.getElementById('ex-status').textContent='';
     renderLista();
-    renderAnalise();
   }
 
   function renderLista(){
     var n=nome(), L=exames[n]||[];
-    document.getElementById('ex-lista').innerHTML=L.length?L.map(function(x,i){
-      return '<div class="item"><span>'+esc(x.data?br(x.data):'Sem data')+' · '+esc(x.exame)+': <b style="font-weight:normal">'+esc(x.valor)+' '+esc(x.unidade)+'</b>'+(x.ref?' (ref.: '+esc(x.ref)+')':' (sem referência)')+'</span><button class="mini" type="button" data-rem="'+i+'">Remover</button></div>';
-    }).join(''):'<p class="vazio">Nenhum exame lançado para esta paciente.</p>';
-  }
+    var cont={normal:0,baixo:0,alto:0};
+    L.forEach(function(x){
+      var s=x.min!==undefined?classif(num(x.valor),x.min,x.max):'sem';
+      if(cont[s]!==undefined)cont[s]++;
+    });
+    document.getElementById('n-normal').textContent=cont.normal;
+    document.getElementById('n-baixo').textContent=cont.baixo;
+    document.getElementById('n-alto').textContent=cont.alto;
 
-  function renderAnalise(){
-    var n=nome(), a=analises[n], box=document.getElementById('ex-analise');
-    if(!a||!a.itens||!a.itens.length){box.innerHTML='<p class="vazio">Nenhuma análise feita para esta paciente.</p>';return;}
-    box.innerHTML='<p class="vazio" style="margin-top:0">Análise de '+esc(a.data)+'</p>'+a.itens.map(function(x){
-      var s=String(x.situacao||'').toLowerCase(),tag=ROT[s]||'Sem referência',cls=ROT[s]?s:'';
-      return '<div class="resultado"><span class="tag '+cls+'">'+esc(tag)+'</span><b>'+esc(x.exame)+'</b><small>'+esc(x.comentario)+'</small></div>';
+    var ordem=L.map(function(x,i){return {x:x,i:i};});
+    ordem.sort(function(a,b){return String(b.x.data).localeCompare(String(a.x.data));});
+    var box=document.getElementById('ex-lista');
+    if(!ordem.length){box.innerHTML='<p class="vazio">Nenhum exame lançado para esta paciente.</p>';return;}
+    box.innerHTML=ordem.map(function(o){
+      var x=o.x;
+      var s=x.min!==undefined?classif(num(x.valor),x.min,x.max):'sem';
+      var ref=x.min!==undefined?faixa(x.min,x.max):(x.ref||'sem referência');
+      return '<div class="item"><span class="txt">'+esc(br(x.data))+' · <b style="font-weight:normal">'+esc(x.exame)+'</b>: '+esc(x.valor)+' '+esc(x.unidade)+'<small>Referência: '+esc(ref)+'</small></span><span class="tag '+s+'">'+ROT[s]+'</span><button class="mini" type="button" data-rem="'+o.i+'">Remover</button></div>';
     }).join('');
   }
 
   document.getElementById('ex-add').addEventListener('click',function(){
     var n=nome(), st=document.getElementById('ex-status');
-    var exame=document.getElementById('ex-nome').value.trim();
-    var valor=document.getElementById('ex-valor').value.trim();
-    if(!exame||!valor){st.textContent='Preencha o nome do exame e o resultado.';return;}
+    var i=selE.value;
+    var exame=i==='outro'?outroEl.value.trim():CAT[+i][0];
+    if(!exame){st.textContent='Escolha o exame ou digite o nome.';return;}
+    var v=num(valEl.value);
+    if(String(valEl.value).trim()===''){st.textContent='Digite o resultado.';return;}
+    if(v==null){st.textContent='Use número no resultado (ex.: 98 ou 5,4).';return;}
     if(!exames[n])exames[n]=[];
     exames[n].push({
       data:document.getElementById('ex-data').value,
       exame:exame,
-      valor:valor,
-      unidade:document.getElementById('ex-unid').value.trim(),
-      ref:document.getElementById('ex-ref').value.trim()
+      valor:String(valEl.value).trim(),
+      unidade:unidEl.value.trim(),
+      min:num(minEl.value),
+      max:num(maxEl.value)
     });
-    delete analises[n];
     salvar();
-    ['ex-nome','ex-valor','ex-unid','ex-ref'].forEach(function(id){document.getElementById(id).value='';});
-    st.textContent='Exame adicionado. Rode a análise de novo para incluir.';
+    valEl.value='';
+    document.getElementById('ex-prev').innerHTML='';
+    st.textContent='Exame adicionado.';
     renderLista();
-    renderAnalise();
+    valEl.focus();
   });
 
   document.getElementById('ex-lista').addEventListener('click',function(e){
@@ -229,60 +368,9 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
     if(!b)return;
     var n=nome(), i=+b.getAttribute('data-rem');
     (exames[n]||[]).splice(i,1);
-    delete analises[n];
     salvar();
     document.getElementById('ex-status').textContent='';
     renderLista();
-    renderAnalise();
-  });
-
-  function perguntarIA(prompt){
-    var k=localStorage.getItem('gemini_key');
-    if(!k)return Promise.reject(new Error('Cole a chave do Gemini na configuração do plano alimentar para usar a análise.'));
-    return fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(k),{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:'application/json'}})
-    })
-    .then(function(r){if(!r.ok)throw new Error('O Gemini respondeu com erro '+r.status+'. Confira a chave e tente de novo.');return r.json();})
-    .then(function(j){
-      if(!j.candidates||!j.candidates[0])throw new Error('O Gemini não devolveu resposta. Tente de novo.');
-      var v=JSON.parse(j.candidates[0].content.parts[0].text);
-      return Array.isArray(v)?v:(v.itens||v.resultados||[]);
-    });
-  }
-
-  document.getElementById('ex-analisar').addEventListener('click',function(){
-    var n=nome(), L=exames[n]||[], st=document.getElementById('ex-status');
-    if(!L.length){st.textContent='Lance pelo menos um exame antes de analisar.';return;}
-    var p=pacientes[idx]||{}, pl=null;
-    try{var planos=JSON.parse(localStorage.getItem('planos')||'{}');pl=planos[n]||null;}catch(e){pl=null;}
-    var ctx='Paciente: '+n+'. Sexo: '+(p.sexo||'não informado')+'. Idade: '+(p.idade||'não informada')+' anos. Peso: '+(p.peso||'não informado')+' kg. Altura: '+(p.altura||'não informada')+' m. Objetivo: '+(p.objetivo||(pl?pl.objetivo:'não informado'))+'.'
-      +(pl?' Plano atual: meta de '+pl.kcal+' kcal por dia; proteínas '+pl.prot+' g; carboidratos '+pl.carb+' g; gorduras '+pl.gord+' g.':'');
-    var prompt='Você ajuda uma nutricionista brasileira a interpretar exames laboratoriais.\n'
-      +ctx+'\nExames (JSON): '+JSON.stringify(L)+'\n'
-      +'Para cada exame, compare o valor com a referência informada no próprio exame e classifique em "baixo", "normal", "alto" ou "sem referência" (use "sem referência" quando o campo de referência estiver vazio, sem inventar faixa). '
-      +'Use o contexto da paciente (idade, sexo, objetivo, plano) apenas para um comentário curto de 1 a 2 frases em português. '
-      +'Não faça diagnóstico, não sugira medicamentos e não use dados que não estão aqui. '
-      +'Responda somente um JSON: uma lista de objetos com as chaves "exame", "situacao" e "comentario".';
-
-    var b=document.getElementById('ex-analisar');
-    b.disabled=true;
-    st.textContent='Analisando os exames...';
-    perguntarIA(prompt).then(function(lista){
-      var itens=(lista||[]).map(function(x){
-        return {exame:String(x.exame||''),situacao:String(x.situacao||'sem referência'),comentario:String(x.comentario||'')};
-      }).filter(function(x){return x.exame;});
-      if(!itens.length)throw new Error('O Gemini não trouxe análise. Tente de novo.');
-      analises[n]={data:new Date().toLocaleDateString('pt-BR'),itens:itens};
-      salvar();
-      st.textContent='Análise pronta.';
-    }).catch(function(err){
-      st.textContent=err.message;
-    }).then(function(){
-      b.disabled=false;
-      renderAnalise();
-    });
   });
 
   render();
