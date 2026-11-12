@@ -41,6 +41,7 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 .acoes{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;align-items:center}
 .btn{padding:12px 20px;border:1px solid #7A816C;border-radius:10px;background:#7A816C;color:#FFFFFF;font:inherit;font-size:17px;cursor:pointer}
 .btn:hover{background:#AE6965;border-color:#AE6965}
+a.btn{text-decoration:none;display:inline-block}
 .btn.secundario{background:transparent;color:#7A816C}
 .btn.secundario:hover{background:#D1A9A5;color:#7A816C;border-color:#D1A9A5}
 .btn.perigo{background:#AE6965;border-color:#AE6965}
@@ -218,6 +219,7 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 <section class="visao" id="perfil">
 <div class="cartao">
 <div class="acoes"><button class="btn secundario" data-ir="pacientes">Voltar à lista</button></div>
+<div class="acoes" id="perfil-botoes"><a class="btn" id="pb-visao" href="#">Visão geral</a><a class="btn" id="pb-dados" href="#">Dados</a><a class="btn" id="pb-exames" href="#">Exames</a><a class="btn" id="pb-plano" href="#">Plano alimentar</a><a class="btn" id="pb-medidas" href="#">Medidas</a><a class="btn" id="pb-evolucao" href="#">Evolução</a></div>
 <div class="perfil-detalhe">
 <div class="foto" id="perfil-foto"></div>
 <div>
@@ -323,6 +325,13 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
   function abrirPerfil(i){
     var p=pacientes[i];
     if(!p)return;
+    var q='?i='+i;
+    document.getElementById('pb-visao').href='../pacientes/perfil/index.html'+q;
+    document.getElementById('pb-dados').href='../pacientes/perfil/index.html'+q;
+    document.getElementById('pb-exames').href='../pacientes/exames/index.html'+q;
+    document.getElementById('pb-plano').href='plano/index.html';
+    document.getElementById('pb-medidas').href='../pacientes/medidas/index.html'+q;
+    document.getElementById('pb-evolucao').href='../pacientes/evolu%C3%A7%C3%A3o/index.html'+q;
     var f=document.getElementById('perfil-foto');
     f.style.backgroundImage=p.foto?'url('+p.foto+')':'none';
     f.textContent=p.foto?'':(p.nome||'?').charAt(0).toUpperCase();
