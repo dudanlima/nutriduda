@@ -1,1 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#7A816C">
+<title>Evolução do paciente</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{font-family:"Times New Roman",Times,serif;color:#3B332C;background:#7A816C url("../../ceu.jpg") center/cover no-repeat fixed;min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;background:rgba(122,129,108,.55);z-index:0}
+.app{position:relative;z-index:1;display:flex;min-height:100vh}
+aside{width:230px;flex-shrink:0;background:rgba(122,129,108,.92);color:#E5DFD6;padding:22px 16px;transition:width .25s,padding .25s;overflow:hidden}
+aside.recolhido{width:72px;padding:22px 10px}
+.topo-menu{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:8px}
+.alternar{width:38px;height:38px;border:1px solid #D1A9A5;border-radius:8px;background:transparent;color:#E5DFD6;font-size:20px;flex-shrink:0;cursor:pointer}
+.alternar:hover{background:#D1A9A5;color:#7A816C}
+.titulo-menu{font-size:17px;white-space:nowrap}
+aside.recolhido .titulo-menu,aside.recolhido .rotulo{display:none}
+.menu{display:flex;flex-direction:column;gap:8px}
+.menu a{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1px solid transparent;border-radius:8px;color:#E5DFD6;font-size:17px;white-space:nowrap;text-decoration:none}
+.menu a:hover{background:rgba(229,223,214,.18)}
+.menu a.ativo{background:#E5DFD6;color:#7A816C;border-color:#E5DFD6}
+.icone{width:22px;text-align:center;flex-shrink:0;font-weight:bold;color:#D1A9A5}
+.menu a.ativo .icone{color:#AE6965}
+main{flex:1;min-width:0;padding:clamp(18px,3vw,36px)}
+header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;margin-bottom:24px}
+.botao-topo{padding:10px 18px;border:1px solid #D1A9A5;border-radius:8px;color:#E5DFD6;text-decoration:none;font-size:16px;background:rgba(122,129,108,.35)}
+.botao-topo:hover{background:#D1A9A5;color:#7A816C}
+.cartao{background:rgba(229,223,214,.94);border:1px solid #D1A9A5;border-radius:14px;padding:clamp(18px,4vw,36px);box-shadow:0 8px 24px rgba(59,51,44,.18);margin-bottom:20px;min-width:0}
+.cartao h1{margin:0 0 8px;font-weight:normal;font-size:clamp(24px,4vw,36px);color:#7A816C;overflow-wrap:anywhere}
+.cartao h2{font-weight:normal;font-size:20px;color:#7A816C;margin:24px 0 10px}
+.cartao p{margin:0 0 12px;font-size:17px;line-height:1.5}
+.btn{padding:12px 20px;border:1px solid #7A816C;border-radius:10px;background:#7A816C;color:#FFFFFF;font:inherit;font-size:17px;cursor:pointer;text-decoration:none;display:inline-block}
+.btn:hover{background:#AE6965;border-color:#AE6965}
+.btn.secundario{background:transparent;color:#7A816C}
+.btn.secundario:hover{background:#D1A9A5;color:#7A816C;border-color:#D1A9A5}
+.acoes{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.form label{display:flex;flex-direction:column;gap:6px;font-size:15px}
+.form input,.form select,.form textarea{font:inherit;font-size:16px;padding:10px;border:1px solid #A58B71;border-radius:8px;background:#FFFFFF;color:#3B332C;max-width:100%;width:100%}
+.form textarea{min-height:120px;resize:vertical}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.card{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:12px;padding:14px;text-align:center}
+.card .rotulo-c{display:block;font-size:14px;color:#A58B71}
+.card .valor{display:block;font-size:20px;color:#7A816C;margin-top:4px}
+.card .detalhe{display:block;font-size:13px;color:#AE6965;margin-top:4px}
+.graficos{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:10px}
+.bloco{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:12px;padding:14px;min-width:0}
+.bloco h2{margin:0 0 8px;font-size:18px}
+canvas{display:block;max-width:100%}
+.nota{font-size:14px;color:#A58B71;font-style:italic;margin-top:8px}
+.item{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:10px;padding:12px;margin-bottom:10px;font-size:16px;line-height:1.5;overflow-wrap:anywhere}
+.item .dt{color:#7A816C;font-size:18px}
+.reg{white-space:pre-line;margin:6px 0;font-size:16px}
+.mini{font:inherit;font-size:14px;padding:6px 10px;border:1px solid #7A816C;border-radius:8px;background:transparent;color:#7A816C;cursor:pointer;margin-top:4px}
+.mini:hover{background:#D1A9A5;border-color:#D1A9A5}
+.vazio{font-style:italic;color:#A58B71;margin-top:10px}
+.msg{font-style:italic;color:#AE6965;min-height:20px;margin-top:10px}
+.oculto{display:none!important}
+@media(max-width:700px){
+  .app{flex-direction:column}
+  aside{width:100%;padding:14px 16px}
+  aside.recolhido{width:100%;padding:14px 16px}
+  aside.recolhido .titulo-menu,aside.recolhido .rotulo{display:inline}
+  .menu{flex-direction:row;flex-wrap:wrap}
+  .menu a{flex:1 1 auto;justify-content:center}
+  .rotulo{display:inline}
+  aside.fechado .menu{display:none}
+  .botao-topo{width:100%;text-align:center}
+  .btn{width:100%;text-align:center}
+  .graficos{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside id="menu">
+<div class="topo-menu">
+<span class="titulo-menu">Menu</span>
+<button class="alternar" id="alternar" aria-label="Recolher ou expandir menu">&#9776;</button>
+</div>
+<nav class="menu">
+<a href="../../painel/index.html"><span class="icone">I</span><span class="rotulo">Início</span></a>
+<a href="../../painel/index.html#agenda"><span class="icone">A</span><span class="rotulo">Agenda</span></a>
+<a href="../../painel/plano/index.html"><span class="icone">N</span><span class="rotulo">Plano alimentar</span></a>
+<a href="../index.html" class="ativo"><span class="icone">P</span><span class="rotulo">Pacientes</span></a>
+<a href="../cadastro.html"><span class="icone">+</span><span class="rotulo">Cadastrar paciente</span></a>
+<a href="../../painel/index.html#configuracoes"><span class="icone">C</span><span class="rotulo">Configurações</span></a>
+</nav>
+</aside>
+<main>
+<header class="cabecalho">
+<a class="botao-topo" href="../../login/index.html">Sair</a>
+</header>
+<div class="cartao" id="cartao"></div>
+</main>
+</div>
 
+<script>
+(function(){
+  var menu=document.getElementById('menu');
+  document.getElementById('alternar').addEventListener('click',function(){
+    menu.classList.toggle('recolhido');
+    menu.classList.toggle('fechado');
+  });
+
+  function ler(k,d){try{var v=JSON.parse(localStorage.getItem(k)||'null');return v==null?d:v;}catch(e){return d;}}
+  function gravar(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}}
+  function esc(t){var d=document.createElement('div');d.textContent=t==null?'':String(t);return d.innerHTML;}
+  function num(v){var n=parseFloat(String(v==null?'':v).replace(',','.'));return isNaN(n)?0:n;}
+  function fx(v,c){return v.toFixed(c).replace('.',',');}
+  function nf(v){return (Math.round(v*10)/10).toString().replace('.',',');}
+  function br(s){var p=String(s||'').split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:'Sem data';}
+  function porData(a,b){return a.data<b.data?-1:a.data>b.data?1:0;}
+
+  var pacientes=ler('pacientes',[]), medidas=ler('medidas',{}), exames=ler('exames',{}), evolucoes=ler('evolucoes',{});
+  var cartao=document.getElementById('cartao');
+  var idx=parseInt(new URLSearchParams(location.search).get('i'),10);
+  var exSel=null;
+
+  if(!pacientes.length){
+    cartao.innerHTML='<h1>Nenhum paciente cadastrado</h1><p>Cadastre um paciente primeiro.</p><div class="acoes"><a class="btn" href="../cadastro.html">Cadastrar paciente</a></div>';
+    return;
+  }
+  if(isNaN(idx)||!pacientes[idx])idx=0;
+
+  function calc(e,p){
+    var r={imc:0,rcq:0,gord:null,classe:''};
+    var alt=num(e.altura); if(alt>3)alt=alt/100;
+    var peso=num(e.peso);
+    if(peso&&alt)r.imc=peso/(alt*alt);
+    var c=e.circ||{}, d=e.dob||{};
+    var cin=num(c.cintura), qua=num(c.quadril);
+    if(cin&&qua)r.rcq=cin/qua;
+    var idade=num(p.idade), S=0, DC=0;
+    if(idade){
+      if(e.sexo==='Masculino'&&num(d.peitoral)&&num(d.abdominal)&&num(d.coxaD)){
+        S=num(d.peitoral)+num(d.abdominal)+num(d.coxaD);
+        DC=1.10938-0.0008267*S+0.0000016*S*S-0.0002574*idade;
+      }else if(e.sexo==='Feminino'&&num(d.tricipital)&&num(d.suprailiaca)&&num(d.coxaD)){
+        S=num(d.tricipital)+num(d.suprailiaca)+num(d.coxaD);
+        DC=1.0994921-0.0009929*S+0.0000023*S*S-0.0001392*idade;
+      }
+      if(DC>0)r.gord=495/DC-450;
+    }
+    return r;
+  }
+
+  function desenhar(id,pts,un){
+    var c=document.getElementById(id); if(!c)return;
+    var dpr=window.devicePixelRatio||1, w=Math.max(260,c.parentNode.clientWidth-28), h=200;
+    c.style.width=w+'px';c.style.height=h+'px';c.width=w*dpr;c.height=h*dpr;
+    var g=c.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
+    g.font='13px "Times New Roman",serif';
+    var P=40,W=w-P*2,H=h-P*2;
+    var ys=pts.map(function(q){return q.y;}), mn=Math.min.apply(null,ys), mx=Math.max.apply(null,ys);
+    if(mn===mx){mn-=1;mx+=1;}
+    var m=(mx-mn)*0.12; mn-=m; mx+=m;
+    function X(i){return pts.length===1?P+W/2:P+i*W/(pts.length-1);}
+    function Y(v){return h-P-(v-mn)/(mx-mn)*H;}
+    g.strokeStyle='#A58B71';g.lineWidth=1;g.beginPath();g.moveTo(P,P);g.lineTo(P,h-P);g.lineTo(w-P,h-P);g.stroke();
+    if(pts.length>1){
+      g.strokeStyle='#7A816C';g.lineWidth=2;g.beginPath();
+      pts.forEach(function(q,i){if(i)g.lineTo(X(i),Y(q.y));else g.moveTo(X(i),Y(q.y));});
+      g.stroke();
+    }
+    g.textAlign='center';
+    var step=Math.ceil(pts.length/6);
+    pts.forEach(function(q,i){
+      g.fillStyle='#AE6965';g.beginPath();g.arc(X(i),Y(q.y),4,0,Math.PI*2);g.fill();
+      g.fillStyle='#3B332C';g.fillText(nf(q.y),X(i),Y(q.y)-9);
+      if(i%step===0||i===pts.length-1){g.fillStyle='#A58B71';g.fillText(br(q.d),X(i),h-P+16);}
+    });
+    g.textAlign='left';g.fillStyle='#A58B71';
+    g.fillText(un,4,14);
+    g.fillText(nf(mx),4,P+4);g.fillText(nf(mn),4,h-P);
+  }
+
+  function tendencia(pts,un,dec){
+    if(pts.length<2)return '-';
+    var a=pts[0].y, b=pts[pts.length-1].y, dv=b-a;
+    return fx(b,dec)+' '+un+' ('+(dv>0?'+':'')+fx(dv,dec)+')';
+  }
+
+  function render(){
+    var p=pacientes[idx], n=p.nome||'Paciente';
+    var med=(medidas[n]||[]).slice().sort(porData);
+    var exs=exames[n]||[];
+    var evo=evolucoes[n]||[];
+
+    var sPeso=[],sImc=[],sGord=[],sCint=[];
+    med.forEach(function(e){
+      var r=calc(e,p);
+      if(num(e.peso))sPeso.push({d:e.data,y:num(e.peso)});
+      if(r.imc)sImc.push({d:e.data,y:r.imc});
+      if(r.gord!=null)sGord.push({d:e.data,y:r.gord});
+      if(num((e.circ||{}).cintura))sCint.push({d:e.data,y:num(e.circ.cintura)});
+    });
+
+    var nomesNum=[];
+    exs.forEach(function(x){if(num(x.valor)&&nomesNum.indexOf(x.exame)<0&&x.valor.match(/[0-9]/))nomesNum.push(x.exame);});
+    if(nomesNum.indexOf(exSel)<0)exSel=nomesNum[0]||null;
+    var sExame=exs.filter(function(x){return x.exame===exSel&&x.valor.match(/[0-9]/);})
+      .map(function(x){return {d:x.data,y:num(x.valor),ref:x.ref,un:x.unidade};}).sort(porData);
+
+    var datas=[];
+    function addD(d){if(d&&datas.indexOf(d)<0)datas.push(d);}
+    med.forEach(function(e){addD(e.data);});
+    exs.forEach(function(x){addD(x.data);});
+    evo.forEach(function(x){addD(x.data);});
+    datas.sort();datas.reverse();
+
+    var ultM=med.length?calc(med[med.length-1],p):null;
+    var opts=pacientes.map(function(x,i){return '<option value="'+i+'"'+(i===idx?' selected':'')+'>'+esc(x.nome||('Paciente '+(i+1)))+'</option>';}).join('');
+
+    var cards='<div class="cards">'
+      +'<div class="card"><span class="rotulo-c">Consultas registradas</span><span class="valor">'+datas.length+'</span></div>'
+      +'<div class="card"><span class="rotulo-c">Peso (evolução)</span><span class="valor" style="font-size:16px">'+esc(tendencia(sPeso,'kg',1))+'</span></div>'
+      +'<div class="card"><span class="rotulo-c">IMC atual</span><span class="valor">'+(ultM&&ultM.imc?fx(ultM.imc,1):'-')+'</span></div>'
+      +'<div class="card"><span class="rotulo-c">Gordura (evolução)</span><span class="valor" style="font-size:16px">'+esc(tendencia(sGord,'%',1))+'</span></div>'
+      +'<div class="card"><span class="rotulo-c">Cintura (evolução)</span><span class="valor" style="font-size:16px">'+esc(tendencia(sCint,'cm',1))+'</span></div>'
+      +'</div>';
+
+    function bloco(titulo,id,vazio,un){
+      return '<div class="bloco"><h2>'+titulo+'</h2>'+(vazio?'<p class="vazio">'+vazio+'</p>':'<canvas id="'+id+'"></canvas>')+'</div>';
+    }
+
+    var graf='<div class="graficos">'
+      +bloco('Peso (kg)','c-peso',sPeso.length?'':'Nenhuma avaliação de peso ainda. Registre em Medidas.')
+      +bloco('IMC','c-imc',sImc.length?'':'IMC aparece quando há peso e altura registrados.')
+      +bloco('Gordura corporal (%)','c-gord',sGord.length?'':'Precisa das 3 dobras do sexo e da idade cadastrada.')
+      +bloco('Cintura (cm)','c-cint',sCint.length?'':'Nenhuma medida de cintura ainda.')
+      +'<div class="bloco"><h2>Exames</h2>'
+      +(nomesNum.length
+        ?'<select id="sel-ex" style="margin-bottom:10px;max-width:100%">'+nomesNum.map(function(x){return '<option value="'+esc(x)+'"'+(x===exSel?' selected':'')+'>'+esc(x)+'</option>';}).join('')+'</select>'
+          +'<canvas id="c-ex"></canvas>'
+          +'<p class="nota">'+(sExame.length&&sExame[sExame.length-1].ref?'Referência do último laudo: '+esc(sExame[sExame.length-1].ref)+'.':'Sem referência informada para este exame.')+'</p>'
+        :'<p class="vazio">Nenhum exame numérico lançado. Lance em Exames do perfil.</p>')
+      +'</div></div>';
+
+    var timeline=datas.map(function(d){
+      var m=med.filter(function(e){return e.data===d;})[0];
+      var ex=exs.filter(function(x){return x.data===d;});
+      var ev=[];evo.forEach(function(x,i){if(x.data===d)ev.push({x:x,i:i});});
+      var partes=[];
+      if(m){
+        var r=calc(m,p);
+        partes.push('peso '+(m.peso||'-')+' kg'+(r.imc?' · IMC '+fx(r.imc,1):'')+(r.gord!=null?' · gordura '+fx(r.gord,1)+'%':''));
+      }
+      if(ex.length)partes.push('exames: '+ex.map(function(x){return x.exame+' '+x.valor+(x.unidade?' '+x.unidade:'');}).join(', '));
+      var corpo=partes.length?'<p class="reg" style="margin:4px 0">'+esc(partes.join(' · '))+'</p>':'';
+      ev.forEach(function(o){
+        corpo+='<p class="reg">'+esc(o.x.texto)+'</p><button class="mini" type="button" data-rem="'+o.i+'">Apagar registro</button>';
+      });
+      return '<div class="item"><div class="dt">'+esc(br(d))+'</div>'+corpo+'</div>';
+    }).join('');
+
+    cartao.innerHTML=
+      '<h1>Evolução de '+esc(n)+'</h1>'
+      +'<p>'+esc(p.objetivo||'Objetivo não informado')+' · '+esc(p.idade||'?')+' anos</p>'
+      +'<div class="acoes"><a class="btn secundario" href="../perfil/index.html?i='+idx+'">Voltar ao perfil</a></div>'
+      +'<div class="form"><label>Paciente<select id="sel-p">'+opts+'</select></label></div>'
+      +'<h2>Resumo</h2>'+cards
+      +'<h2>Gráficos da evolução</h2>'+graf
+      +'<h2>Registrar consulta</h2>'
+      +'<div class="form">'
+      +'<label>Data da consulta<input type="date" id="v-data" value="'+new Date().toISOString().slice(0,10)+'"></label>'
+      +'<label style="grid-column:1/-1">Registro da evolução<textarea id="v-texto" placeholder="Descreva o que foi observado e combinado nesta consulta."></textarea></label>'
+      +'</div>'
+      +'<div class="acoes"><button class="btn" id="v-salvar">Salvar registro</button></div>'
+      +'<div class="msg" id="v-msg"></div>'
+      +'<h2>Linha do tempo</h2>'
+      +(datas.length?timeline:'<p class="vazio">Nenhuma consulta registrada ainda. As medidas, os exames e os registros aparecem aqui por data.</p>');
+
+    document.getElementById('sel-p').addEventListener('change',function(){
+      idx=parseInt(this.value,10);
+      var u=new URL(location.href);u.searchParams.set('i',idx);history.replaceState(null,'',u.toString());
+      exSel=null;render();
+    });
+    var se=document.getElementById('sel-ex');
+    if(se)se.addEventListener('change',function(){exSel=this.value;render();});
+
+    desenhar('c-peso',sPeso,'kg');
+    desenhar('c-imc',sImc,'IMC');
+    desenhar('c-gord',sGord,'%');
+    desenhar('c-cint',sCint,'cm');
+    if(nomesNum.length)desenhar('c-ex',sExame,sExame.length&&sExame[0].un?sExame[0].un:'');
+
+    document.getElementById('v-salvar').addEventListener('click',function(){
+      var msg=document.getElementById('v-msg');
+      var data=document.getElementById('v-data').value;
+      var texto=document.getElementById('v-texto').value.trim();
+      if(!data){msg.textContent='Informe a data da consulta.';return;}
+      if(!texto){msg.textContent='Escreva o registro da consulta.';return;}
+      evo.push({data:data,texto:texto});
+      evolucoes[n]=evo;
+      if(!gravar('evolucoes',evolucoes)){msg.textContent='Não foi possível salvar: o armazenamento do navegador está cheio.';return;}
+      render();
+      document.getElementById('v-msg').textContent='Registro salvo.';
+    });
+
+    cartao.querySelectorAll('[data-rem]').forEach(function(b){
+      b.addEventListener('click',function(){
+        if(!confirm('Apagar este registro?'))return;
+        evo.splice(+b.getAttribute('data-rem'),1);
+        evolucoes[n]=evo;
+        gravar('evolucoes',evolucoes);
+        render();
+      });
+    });
+  }
+
+  var rt;
+  window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(render,200);});
+
+  render();
+})();
+</script>
+</body>
+</html>
