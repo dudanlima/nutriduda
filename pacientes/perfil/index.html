@@ -122,10 +122,11 @@ select,input{font:inherit;font-size:16px;padding:10px;border:1px solid #A58B71;b
   var idx=parseInt(new URLSearchParams(location.search).get('i'),10);
   var aba='geral', fotoNova=null;
 
-  if(isNaN(idx)||!pacientes[idx]){
-    cartao.innerHTML='<h1>Paciente não encontrada</h1><p>Volte à lista e toque no perfil desejado.</p><div class="acoes"><a class="btn" href="../index.html">Voltar aos pacientes</a></div>';
+  if(!pacientes.length){
+    cartao.innerHTML='<h1>Nenhum paciente cadastrado</h1><p>Cadastre um paciente primeiro.</p><div class="acoes"><a class="btn" href="../cadastro.html">Cadastrar paciente</a></div>';
     return;
   }
+  if(isNaN(idx)||!pacientes[idx])idx=0;
 
   function prepararCanvas(c,h){
     var dpr=window.devicePixelRatio||1, w=c.clientWidth||300;
@@ -202,7 +203,10 @@ select,input{font:inherit;font-size:16px;padding:10px;border:1px solid #A58B71;b
     var nomesNum=[];
     ex.forEach(function(x){if(!isNaN(num(x.valor))&&nomesNum.indexOf(x.exame)<0)nomesNum.push(x.exame);});
 
-    var html='<div class="topo-perfil"><div class="foto" id="foto">'+(p.foto?'':esc(n.charAt(0).toUpperCase()))+'</div><div><h1>'+esc(n)+'</h1><p class="sub">'+esc(p.objetivo||'Objetivo não informado')+' · '+esc(p.idade||'?')+' anos</p></div></div>'
+    var opts=pacientes.map(function(x,i){return '<option value="'+i+'"'+(i===idx?' selected':'')+'>'+esc(x.nome||('Paciente '+(i+1)))+'</option>';}).join('');
+
+    var html='<div class="form" style="margin-bottom:16px"><label>Paciente<select id="sel-p">'+opts+'</select></label></div>'
+    +'<div class="topo-perfil"><div class="foto" id="foto">'+(p.foto?'':esc(n.charAt(0).toUpperCase()))+'</div><div><h1>'+esc(n)+'</h1><p class="sub">'+esc(p.objetivo||'Objetivo não informado')+' · '+esc(p.idade||'?')+' anos</p></div></div>'
     +'<div class="abas">'
     +'<button data-tab="geral" class="'+(aba==='geral'?'ativa':'')+'">Visão geral</button>'
     +'<button data-tab="dados" class="'+(aba==='dados'?'ativa':'')+'">Dados</button>'
@@ -277,6 +281,14 @@ select,input{font:inherit;font-size:16px;padding:10px;border:1px solid #A58B71;b
 
     var sx=document.getElementById('d-sexo');
     if(sx)sx.value=p.sexo||'';
+
+    var sp=document.getElementById('sel-p');
+    if(sp)sp.addEventListener('change',function(){
+      idx=parseInt(this.value,10);
+      aba='geral';
+      var u=new URL(location.href);u.searchParams.set('i',idx);history.replaceState(null,'',u.toString());
+      render();
+    });
 
     cartao.querySelectorAll('.abas button').forEach(function(b){
       b.addEventListener('click',function(){
