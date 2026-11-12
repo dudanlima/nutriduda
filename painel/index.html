@@ -41,10 +41,9 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 .acoes{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;align-items:center}
 .btn{padding:12px 20px;border:1px solid #7A816C;border-radius:10px;background:#7A816C;color:#FFFFFF;font:inherit;font-size:17px;cursor:pointer}
 .btn:hover{background:#AE6965;border-color:#AE6965}
-a.btn{text-decoration:none;display:inline-block}
+.btn:disabled{opacity:.5;cursor:default}
 .btn.secundario{background:transparent;color:#7A816C}
 .btn.secundario:hover{background:#D1A9A5;color:#7A816C;border-color:#D1A9A5}
-.btn.perigo{background:#AE6965;border-color:#AE6965}
 .lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-top:10px}
 .perfil{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:14px;padding:18px 12px;text-align:center;cursor:pointer;color:#3B332C;font:inherit}
 .perfil:hover{border-color:#7A816C;box-shadow:0 4px 14px rgba(59,51,44,.15)}
@@ -58,12 +57,6 @@ a.btn{text-decoration:none;display:inline-block}
 .form input,.form select,.form textarea{font:inherit;font-size:16px;padding:10px;border:1px solid #A58B71;border-radius:8px;background:#FFFFFF;color:#3B332C}
 .form .largo{grid-column:1/-1}
 .form textarea{min-height:80px;resize:vertical}
-.perfil-detalhe{display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
-.perfil-detalhe .foto{width:110px;height:110px;font-size:36px;margin:0}
-.info{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:10px}
-.info div{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:10px;padding:12px}
-.info small{display:block;color:#A58B71;font-size:14px}
-.info span{font-size:17px}
 .agenda-grade{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px;align-items:start}
 .cal-topo{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .cal-topo strong{font-size:22px;font-weight:normal;color:#7A816C}
@@ -206,6 +199,7 @@ a.btn{text-decoration:none;display:inline-block}
 </div>
 <div class="cartao oculto" id="pl-resultado"></div>
 </section>
+
 <section class="visao" id="pacientes">
 <div class="cartao">
 <h1>Pacientes</h1>
@@ -213,30 +207,6 @@ a.btn{text-decoration:none;display:inline-block}
 <div class="acoes"><button class="btn" data-ir="cadastro">Cadastrar paciente</button></div>
 <div class="lista" id="lista"></div>
 <p class="vazio" id="sem-pacientes">Nenhum paciente cadastrado ainda. Use "Cadastrar paciente" para começar.</p>
-</div>
-</section>
-
-<section class="visao" id="perfil">
-<div class="cartao">
-<div class="acoes"><button class="btn secundario" data-ir="pacientes">Voltar à lista</button></div>
-<div class="acoes" id="perfil-botoes"><a class="btn" id="pb-visao" href="#">Visão geral</a><a class="btn" id="pb-dados" href="#">Dados</a><a class="btn" id="pb-exames" href="#">Exames</a><a class="btn" id="pb-plano" href="#">Plano alimentar</a><a class="btn" id="pb-medidas" href="#">Medidas</a><a class="btn" id="pb-evolucao" href="#">Evolução</a></div>
-<div class="perfil-detalhe">
-<div class="foto" id="perfil-foto"></div>
-<div>
-<h1 id="perfil-nome" style="margin-bottom:4px"></h1>
-<p id="perfil-objetivo" class="destaque" style="margin:0"></p>
-</div>
-</div>
-<div class="info">
-<div><small>Idade</small><span id="perfil-idade"></span></div>
-<div><small>Peso</small><span id="perfil-peso"></span></div>
-<div><small>Altura</small><span id="perfil-altura"></span></div>
-<div><small>Telefone</small><span id="perfil-telefone"></span></div>
-<div><small>E-mail</small><span id="perfil-email"></span></div>
-<div><small>Restrições alimentares</small><span id="perfil-restricoes"></span></div>
-<div><small>Observações</small><span id="perfil-obs"></span></div>
-</div>
-<div class="acoes" style="margin-top:20px"><button class="btn perigo" id="excluir">Excluir paciente</button></div>
 </div>
 </section>
 
@@ -278,11 +248,13 @@ a.btn{text-decoration:none;display:inline-block}
     menu.classList.toggle('fechado');
   });
 
-  var pacientes=[], consultas=[];
+  var pacientes=[], consultas=[], planos={};
   try{pacientes=JSON.parse(localStorage.getItem('pacientes')||'[]');}catch(e){pacientes=[];}
   try{consultas=JSON.parse(localStorage.getItem('consultas')||'[]');}catch(e){consultas=[];}
+  try{planos=JSON.parse(localStorage.getItem('planos')||'{}');}catch(e){planos={};}
   function salvarPacientes(){try{localStorage.setItem('pacientes',JSON.stringify(pacientes));}catch(e){}}
   function salvarConsultas(){try{localStorage.setItem('consultas',JSON.stringify(consultas));}catch(e){}}
+  function salvarPlanos(){try{localStorage.setItem('planos',JSON.stringify(planos));}catch(e){}}
 
   var meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   function pad(n){return (n<10?'0':'')+n;}
@@ -294,9 +266,10 @@ a.btn{text-decoration:none;display:inline-block}
   var hojeIso=iso(hoje);
   var selecionado=hojeIso;
   var visao=new Date(hoje.getFullYear(),hoje.getMonth(),1);
+  var homeVisao=new Date(hoje.getFullYear(),hoje.getMonth(),1);
 
   function mostrar(v){
-    document.querySelectorAll('.visao').forEach(function(s){s.classList.remove('ativa')});
+    document.querySelectorAll('.visao').forEach(function(s){s.classList.remove('ativa');});
     var alvo=document.getElementById(v)||document.getElementById('boas-vindas');
     alvo.classList.add('ativa');
     document.querySelectorAll('.menu button[data-visao]').forEach(function(b){
@@ -317,39 +290,9 @@ a.btn{text-decoration:none;display:inline-block}
       var c=document.createElement('button');
       c.className='perfil';
       c.innerHTML='<div class="foto"'+(p.foto?' style="background-image:url('+esc(p.foto)+')"':'')+'>'+(p.foto?'':esc((p.nome||'?').charAt(0).toUpperCase()))+'</div><span class="nome">'+esc(p.nome)+'</span><span class="objetivo">'+esc(p.objetivo)+'</span><span class="idade">'+esc(p.idade)+' anos</span>';
-      c.addEventListener('click',function(){abrirPerfil(i);});
+      c.addEventListener('click',function(){location.href='../pacientes/perfil/index.html?i='+i;});
       lista.appendChild(c);
     });
-  }
-
-  function abrirPerfil(i){
-    var p=pacientes[i];
-    if(!p)return;
-    var q='?i='+i;
-    document.getElementById('pb-visao').href='../pacientes/perfil/index.html'+q;
-    document.getElementById('pb-dados').href='../pacientes/perfil/index.html'+q;
-    document.getElementById('pb-exames').href='../pacientes/exames/index.html'+q;
-    document.getElementById('pb-plano').href='plano/index.html';
-    document.getElementById('pb-medidas').href='../pacientes/medidas/index.html'+q;
-    document.getElementById('pb-evolucao').href='../pacientes/evolu%C3%A7%C3%A3o/index.html'+q;
-    var f=document.getElementById('perfil-foto');
-    f.style.backgroundImage=p.foto?'url('+p.foto+')':'none';
-    f.textContent=p.foto?'':(p.nome||'?').charAt(0).toUpperCase();
-    document.getElementById('perfil-nome').textContent=p.nome||'';
-    document.getElementById('perfil-objetivo').textContent=p.objetivo||'';
-    document.getElementById('perfil-idade').textContent=p.idade?p.idade+' anos':'';
-    document.getElementById('perfil-peso').textContent=p.peso||'';
-    document.getElementById('perfil-altura').textContent=p.altura||'';
-    document.getElementById('perfil-telefone').textContent=p.telefone||'';
-    document.getElementById('perfil-email').textContent=p.email||'';
-    document.getElementById('perfil-restricoes').textContent=p.restricoes||'';
-    document.getElementById('perfil-obs').textContent=p.obs||'';
-    document.getElementById('excluir').onclick=function(){
-      if(confirm('Excluir este paciente?')){pacientes.splice(i,1);salvarPacientes();mostrar('pacientes');}
-    };
-    document.querySelectorAll('.visao').forEach(function(s){s.classList.remove('ativa')});
-    document.getElementById('perfil').classList.add('ativa');
-    document.querySelectorAll('.menu button[data-visao]').forEach(function(b){b.classList.toggle('ativo',b.dataset.visao==='pacientes');});
   }
 
   function renderAgenda(){
@@ -362,8 +305,7 @@ a.btn{text-decoration:none;display:inline-block}
       var v=document.createElement('span');v.className='dia vazio-dia';grade.appendChild(v);
     }
     for(var d=1;d<=total;d++){
-      var data=new Date(visao.getFullYear(),visao.getMonth(),d);
-      var s=iso(data);
+      var s=visao.getFullYear()+'-'+pad(visao.getMonth()+1)+'-'+pad(d);
       var b=document.createElement('button');
       b.className='dia';
       b.textContent=d;
@@ -424,12 +366,7 @@ a.btn{text-decoration:none;display:inline-block}
     e.preventDefault();
     var f=e.target;
     if(!f.paciente.value)return;
-    consultas.push({
-      paciente:f.paciente.value,
-      data:f.data.value,
-      hora:f.hora.value,
-      obs:f.obs.value.trim()
-    });
+    consultas.push({paciente:f.paciente.value,data:f.data.value,hora:f.hora.value,obs:f.obs.value.trim()});
     salvarConsultas();
     selecionado=f.data.value;
     var p=f.data.value.split('-');
@@ -463,10 +400,6 @@ a.btn{text-decoration:none;display:inline-block}
     mostrar('pacientes');
   });
 
-  document.getElementById('input-data').value=selecionado;
-  document.getElementById('total-pacientes').textContent=pacientes.length;
-  document.getElementById('total-hoje').textContent=consultas.filter(function(c){return c.data===hojeIso;}).length;
-  var homeVisao=new Date(hoje.getFullYear(),hoje.getMonth(),1);
   document.getElementById('home-anterior').addEventListener('click',function(){
     homeVisao=new Date(homeVisao.getFullYear(),homeVisao.getMonth()-1,1);renderHome();
   });
@@ -507,9 +440,7 @@ a.btn{text-decoration:none;display:inline-block}
       lista.appendChild(el);
     });
   }
-  var planos={};
-  try{planos=JSON.parse(localStorage.getItem('planos')||'{}');}catch(e){planos={};}
-  function salvarPlanos(){try{localStorage.setItem('planos',JSON.stringify(planos));}catch(e){}}
+
   function num(v){return parseFloat(String(v).replace(',','.'))||0;}
   var REFEICOES=[['Café da manhã',0.20],['Lanche da manhã',0.10],['Almoço',0.30],['Lanche da tarde',0.10],['Jantar',0.25],['Ceia',0.05]];
   var OBJ={emagrecimento:['Emagrecimento',-400,1.8],manutencao:['Manutenção',0,1.4],hipertrofia:['Hipertrofia',300,2.0]};
