@@ -25,8 +25,8 @@ aside.recolhido .titulo-menu,aside.recolhido .rotulo{display:none}
 .icone{width:22px;text-align:center;flex-shrink:0;font-weight:bold;color:#D1A9A5}
 .menu a.ativo .icone{color:#AE6965}
 main{flex:1;min-width:0;padding:clamp(18px,3vw,36px)}
-.cabecalho{display:flex;justify-content:flex-end;margin-bottom:24px}
-.botao-topo{padding:10px 18px;border:1px solid #D1A9A5;border-radius:8px;color:#E5DFD6;text-decoration:none;font-size:16px;background:rgba(122,129,108,.35)}
+.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;margin-bottom:24px}
+.botao-topo{padding:10px 18px;border:1px solid #D1A9A5;border-radius:8px;color:#E5DFD6;text-decoration:none;font:inherit;font-size:16px;background:rgba(122,129,108,.35);cursor:pointer}
 .botao-topo:hover{background:#D1A9A5;color:#7A816C}
 .cartao{background:rgba(229,223,214,.94);border:1px solid #D1A9A5;border-radius:14px;padding:clamp(22px,4vw,40px);box-shadow:0 8px 24px rgba(59,51,44,.18);margin-bottom:20px}
 .cartao h1{margin:0 0 10px;font-weight:normal;font-size:clamp(26px,4vw,38px);color:#7A816C}
@@ -35,7 +35,7 @@ main{flex:1;min-width:0;padding:clamp(18px,3vw,36px)}
 .oculto{display:none!important}
 .form{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:10px}
 .form label{display:flex;flex-direction:column;gap:6px;font-size:16px}
-.form input,.form select{font:inherit;font-size:16px;padding:10px;border:1px solid #A58B71;border-radius:8px;background:#FFFFFF;color:#3B332C}
+.form input,.form select{font:inherit;font-size:16px;padding:10px;border:1px solid #A58B71;border-radius:8px;background:#FFFFFF;color:#3B332C;max-width:100%}
 .acoes{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;align-items:center}
 .btn{padding:12px 20px;border:1px solid #7A816C;border-radius:10px;background:#7A816C;color:#FFFFFF;font:inherit;font-size:17px;cursor:pointer}
 .btn:hover{background:#AE6965;border-color:#AE6965}
@@ -48,9 +48,21 @@ main{flex:1;min-width:0;padding:clamp(18px,3vw,36px)}
 .caixa strong{display:block;font-size:26px;color:#7A816C}
 .caixa span{font-size:15px;color:#A58B71}
 .sub{font-size:20px;color:#7A816C;margin:22px 0 10px;font-weight:normal}
-.refeicao{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:10px;padding:12px;margin-bottom:10px}
+.refeicao{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:10px;padding:12px;margin-bottom:12px}
 .refeicao b{font-weight:normal;font-size:17px}
-.refeicao small{display:block;color:#A58B71;font-size:14px}
+.refeicao small{display:block;color:#A58B71;font-size:14px;margin-top:2px}
+.item{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid #E5DFD6;font-size:15px}
+.item>span:first-child{flex:1 1 220px}
+.mini{font:inherit;font-size:14px;padding:6px 10px;border:1px solid #7A816C;border-radius:8px;background:transparent;color:#7A816C;cursor:pointer;margin-left:6px}
+.mini:hover{background:#D1A9A5;border-color:#D1A9A5}
+.busca{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.busca input{font:inherit;font-size:16px;padding:9px;border:1px solid #A58B71;border-radius:8px;background:#FFFFFF;color:#3B332C;max-width:100%}
+.busca input[type=search]{flex:1 1 220px}
+.busca input[type=number]{width:110px}
+.res{display:block;width:100%;text-align:left;margin-top:6px;padding:8px 10px;border:1px solid #D1A9A5;border-radius:8px;background:#FFFFFF;color:#3B332C;font:inherit;font-size:15px;cursor:pointer}
+.res:hover{background:#D1A9A5}
+.subs{margin-top:8px;padding:8px;background:rgba(209,169,165,.25);border-radius:8px}
+.total{font-size:17px;margin-top:14px}
 .prompt{width:100%;min-height:200px;font:inherit;font-size:15px;padding:12px;border:1px solid #A58B71;border-radius:8px;background:#FFFFFF;color:#3B332C;resize:vertical}
 @media(max-width:700px){
   .app{flex-direction:column}
@@ -61,6 +73,7 @@ main{flex:1;min-width:0;padding:clamp(18px,3vw,36px)}
   .rotulo{display:inline}
   aside.fechado .menu{display:none}
   .botao-topo{width:100%;text-align:center}
+  .cabecalho .botao-topo{width:auto;flex:1 1 auto}
 }
 </style>
 </head>
@@ -82,8 +95,23 @@ main{flex:1;min-width:0;padding:clamp(18px,3vw,36px)}
 </aside>
 <main>
 <header class="cabecalho">
+<button class="botao-topo" id="abrir-config" type="button">&#9881; Configurações da IA</button>
 <a class="botao-topo" href="../../login/index.html">Sair</a>
 </header>
+
+<section class="cartao oculto" id="pl-config">
+<h1>Configuração</h1>
+<p>Importe o arquivo taco_composicao.csv (baixado do repositório da TACO) e cole a sua chave do Gemini.</p>
+<div class="form">
+<label>Arquivo da TACO (CSV)<input type="file" id="pl-taco-arq" accept=".csv,text/csv"></label>
+<label>Chave do Gemini<input type="password" id="pl-chave" autocomplete="off" placeholder="Cole a chave aqui"></label>
+</div>
+<p class="vazio" id="pl-taco-status"></p>
+<p class="vazio" id="pl-chave-status"></p>
+<div class="acoes"><button class="btn" id="pl-chave-salvar" type="button">Salvar chave</button><button class="btn secundario" id="pl-chave-apagar" type="button">Apagar chave</button></div>
+<p class="vazio">A chave fica salva só neste navegador. Ela não vai para o GitHub.</p>
+</section>
+
 <section class="cartao">
 <h1>Plano alimentar</h1>
 <p>Escolha a paciente, confira os dados e monte o plano. Os valores são estimativas para a nutricionista revisar.</p>
@@ -104,19 +132,66 @@ main{flex:1;min-width:0;padding:clamp(18px,3vw,36px)}
 </div>
 <script>
 (function(){
+  var MODELO='gemini-2.5-flash';
   function $(id){return document.getElementById(id);}
-  var pacientes=[],planos={},atual=null;
-  try{pacientes=JSON.parse(localStorage.getItem('pacientes')||'[]');}catch(e){pacientes=[];}
-  try{planos=JSON.parse(localStorage.getItem('planos')||'{}');}catch(e){planos={};}
-  function salvarPlanos(){try{localStorage.setItem('planos',JSON.stringify(planos));}catch(e){}}
+  function ler(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v;}catch(e){return d;}}
+  function gravar(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+  var pacientes=ler('pacientes',[]),planos=ler('planos',{}),lanc=ler('lancamentos',{}),taco=ler('taco',[]);
+  var atual=null,buscas={},gramasV={},subs={};
   function esc(t){var d=document.createElement('div');d.textContent=t==null?'':String(t);return d.innerHTML;}
   function num(v){return parseFloat(String(v).replace(',','.'))||0;}
+  function n(v){var x=parseFloat(String(v).replace(',','.'));return isNaN(x)?0:x;}
+  function r1(x){return Math.round(x*10)/10;}
+  function norm(s){return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
   var REFEICOES=[['Café da manhã',0.20],['Lanche da manhã',0.10],['Almoço',0.30],['Lanche da tarde',0.10],['Jantar',0.25],['Ceia',0.05]];
   var OBJ={emagrecimento:['Emagrecimento',-400,1.8],manutencao:['Manutenção',0,1.4],hipertrofia:['Hipertrofia',300,2.0]};
 
-  $('alternar').addEventListener('click',function(){
-    var m=$('menu');m.classList.toggle('recolhido');m.classList.toggle('fechado');
-  });
+  function pacienteAtual(){return $('pl-paciente').value||'';}
+  function lancDe(nome){var l=lanc[nome];if(!l||l.length!==REFEICOES.length){l=REFEICOES.map(function(){return [];});lanc[nome]=l;}return l;}
+  function salvarLanc(){gravar('lancamentos',lanc);}
+  function totais(itens){return itens.reduce(function(t,x){t.kcal+=x.kcal;t.prot+=x.prot;t.carb+=x.carb;t.gord+=x.gord;return t;},{kcal:0,prot:0,carb:0,gord:0});}
+  function calcItem(t,g){return {nome:t.nome,g:g,kcal:t.kcal*g/100,prot:t.prot*g/100,carb:t.carb*g/100,gord:t.gord*g/100};}
+
+  function partir(l,sep){var out=[],c='',q=false;for(var i=0;i<l.length;i++){var ch=l.charAt(i);if(ch==='"'){if(q&&l.charAt(i+1)==='"'){c+='"';i++;}else q=!q;}else if(ch===sep&&!q){out.push(c);c='';}else c+=ch;}out.push(c);return out.map(function(x){return x.trim();});}
+  function lerCSV(texto){
+    var linhas=texto.replace(/^\uFEFF/,'').split(/\r?\n/).filter(function(l){return l.trim();});
+    if(linhas.length<2)throw new Error('Não consegui ler esse arquivo: ele está vazio ou sem linhas de alimentos.');
+    var sep=linhas[0].split(';').length>linhas[0].split(',').length?';':',';
+    var cab=partir(linhas[0],sep).map(norm);
+    function col(re){for(var i=0;i<cab.length;i++)if(re.test(cab[i]))return i;return -1;}
+    var iN=col(/alimento|descricao|nome/),iK=col(/kcal/);if(iK<0)iK=col(/energia/);
+    var iP=col(/proteina/),iL=col(/lipid|gordura/),iC=col(/carboidrat/);
+    if(iN<0||iK<0||iP<0||iC<0)throw new Error('Não consegui ler esse arquivo: não achei as colunas de alimento, energia, proteína e carboidrato. Me envie a primeira linha do arquivo.');
+    var out=[];
+    for(var r=1;r<linhas.length;r++){var c=partir(linhas[r],sep);var nome=(c[iN]||'').trim();if(!nome)continue;out.push({nome:nome,kcal:n(c[iK]),prot:n(c[iP]),carb:n(c[iC]),gord:iL>=0?n(c[iL]):0});}
+    if(!out.length)throw new Error('Não encontrei alimentos nesse arquivo.');
+    return out;
+  }
+  function lerArquivo(f,enc,cb){var rd=new FileReader();rd.onload=function(){var t=String(rd.result);if(enc==='utf-8'&&t.indexOf('\uFFFD')>=0){lerArquivo(f,'windows-1252',cb);return;}cb(null,t);};rd.onerror=function(){cb(new Error('Não consegui abrir esse arquivo.'));};rd.readAsText(f,enc);}
+  function buscar(q){var t=norm(q).trim(),out=[];if(!t||!taco.length)return out;for(var i=0;i<taco.length&&out.length<8;i++){if(norm(taco[i].nome).indexOf(t)>=0)out.push(i);}return out;}
+
+  function perguntarIA(prompt){
+    var k=localStorage.getItem('gemini_key');
+    if(!k)return Promise.reject(new Error('Cole a chave do Gemini na Configuração da IA para ver as substituições.'));
+    return fetch('https://generativelanguage.googleapis.com/v1beta/models/'+MODELO+':generateContent?key='+encodeURIComponent(k),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:'application/json'}})})
+      .then(function(r){if(!r.ok)throw new Error('O Gemini respondeu com erro '+r.status+'. Confira a chave e tente de novo.');return r.json();})
+      .then(function(j){if(!j.candidates||!j.candidates[0])throw new Error('O Gemini não devolveu resposta. Tente de novo.');var v=JSON.parse(j.candidates[0].content.parts[0].text);return Array.isArray(v)?v:(v.substituicoes||v.alternativas||[]);});
+  }
+  function pedirSubs(i,j){
+    var L=lancDe(pacienteAtual()),it=L[i][j],k=i+'-'+j;
+    var pr='Você ajuda uma nutricionista brasileira. Para "'+it.nome+'" na quantidade de '+Math.round(it.g)+' g, sugira 4 alternativas comuns no Brasil que cumpram a mesma função na refeição, com calorias da porção equivalente próximas. Responda somente um JSON: uma lista de objetos com as chaves "alimento" (nome curto), "gramas" (número), "kcal", "proteina", "carboidrato" e "gordura" (números da porção indicada).';
+    subs[k]={carregando:true};render();
+    perguntarIA(pr).then(function(lista){
+      var itens=(lista||[]).slice(0,4).map(function(s){
+        var nome=String(s.alimento||'').trim(),g=n(s.gramas)||100;
+        var m=nome?buscar(nome)[0]:undefined;
+        if(m!==undefined)return calcItem(taco[m],g);
+        return {nome:nome,g:g,kcal:n(s.kcal),prot:n(s.proteina),carb:n(s.carboidrato),gord:n(s.gordura),est:true};
+      }).filter(function(x){return x.nome;});
+      if(!itens.length)throw new Error('O Gemini não trouxe substituições. Tente de novo.');
+      subs[k]={itens:itens};
+    }).catch(function(err){subs[k]={erro:err.message};}).then(render);
+  }
 
   function popular(){
     var sel=$('pl-paciente'),ant=sel.value;
@@ -127,27 +202,20 @@ main{flex:1;min-width:0;padding:clamp(18px,3vw,36px)}
     $('pl-aviso').classList.toggle('oculto',pacientes.length>0);
     preencher();
   }
-
   function preencher(){
     var nome=$('pl-paciente').value,p=null;
     pacientes.forEach(function(x){if(!p&&x.nome===nome)p=x;});
-    if(p){
-      $('pl-idade').value=p.idade||'';
-      $('pl-peso').value=p.peso||'';
-      $('pl-altura').value=p.altura||'';
-    }
-    atual=null;
+    if(p){$('pl-idade').value=p.idade||'';$('pl-peso').value=p.peso||'';$('pl-altura').value=p.altura||'';}
+    atual=null;subs={};
     if(planos[nome]){atual=planos[nome];mostrar(atual);}
     else{$('pl-resultado').classList.add('oculto');$('pl-resultado').innerHTML='';}
   }
-
   function calcular(){
     var idade=num($('pl-idade').value),peso=num($('pl-peso').value),alt=num($('pl-altura').value);
     var r=$('pl-resultado');
     $('pl-salvar').textContent='Salvar plano';
     if(!idade||!peso||!alt){
-      atual=null;
-      r.classList.remove('oculto');
+      atual=null;r.classList.remove('oculto');
       r.innerHTML='<p class="vazio">Preencha idade, peso e altura para montar o plano.</p>';
       return false;
     }
@@ -172,11 +240,35 @@ main{flex:1;min-width:0;padding:clamp(18px,3vw,36px)}
     mostrar(atual);
     return true;
   }
-
+  function render(){if(atual)mostrar(atual);}
+  function resultadosHTML(i,idxs,g){
+    if(!taco.length)return '<p class="vazio">Importe a tabela TACO na Configuração da IA para buscar alimentos.</p>';
+    if(!buscas[i])return '';
+    if(!idxs.length)return '<p class="vazio">Nenhum alimento encontrado.</p>';
+    return idxs.map(function(t){return '<button class="res" type="button" data-acao="add" data-i="'+i+'" data-t="'+t+'">'+esc(taco[t].nome)+' · '+Math.round(taco[t].kcal)+' kcal/100 g</button>';}).join('');
+  }
+  function painelSubs(i,j,s){
+    if(s.carregando)return '<div class="subs"><small>Buscando substituições...</small></div>';
+    if(s.erro)return '<div class="subs"><small>'+esc(s.erro)+'</small></div>';
+    return '<div class="subs"><small>Substituições sugeridas (toque para trocar o alimento):</small>'+s.itens.map(function(x,k){return '<button class="res" type="button" data-acao="troca" data-i="'+i+'" data-j="'+j+'" data-s="'+k+'">'+esc(x.nome)+' ('+Math.round(x.g)+' g)'+(x.est?' · estimativa da IA':'')+'</button>';}).join('')+'</div>';
+  }
+  function blocoRef(d,i){
+    var ref=d.refs[i],L=lancDe(d.paciente),itens=L[i],t=totais(itens),q=buscas[i]||'',g=gramasV[i]||100;
+    var lista=itens.map(function(it,j){
+      var s=subs[i+'-'+j];
+      return '<div class="item"><span>'+esc(it.nome)+' ('+Math.round(it.g)+' g): '+Math.round(it.kcal)+' kcal · P '+r1(it.prot)+' g · C '+r1(it.carb)+' g · G '+r1(it.gord)+' g</span><span><button class="mini" type="button" data-acao="subs" data-i="'+i+'" data-j="'+j+'">Substituições</button><button class="mini" type="button" data-acao="rem" data-i="'+i+'" data-j="'+j+'">Remover</button></span>'+(s?painelSubs(i,j,s):'')+'</div>';
+    }).join('')||'<p class="vazio">Nenhum alimento lançado ainda.</p>';
+    return '<div class="refeicao"><b>'+esc(ref.nome)+'</b>'
+      +'<small>Meta: '+ref.kcal+' kcal · P '+ref.prot+' g · C '+ref.carb+' g · G '+ref.gord+' g</small>'
+      +'<small>Lançado: '+Math.round(t.kcal)+' kcal · P '+r1(t.prot)+' g · C '+r1(t.carb)+' g · G '+r1(t.gord)+' g</small>'
+      +'<div style="margin-top:8px">'+lista+'</div>'
+      +'<div class="busca"><input type="search" placeholder="Buscar alimento na TACO" data-busca="'+i+'" value="'+esc(q)+'"><input type="number" min="1" data-gramas="'+i+'" value="'+g+'" title="Gramas"></div>'
+      +'<div id="res-'+i+'">'+resultadosHTML(i,buscar(q),g)+'</div></div>';
+  }
   function mostrar(d){
     var r=$('pl-resultado');
     r.classList.remove('oculto');
-    var linhas=d.refs.map(function(x){return '<div class="refeicao"><b>'+esc(x.nome)+'</b><small>'+x.kcal+' kcal · P '+x.prot+' g · C '+x.carb+' g · G '+x.gord+' g</small></div>';}).join('');
+    var L=lancDe(d.paciente),todos=[].concat.apply([],L),tot=totais(todos);
     var pedido='Monte um plano alimentar para '+d.paciente+' (objetivo: '+d.objetivo.toLowerCase()+').\n'
       +'Dados: '+(d.sexo==='m'?'masculino':'feminino')+', '+d.idade+' anos, '+d.peso+' kg, '+String(Number(d.alt).toFixed(2)).replace('.',',')+' m, fator de atividade '+String(d.fa).replace('.',',')+'.\n'
       +'Metas diárias: '+d.kcal+' kcal; proteínas '+d.prot+' g; carboidratos '+d.carb+' g; gorduras '+d.gord+' g.\n'
@@ -193,33 +285,87 @@ main{flex:1;min-width:0;padding:clamp(18px,3vw,36px)}
       +'<div class="caixa"><strong>'+d.gord+' g</strong><span>Gorduras</span></div>'
       +'</div>'
       +'<p>TMB estimada em '+d.tmb+' kcal (Mifflin-St Jeor). Estimativa inicial: a nutricionista ajusta conforme a evolução.</p>'
-      +'<h2 class="sub">Distribuição por refeição</h2>'+linhas
+      +'<h2 class="sub">Refeições e alimentos</h2>'
+      +d.refs.map(function(x,i){return blocoRef(d,i);}).join('')
+      +'<p class="total">Total lançado no dia: <strong>'+Math.round(tot.kcal)+' kcal</strong> de '+d.kcal+' kcal · P '+r1(tot.prot)+' g de '+d.prot+' g · C '+r1(tot.carb)+' g de '+d.carb+' g · G '+r1(tot.gord)+' g de '+d.gord+' g</p>'
       +'<h2 class="sub">Pedido para o Gestor IA</h2>'
       +'<p>Copie e envie no chat para montar os alimentos de cada refeição com medidas.</p>'
       +'<textarea class="prompt" id="pl-pedido" readonly>'+esc(pedido)+'</textarea>'
       +'<div class="acoes"><button class="btn" id="pl-copiar">Copiar pedido</button></div>';
   }
 
+  function acao(b){
+    var a=b.getAttribute('data-acao'),i=+b.getAttribute('data-i'),j=+b.getAttribute('data-j');
+    var pac=atual?atual.paciente:pacienteAtual(),L=lancDe(pac);
+    if(a==='add'){
+      var g=gramasV[i]||100;
+      L[i].push(calcItem(taco[+b.getAttribute('data-t')],g));
+      buscas[i]='';subs={};salvarLanc();render();
+    }else if(a==='rem'){
+      L[i].splice(j,1);subs={};salvarLanc();render();
+    }else if(a==='subs'){
+      var k=i+'-'+j,s=subs[k];
+      if(s&&s.carregando)return;
+      if(s&&s.itens){delete subs[k];render();return;}
+      pedirSubs(i,j);
+    }else if(a==='troca'){
+      var s2=subs[i+'-'+j];
+      if(!s2||!s2.itens)return;
+      L[i][j]=s2.itens[+b.getAttribute('data-s')];
+      subs={};salvarLanc();render();
+    }
+  }
+
+  $('alternar').addEventListener('click',function(){var m=$('menu');m.classList.toggle('recolhido');m.classList.toggle('fechado');});
+  $('abrir-config').addEventListener('click',function(){$('pl-config').classList.toggle('oculto');});
+  $('pl-taco-status').textContent=taco.length?'Tabela TACO carregada: '+taco.length+' alimentos.':'Nenhuma tabela carregada.';
+  $('pl-chave-status').textContent=localStorage.getItem('gemini_key')?'Chave salva neste navegador.':'Nenhuma chave salva.';
+  $('pl-taco-arq').addEventListener('change',function(){
+    var f=this.files&&this.files[0];if(!f)return;
+    var st=$('pl-taco-status');st.textContent='Lendo a tabela...';
+    lerArquivo(f,'utf-8',function(err,t){
+      if(err){st.textContent=err.message;return;}
+      try{taco=lerCSV(t);gravar('taco',taco);buscas={};st.textContent='Tabela importada com '+taco.length+' alimentos.';}
+      catch(e){st.textContent=e.message;}
+    });
+  });
+  $('pl-chave-salvar').addEventListener('click',function(){
+    var v=$('pl-chave').value.trim();
+    if(!v){$('pl-chave-status').textContent='Cole a chave antes de salvar.';return;}
+    try{localStorage.setItem('gemini_key',v);}catch(e){}
+    $('pl-chave').value='';
+    $('pl-chave-status').textContent='Chave salva neste navegador.';
+  });
+  $('pl-chave-apagar').addEventListener('click',function(){
+    try{localStorage.removeItem('gemini_key');}catch(e){}
+    $('pl-chave-status').textContent='Chave apagada.';
+  });
   $('pl-paciente').addEventListener('change',preencher);
   $('pl-calcular').addEventListener('click',calcular);
   $('pl-salvar').addEventListener('click',function(){
     var b=this;
-    if(calcular()&&atual&&atual.paciente){
-      planos[atual.paciente]=atual;
-      salvarPlanos();
-      b.textContent='Plano salvo';
-    }
+    if(calcular()&&atual&&atual.paciente){planos[atual.paciente]=atual;gravar('planos',planos);b.textContent='Plano salvo';}
   });
   $('pl-resultado').addEventListener('click',function(e){
-    if(e.target.id!=='pl-copiar')return;
-    var t=$('pl-pedido');
-    t.select();
-    var ok=false;
-    try{if(navigator.clipboard){navigator.clipboard.writeText(t.value);ok=true;}}catch(err){}
-    if(!ok){try{document.execCommand('copy');}catch(err2){}}
-    e.target.textContent='Copiado';
+    var b=e.target.closest?e.target.closest('[data-acao]'):null;
+    if(b){acao(b);return;}
+    if(e.target.id==='pl-copiar'){
+      var t=$('pl-pedido');t.select();var ok=false;
+      try{if(navigator.clipboard){navigator.clipboard.writeText(t.value);ok=true;}}catch(err){}
+      if(!ok){try{document.execCommand('copy');}catch(err2){}}
+      e.target.textContent='Copiado';
+    }
   });
-
+  $('pl-resultado').addEventListener('input',function(e){
+    var t=e.target;
+    if(t.getAttribute('data-busca')!==null){
+      var i=+t.getAttribute('data-busca');
+      buscas[i]=t.value;
+      var box=document.getElementById('res-'+i);
+      if(box)box.innerHTML=resultadosHTML(i,buscar(t.value),gramasV[i]||100);
+    }
+    if(t.getAttribute('data-gramas')!==null){gramasV[+t.getAttribute('data-gramas')]=num(t.value)||100;}
+  });
   popular();
 })();
 </script>
