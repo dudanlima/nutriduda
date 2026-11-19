@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diagnóstico dos exames</title>
+<style>
+body{font-family:"Times New Roman",Times,serif;background:#E5DFD6;color:#3B332C;margin:0;padding:24px;font-size:17px;line-height:1.5}
+h1{color:#7A816C;font-weight:normal}
+h2{color:#7A816C;font-weight:normal;font-size:20px;margin:22px 0 6px}
+pre{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:8px;padding:12px;white-space:pre-wrap;overflow-x:auto;margin:0}
+</style>
+</head>
+<body>
+<h1>Diagnóstico dos exames</h1>
+<div id="out"></div>
+<script>
+(function(){
+  var out=document.getElementById('out');
+  function esc(t){var d=document.createElement('div');d.textContent=String(t==null?'':t);return d.innerHTML;}
+  function bloco(titulo,texto){out.innerHTML+='<h2>'+esc(titulo)+'</h2><pre>'+esc(texto)+'</pre>';}
+  function ler(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+
+  bloco('Endereço desta página',location.href);
+
+  var chaves=[];
+  try{for(var i=0;i<localStorage.length;i++)chaves.push(localStorage.key(i));}catch(e){}
+  bloco('Chaves salvas neste navegador',chaves.length?chaves.join('\n'):'Nenhuma chave encontrada.');
+
+  var pac=null;
+  try{pac=JSON.parse(ler('pacientes')||'null');}catch(e){pac='ERRO ao ler: '+e.message;}
+  if(pac===null){
+    bloco('Pacientes (chave "pacientes")','Não encontrada. Cadastre uma paciente antes.');
+  }else if(typeof pac==='string'){
+    bloco('Pacientes (chave "pacientes")',pac);
+  }else{
+    var t='Total: '+pac.length+'\n';
+    pac.forEach(function(p,i){t+=i+': '+(p&&p.nome?p.nome:'(sem nome)')+'\n';});
+    bloco('Pacientes (chave "pacientes")',t);
+  }
+
+  var ex=null;
+  try{ex=JSON.parse(ler('exames')||'null');}catch(e){ex='ERRO ao ler: '+e.message;}
+  if(ex===null){
+    bloco('Exames (chave "exames")','Nenhum exame salvo ainda.');
+  }else if(typeof ex==='string'){
+    bloco('Exames (chave "exames")',ex);
+  }else{
+    var u='';
+    Object.keys(ex).forEach(function(nm){
+      var L=Array.isArray(ex[nm])?ex[nm]:[];
+      u+=nm+': '+L.length+' resultado(s)\n';
+      L.slice(0,5).forEach(function(x){u+='   - '+x.exame+' = '+x.valor+'\n';});
+    });
+    bloco('Exames (chave "exames")',u||'Vazio.');
+  }
+
+  var g=ler('gemini_chave');
+  var gk=chaves.filter(function(k){return /gemini/i.test(k);});
+  bloco('Chave do Gemini',(g&&g.trim().length>10?'Encontrada em "gemini_chave" (não mostrada por segurança).':'Não encontrada em "gemini_chave".')+(gk.length?'\nChaves com "gemini" no nome: '+gk.join(', '):''));
+})();
+</script>
+</body>
+</html>
