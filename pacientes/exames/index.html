@@ -96,7 +96,7 @@ aside.fechado .menu{display:none}
 <div class="cartao">
 <a class="btn sec" id="voltar" href="../index.html" style="margin-bottom:12px">Voltar aos pacientes</a>
 <h1 id="titulo">Exames laboratoriais</h1>
-<p class="intro">Todos os exames já estão na tabela. Digite o resultado na linha de cada um: a situação, a faixa e a unidade aparecem na hora. Depois clique em Gerar análise com IA para preencher valor ideal, causa e solução.</p>
+<p class="intro">Anexe o laudo em PDF (ou foto) para a IA preencher os resultados, ou digite o resultado na linha de cada exame. A situação, a faixa e a unidade aparecem na hora. Depois clique em Gerar análise com IA para preencher valor ideal, causa e solução.</p>
 
 <div class="form">
 <label>Paciente<select id="sel"></select></label>
@@ -111,7 +111,11 @@ aside.fechado .menu{display:none}
 <div class="caixa"><strong id="n-alto">0</strong><span>Altos</span></div>
 </div>
 
-<div class="acoes"><button class="btn" id="ia-btn" type="button">Gerar análise com IA</button></div>
+<div class="acoes">
+<button class="btn sec" id="pdf-btn" type="button">Anexar PDF do exame</button>
+<input type="file" id="pdf-file" accept="application/pdf,image/jpeg,image/png" hidden>
+<button class="btn" id="ia-btn" type="button">Gerar análise com IA</button>
+</div>
 <p class="status" id="status"></p>
 
 <div class="tabela-wrap">
@@ -142,7 +146,7 @@ aside.fechado .menu{display:none}
 </div>
 </div>
 
-<p class="nota">Faixas de referência gerais para adultos. Se o laudo usar outros valores, ajuste os campos do exame fora da lista. Valor ideal, causa e solução são sugestões da IA: revise antes de usar. Suplementação sem dose: a prescrição é da nutricionista.</p>
+<p class="nota">Faixas de referência gerais para adultos. Se o laudo usar outros valores, ajuste os campos do exame fora da lista. Valor ideal, causa e solução são sugestões da IA: revise antes de usar. Suplementação sem dose: a prescrição é da nutricionista. Os valores vindos do PDF também devem ser conferidos com o laudo original.</p>
 </div>
 </main>
 </div>
@@ -251,6 +255,10 @@ aside.fechado .menu{display:none}
   function hoje(){var d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());}
   function achar(L,nm){for(var j=L.length-1;j>=0;j--){if(L[j].exame===nm)return j;}return -1;}
   function sexoDe(p){return /^m|masc/i.test(String((p&&p.sexo)||''))?'m':'f';}
+  function semAcento(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();}
+
+  var NOMES={};
+  G.forEach(function(g){g[1].forEach(function(e){NOMES[semAcento(e[0])]=e[0];});});
 
   var selP=document.getElementById('sel'),
       livre=document.getElementById('livre'),
@@ -526,6 +534,101 @@ aside.fechado .menu{display:none}
     var a=t.indexOf('['), b=t.lastIndexOf(']');
     if(a>=0&&b>a){try{return JSON.parse(t.slice(a,b+1));}catch(e){}}
     return null;
+  }
+
+  function parseDoc(t){
+    t=String(t||'');
+    try{var j=JSON.parse(t.trim());if(j&&typeof j==='object')return j;}catch(e){}
+    var a=t.indexOf('{'), b=t.lastIndexOf('}');
+    if(a>=0&&b>a){try{return JSON.parse(t.slice(a,b+1));}catch(e){}}
+    return null;
+  }
+
+  // Anexar PDF (ou foto do laudo) e preencher os resultados
+  var pdfBtn=document.getElementById('pdf-btn'), pdfFile=document.getElementById('pdf-file');
+  pdfBtn.addEventListener('click',function(){pdfFile.click();});
+
+  pdfFile.addEventListener('change',function(){
+    var f=pdfFile.files&&pdfFile.files[0];
+    pdfFile.value='';
+    if(!f)return;
+    var st=document.getElementById('status');
+    if(f.size>15*1024*1024){st.textContent='Arquivo muito grande (máximo 15 MB).';return;}
+    var key=chaveGemini();
+    if(!key){st.textContent='Salve a chave do Gemini abaixo para anexar o exame.';return;}
+    st.textContent='Lendo o exame...';
+    pdfBtn.disabled=true;
+    var mime=f.type||'application/pdf';
+    var rd=new FileReader();
+    rd.onload=function(){
+      var b64=String(rd.result).split(',')[1]||'';
+      preencherComPdf(b64,mime,key);
+    };
+    rd.onerror=function(){
+      st.textContent='Não consegui ler o arquivo. Tente de novo.';
+      pdfBtn.disabled=false;
+    };
+    rd.readAsDataURL(f);
+  });
+
+  function preencherComPdf(b64,mime,key){
+    var st=document.getElementById('status');
+    var names=Object.keys(CAT).join('; ');
+    var prompt='Você lê laudos de exames laboratoriais. Leia o documento anexado e extraia os resultados. Responda somente com um objeto JSON neste formato: {"data_coleta":"AAAA-MM-DD ou vazio","exames":[{"exame":"nome","valor":"número","unidade":"unidade"}]}.\n\nRegras:\n- Em "exame", use o nome da lista abaixo quando o exame do laudo corresponder a ele. Se o exame não estiver na lista, use o nome que aparece no laudo.\n- "valor" é só o número do resultado, com ponto como separador decimal (ex.: 13.5). Em números de milhar, tire o separador (7.500 vira 7500). Não inclua unidade, sinal de alto ou baixo nem texto.\n- Não invente. Se um exame não aparece no documento, não o inclua.\n- Não inclua nome, idade, endereço, documento ou médico da pessoa na resposta.\n- Use a data da coleta, convertida para AAAA-MM-DD.\n\nLista de exames do sistema: '+names;
+
+    fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(key),{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        contents:[{parts:[{inline_data:{mime_type:mime,data:b64}},{text:prompt}]}],
+        generationConfig:{responseMimeType:'application/json',temperature:0.1}
+      })
+    })
+    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+    .then(function(j){
+      var c=(j.candidates||[])[0], t='';
+      if(c&&c.content&&c.content.parts)t=c.content.parts.map(function(q){return q.text||'';}).join('');
+      var doc=parseDoc(t);
+      if(!doc)throw new Error('resposta sem JSON');
+
+      var n=nome();
+      var L=exames[n]||(exames[n]=[]);
+
+      if(/^\d{4}-\d{2}-\d{2}$/.test(txt(doc.data_coleta))){
+        dataEl.value=txt(doc.data_coleta);
+        L.forEach(function(x){x.data=dataEl.value;});
+      }
+
+      var lista=Array.isArray(doc.exames)?doc.exames:[];
+      var ok=0, ign=0;
+      lista.forEach(function(x){
+        if(!x)return;
+        var nm0=txt(x.exame);
+        var nm=NOMES[semAcento(nm0)]||nm0;
+        var v=txt(x.valor).replace(',','.');
+        if(!nm||num(v)==null){ign++;return;}
+        if(gravar(nm,v)){
+          ok++;
+          if(!CAT[nm]){
+            var jj=achar(L,nm);
+            if(jj>=0&&txt(x.unidade))L[jj].unidade=txt(x.unidade);
+          }
+        }else{
+          ign++;
+        }
+      });
+      salvar();
+      renderTabela();
+      if(ok){
+        st.textContent=ok+' resultado(s) preenchido(s) a partir do PDF. Confira com o laudo antes de gerar a análise.'+(ign?' '+ign+' item(ns) não couberam e ficaram de fora.':'');
+      }else{
+        st.textContent='Não encontrei resultados que correspondam aos exames da tabela neste arquivo.';
+      }
+    })
+    .catch(function(e){
+      st.textContent='Não foi possível ler o exame. Verifique a chave e a conexão, ou tente um arquivo mais nítido.'+(e&&e.message?' ('+e.message+')':'');
+    })
+    .then(function(){pdfBtn.disabled=false;});
   }
 
   document.getElementById('ia-btn').addEventListener('click',function(){
