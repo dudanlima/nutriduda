@@ -40,7 +40,8 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 .btn.secundario:hover{background:#D1A9A5;color:#7A816C;border-color:#D1A9A5}
 .form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:10px}
 .form label{display:flex;flex-direction:column;gap:6px;font-size:16px}
-.form input,.form select{font:inherit;font-size:16px;padding:10px;border:1px solid #A58B71;border-radius:8px;background:#FFFFFF;color:#3B332C;max-width:100%}
+.form input,.form select,.campo{font:inherit;font-size:16px;padding:10px;border:1px solid #A58B71;border-radius:8px;background:#FFFFFF;color:#3B332C;max-width:100%}
+.campo{min-width:260px;flex:1 1 260px}
 .prev{margin-top:12px;min-height:28px;font-size:16px}
 .resumo{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:10px 0 6px}
 .caixa{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:10px;padding:14px;text-align:center}
@@ -50,10 +51,13 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 table.ex{border-collapse:collapse;width:100%;min-width:960px;background:#FFFFFF;font-size:15px}
 table.ex th,table.ex td{border:1px solid #D1A9A5;padding:8px;vertical-align:top;text-align:left}
 table.ex th{background:#E5DFD6;color:#7A816C;font-weight:normal;text-align:center}
+table.ex tr.grupo td{background:#D1A9A5;color:#3B332C;padding:6px 8px}
 table.ex td.c{text-align:center;white-space:nowrap}
-table.ex small{display:block;color:#A58B71;font-size:13px;margin:2px 0 6px}
-.ed{font:inherit;font-size:14px;width:100%;border:1px solid #D1A9A5;border-radius:6px;padding:6px;background:#FFFFFF;color:#3B332C;resize:vertical;min-height:58px}
-input.ed{min-height:0}
+.res{font:inherit;font-size:15px;width:110px;padding:6px;border:1px solid #A58B71;border-radius:6px;background:#FFFFFF;color:#3B332C}
+.u{display:inline;margin:0 0 0 6px;font-size:14px;color:#A58B71}
+.tagwrap{min-height:24px}
+.ed{font:inherit;font-size:14px;width:100%;min-width:190px;border:1px solid #D1A9A5;border-radius:6px;padding:6px;background:#FFFFFF;color:#3B332C;resize:vertical;min-height:58px}
+.ed:disabled{background:#E5DFD6}
 .mini{font:inherit;font-size:14px;padding:6px 10px;border:1px solid #7A816C;border-radius:8px;background:transparent;color:#7A816C;cursor:pointer;margin-top:6px}
 .mini:hover{background:#D1A9A5;border-color:#D1A9A5}
 .tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:14px;border:1px solid #A58B71;color:#3B332C;white-space:nowrap;margin-top:4px}
@@ -61,6 +65,7 @@ input.ed{min-height:0}
 .tag.alto{background:#D1A9A5;color:#3B332C}
 .tag.normal{border-color:#7A816C;color:#7A816C}
 .tag.sem{border-color:#A58B71;color:#A58B71}
+.chave{margin-top:14px;padding:14px;border:1px solid #D1A9A5;border-radius:10px;background:#FFFFFF}
 .vazio{font-style:italic;color:#A58B71;margin-top:14px}
 .nota{font-size:14px;color:#A58B71;font-style:italic;margin-top:12px}
 .oculto{display:none!important}
@@ -74,6 +79,7 @@ input.ed{min-height:0}
   .rotulo{display:inline}
   aside.fechado .menu{display:none}
   .botao-topo{width:100%;text-align:center}
+  .campo{min-width:0;width:100%}
 }
 </style>
 </head>
@@ -101,27 +107,22 @@ input.ed{min-height:0}
 <div class="cartao">
 <div class="acoes"><a class="btn secundario" id="voltar" href="../index.html">Voltar aos pacientes</a></div>
 <h1 id="titulo">Exames laboratoriais</h1>
-<p id="subtitulo">Lance o número do resultado. A classificação sai na hora, pela faixa do laudo. A análise da IA preenche o valor ideal para esta paciente, a causa provável e a sugestão de solução.</p>
+<p id="subtitulo">Digite só o número do resultado em cada linha. A situação sai na hora, pela faixa do laudo. Depois clique em Gerar análise com IA para preencher o valor ideal, a causa e a solução.</p>
 
 <div class="form">
 <label>Paciente<select id="sel-paciente"></select></label>
 </div>
 
 <div id="area" class="oculto">
-<h2 class="dia-titulo">Novo resultado</h2>
 <div class="form">
 <label>Data da coleta<input type="date" id="ex-data"></label>
-<label>Exame<select id="ex-exame"></select></label>
-<label id="campo-outro" class="oculto">Nome do exame<input type="text" id="ex-outro" placeholder="Ex.: Vitamina A"></label>
 <label>Sexo (para a faixa)<select id="ex-sexo"><option value="f">Feminino</option><option value="m">Masculino</option></select></label>
-<label>Resultado (número)<input type="text" id="ex-valor" inputmode="decimal" placeholder="Ex.: 98 ou 5,4"></label>
-<label>Unidade<input type="text" id="ex-unid"></label>
-<label>Referência mínima<input type="text" id="ex-min" inputmode="decimal" placeholder="vazio = sem mínimo"></label>
-<label>Referência máxima<input type="text" id="ex-max" inputmode="decimal" placeholder="vazio = sem máximo"></label>
 </div>
-<p class="prev" id="ex-prev"></p>
-<div class="acoes"><button class="btn" id="ex-add">Adicionar exame</button></div>
-<p class="vazio" id="ex-status"></p>
+
+<h2 class="dia-titulo">Tabela de exames</h2>
+<div class="acoes"><button class="btn" id="ia-btn" type="button">Gerar análise com IA</button></div>
+<p class="prev" id="ia-status"></p>
+<div id="tabela"></div>
 
 <h2 class="dia-titulo">Resumo</h2>
 <div class="resumo">
@@ -130,11 +131,27 @@ input.ed{min-height:0}
 <div class="caixa"><strong id="n-alto">0</strong><span>Altos</span></div>
 </div>
 
-<h2 class="dia-titulo">Exames lançados</h2>
-<div class="acoes"><button class="btn" id="ia-btn" type="button">Gerar análise com IA</button></div>
-<p class="prev" id="ia-status"></p>
-<div id="ex-lista"></div>
-<p class="nota">As faixas são de referência geral para adultos. Se o laudo usar outros valores, ajuste os campos de referência antes de adicionar. O valor ideal, a causa e a solução são sugestões da IA: revise e edite antes de usar. Suplementação não tem dose indicada aqui; a prescrição é da nutricionista.</p>
+<h2 class="dia-titulo">Outro exame (fora da lista)</h2>
+<div class="form">
+<label>Nome do exame<input type="text" id="ex-nome" placeholder="Ex.: Vitamina A"></label>
+<label>Unidade<input type="text" id="ex-unid"></label>
+<label>Resultado (número)<input type="text" id="ex-valor" inputmode="decimal"></label>
+<label>Referência mínima<input type="text" id="ex-min" inputmode="decimal" placeholder="vazio = sem mínimo"></label>
+<label>Referência máxima<input type="text" id="ex-max" inputmode="decimal" placeholder="vazio = sem máximo"></label>
+</div>
+<div class="acoes"><button class="btn secundario" id="ex-add" type="button">Adicionar outro exame</button></div>
+<p class="vazio" id="add-status"></p>
+
+<div class="chave">
+<p class="nota" id="chave-status" style="margin-top:0"></p>
+<div class="acoes" style="margin-bottom:0">
+<input class="campo" type="password" id="chave-campo" placeholder="Cole a chave da API do Gemini" autocomplete="off">
+<button class="btn secundario" id="chave-salvar" type="button">Salvar chave</button>
+<button class="mini" id="chave-apagar" type="button">Apagar chave</button>
+</div>
+</div>
+
+<p class="nota">As faixas são de referência geral para adultos. Se o laudo usar outros valores, ajuste os campos de referência do exame fora da lista. O valor ideal, a causa e a solução são sugestões da IA: revise e edite antes de usar. Suplementação não tem dose indicada aqui; a prescrição é da nutricionista.</p>
 </div>
 
 <p class="vazio oculto" id="sem-pacientes">Nenhum paciente cadastrado. Cadastre um paciente primeiro.</p>
@@ -209,8 +226,8 @@ input.ed{min-height:0}
       ['T4 livre','ng/dL',0.8,1.8]
     ]]
   ];
-  var CAT=[];
-  G.forEach(function(g){g[1].forEach(function(e){CAT.push(e);});});
+  var CATN={};
+  G.forEach(function(g){g[1].forEach(function(e){CATN[e[0]]=e;});});
 
   var pacientes=[], exames={}, medidas={};
   try{pacientes=JSON.parse(localStorage.getItem('pacientes')||'[]');}catch(e){pacientes=[];}
@@ -218,9 +235,9 @@ input.ed{min-height:0}
   try{medidas=JSON.parse(localStorage.getItem('medidas')||'{}');}catch(e){medidas={};}
   function salvar(){try{localStorage.setItem('exames',JSON.stringify(exames));}catch(e){}}
 
-  function br(s){var p=String(s||'').split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:'Sem data';}
   function esc(t){var d=document.createElement('div');d.textContent=t==null?'':String(t);return d.innerHTML;}
   function ea(t){return esc(t).replace(/"/g,'&quot;');}
+  function txt(v){return String(v==null?'':v).trim();}
   function num(v){
     var s=String(v==null?'':v).trim().replace(',','.');
     if(s==='')return null;
@@ -242,14 +259,21 @@ input.ed{min-height:0}
   }
   var ROT={baixo:'Baixo',normal:'Normal',alto:'Alto',sem:'Sem referência'};
   function rf(e,sexo){return (sexo==='m'&&e.length>4)?[e[4],e[5]]:[e[2],e[3]];}
+  function p2(n){return n<10?'0'+n:''+n;}
+  function hoje(){var d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());}
+  function achar(L,nomeEx){for(var j=L.length-1;j>=0;j--){if(L[j].exame===nomeEx)return j;}return -1;}
 
   var idx=parseInt(new URLSearchParams(location.search).get('i'),10);
   if(isNaN(idx)||!pacientes[idx])idx=pacientes.length?0:-1;
-
   function pac(){return idx>=0&&pacientes[idx]?pacientes[idx]:null;}
+  function nome(){var p=pac();return p?p.nome:'';}
 
   var selP=document.getElementById('sel-paciente');
   var area=document.getElementById('area');
+  var sexoEl=document.getElementById('ex-sexo');
+  var dataEl=document.getElementById('ex-data');
+  var box=document.getElementById('tabela');
+
   if(!pacientes.length){
     document.getElementById('sem-pacientes').classList.remove('oculto');
     selP.parentNode.classList.add('oculto');
@@ -270,61 +294,177 @@ input.ed{min-height:0}
     });
   }
 
-  var selE=document.getElementById('ex-exame');
-  var k=0;
-  G.forEach(function(g){
-    var og=document.createElement('optgroup');og.label=g[0];
-    g[1].forEach(function(e){
-      var o=document.createElement('option');o.value=String(k);o.textContent=e[0];
-      og.appendChild(o);k++;
+  function sexoDoPaciente(p){var s=String(p&&p.sexo||'').toLowerCase();return /^m|masc/.test(s)?'m':'f';}
+
+  // Atualiza faixa de referência dos exames da tabela conforme o sexo escolhido
+  function sincronizaRef(){
+    var L=exames[nome()]||[];
+    L.forEach(function(x){
+      var c=CATN[x.exame];
+      if(c){var r=rf(c,sexoEl.value);x.min=r[0];x.max=r[1];}
     });
-    selE.appendChild(og);
-  });
-  var og2=document.createElement('optgroup');og2.label='Outros';
-  var oo=document.createElement('option');oo.value='outro';oo.textContent='Outro exame (digitar)';
-  og2.appendChild(oo);selE.appendChild(og2);
+    salvar();
+  }
 
-  var sexoEl=document.getElementById('ex-sexo');
-  var unidEl=document.getElementById('ex-unid');
-  var minEl=document.getElementById('ex-min');
-  var maxEl=document.getElementById('ex-max');
-  var valEl=document.getElementById('ex-valor');
-  var outroEl=document.getElementById('ex-outro');
-
-  function preencherRef(){
-    var i=selE.value, outro=i==='outro';
-    document.getElementById('campo-outro').classList.toggle('oculto',!outro);
-    if(outro){unidEl.value='';minEl.value='';maxEl.value='';}
-    else{
-      var e=CAT[+i], r=rf(e,sexoEl.value);
-      unidEl.value=e[1];
-      minEl.value=r[0]==null?'':String(r[0]).replace('.',',');
-      maxEl.value=r[1]==null?'':String(r[1]).replace('.',',');
+  // Grava o resultado de uma linha. Retorna false se não for número.
+  function gravarValor(nomeEx,texto,unid){
+    var n=nome(); if(!n)return true;
+    var L=exames[n]||(exames[n]=[]);
+    var t=txt(texto), j=achar(L,nomeEx);
+    if(t===''){if(j>=0)L.splice(j,1);salvar();return true;}
+    var v=num(t);
+    if(v==null)return false;
+    var c=CATN[nomeEx];
+    if(j<0){
+      var mn=null,mx=null;
+      if(c){var r=rf(c,sexoEl.value);mn=r[0];mx=r[1];}
+      L.push({data:dataEl.value||hoje(),exame:nomeEx,valor:t,unidade:c?c[1]:(unid||''),min:mn,max:mx,ia:{}});
+    }else{
+      L[j].valor=t;
+      if(c){var r2=rf(c,sexoEl.value);L[j].min=r2[0];L[j].max=r2[1];}
+      if(!L[j].data)L[j].data=dataEl.value||hoje();
     }
-    previa();
+    salvar();
+    return true;
   }
-  function previa(){
-    var prev=document.getElementById('ex-prev');
-    var v=num(valEl.value);
-    if(String(valEl.value).trim()===''){prev.innerHTML='';return;}
-    if(v==null){prev.innerHTML='<span class="tag sem">Sem referência</span> <small>Digite um número para classificar.</small>';return;}
-    var s=classif(v,num(minEl.value),num(maxEl.value));
-    prev.innerHTML='<span class="tag '+s+'">'+ROT[s]+'</span> <small>referência: '+esc(faixa(num(minEl.value),num(maxEl.value)))+'</small>';
+
+  function contar(){
+    var L=exames[nome()]||[], c={normal:0,baixo:0,alto:0};
+    L.forEach(function(x){var s=classif(num(x.valor),x.min,x.max);if(c[s]!==undefined)c[s]++;});
+    document.getElementById('n-normal').textContent=c.normal;
+    document.getElementById('n-baixo').textContent=c.baixo;
+    document.getElementById('n-alto').textContent=c.alto;
   }
-  selE.addEventListener('change',preencherRef);
-  sexoEl.addEventListener('change',preencherRef);
-  valEl.addEventListener('input',previa);
-  minEl.addEventListener('input',previa);
-  maxEl.addEventListener('input',previa);
-  preencherRef();
 
-  function nome(){var p=pac();return p?p.nome:'';}
+  function linha(nomeEx,unid,en,custom){
+    var valor=en?en.valor:'', s=en?classif(num(en.valor),en.min,en.max):'vazio', ref;
+    if(!custom){var r=rf(CATN[nomeEx],sexoEl.value);ref=faixa(r[0],r[1]);}
+    else ref=en?faixa(en.min,en.max):'';
+    var dis=en?'':' disabled';
+    function ed(campo){
+      var v=en&&en.ia&&en.ia[campo]?en.ia[campo]:'';
+      return '<textarea class="ed" data-nome="'+ea(nomeEx)+'" data-campo="'+campo+'" placeholder="Gerar análise ou digitar"'+dis+'>'+esc(v)+'</textarea>';
+    }
+    var nomeCel='<b style="font-weight:normal">'+esc(nomeEx)+'</b>'
+      +(custom?'<br><button class="mini" type="button" data-rem="'+ea(nomeEx)+'">Remover</button>':'');
+    var res='<input class="res" type="text" inputmode="decimal" data-nome="'+ea(nomeEx)+'" data-unid="'+ea(unid||'')+'" value="'+ea(valor)+'" placeholder="0">'
+      +'<span class="u">'+esc(unid||'')+'</span>'
+      +'<div class="tagwrap">'+(s==='vazio'?'':'<span class="tag '+s+'">'+ROT[s]+'</span>')+'</div>';
+    return '<tr><td>'+nomeCel+'</td><td>'+res+'</td><td class="c">'+esc(ref)+'</td><td>'+ed('ideal')+'</td><td>'+ed('causa')+'</td><td>'+ed('solucao')+'</td></tr>';
+  }
 
-  // Chave do Gemini guardada no navegador pelo painel (engrenagem)
+  function renderTabela(){
+    var n=nome(), L=exames[n]||[];
+    var h='<div class="tabela-wrap"><table class="ex"><thead><tr>'
+      +'<th>Exame</th><th>Resultado</th><th>Valor de referência</th><th>Valor ideal</th><th>Causa</th><th>Solução / suplementação</th>'
+      +'</tr></thead><tbody>';
+    G.forEach(function(g){
+      h+='<tr class="grupo"><td colspan="6">'+esc(g[0])+'</td></tr>';
+      g[1].forEach(function(e){
+        var j=achar(L,e[0]);
+        h+=linha(e[0],e[1],j>=0?L[j]:null,false);
+      });
+    });
+    var outros=L.filter(function(x){return !CATN[x.exame];});
+    if(outros.length){
+      h+='<tr class="grupo"><td colspan="6">Outros exames</td></tr>';
+      outros.forEach(function(x){h+=linha(x.exame,x.unidade,x,true);});
+    }
+    h+='</tbody></table></div>';
+    box.innerHTML=h;
+    contar();
+  }
+
+  function render(){
+    var n=nome(), p=pac();
+    if(!n){area.classList.add('oculto');return;}
+    area.classList.remove('oculto');
+    document.getElementById('titulo').textContent='Exames de '+n;
+    document.getElementById('voltar').href='../perfil/index.html?i='+idx;
+    sexoEl.value=sexoDoPaciente(p);
+    var L=exames[n]||[];
+    var ult=L.length?L[L.length-1].data:'';
+    dataEl.value=/^\d{4}-\d{2}-\d{2}$/.test(ult)?ult:hoje();
+    sincronizaRef();
+    atualizaChave();
+    renderTabela();
+  }
+
+  sexoEl.addEventListener('change',function(){sincronizaRef();renderTabela();});
+  dataEl.addEventListener('change',function(){
+    var L=exames[nome()]||[];
+    L.forEach(function(x){x.data=dataEl.value;});
+    salvar();
+  });
+
+  // Digitação do resultado: atualiza só a situação e os totais
+  box.addEventListener('input',function(e){
+    var t=e.target;
+    if(!t.classList||!t.classList.contains('res'))return;
+    var nm=t.getAttribute('data-nome');
+    var ok=gravarValor(nm,t.value,t.getAttribute('data-unid'));
+    var cel=t.closest('td').querySelector('.tagwrap');
+    var L=exames[nome()]||[], j=achar(L,nm);
+    if(!ok){cel.innerHTML='<span class="tag sem">Use número</span>';}
+    else if(j>=0){var s=classif(num(L[j].valor),L[j].min,L[j].max);cel.innerHTML='<span class="tag '+s+'">'+ROT[s]+'</span>';}
+    else cel.innerHTML='';
+    contar();
+  });
+
+  // Saída do campo: libera a linha para a IA e salva a análise digitada
+  box.addEventListener('change',function(e){
+    var t=e.target;
+    if(!t.getAttribute)return;
+    if(t.classList.contains('res')){renderTabela();return;}
+    var campo=t.getAttribute('data-campo');
+    if(!campo)return;
+    var L=exames[nome()]||[], j=achar(L,t.getAttribute('data-nome'));
+    if(j<0)return;
+    L[j].ia=L[j].ia||{};
+    L[j].ia[campo]=t.value.trim();
+    salvar();
+  });
+
+  box.addEventListener('click',function(e){
+    var b=e.target.closest?e.target.closest('[data-rem]'):null;
+    if(!b)return;
+    var L=exames[nome()]||[], j=achar(L,b.getAttribute('data-rem'));
+    if(j>=0){L.splice(j,1);salvar();}
+    renderTabela();
+  });
+
+  document.getElementById('ex-add').addEventListener('click',function(){
+    var st=document.getElementById('add-status'), n=nome();
+    if(!n){st.textContent='Escolha uma paciente.';return;}
+    var nm=txt(document.getElementById('ex-nome').value);
+    if(!nm){st.textContent='Digite o nome do exame.';return;}
+    if(CATN[nm]){st.textContent='Este exame já está na tabela: digite o resultado na linha dele.';return;}
+    var vt=txt(document.getElementById('ex-valor').value);
+    if(vt===''){st.textContent='Digite o resultado.';return;}
+    if(num(vt)==null){st.textContent='Use número no resultado (ex.: 98 ou 5,4).';return;}
+    var L=exames[n]||(exames[n]=[]);
+    L.push({
+      data:dataEl.value||hoje(),
+      exame:nm,
+      valor:vt,
+      unidade:txt(document.getElementById('ex-unid').value),
+      min:num(document.getElementById('ex-min').value),
+      max:num(document.getElementById('ex-max').value),
+      ia:{}
+    });
+    salvar();
+    ['ex-nome','ex-unid','ex-valor','ex-min','ex-max'].forEach(function(id){document.getElementById(id).value='';});
+    st.textContent='Exame adicionado.';
+    renderTabela();
+  });
+
+  // Chave do Gemini: primeiro a salva por esta tela, depois qualquer chave guardada no navegador com "gemini" no nome
   function chaveGemini(){
+    var own=localStorage.getItem('gemini_chave');
+    if(own&&own.trim())return own.trim();
     for(var i=0;i<localStorage.length;i++){
       var kk=localStorage.key(i);
-      if(!/gemini/i.test(kk))continue;
+      if(!/gemini/i.test(kk)||kk==='gemini_chave')continue;
       var v=localStorage.getItem(kk)||'';
       try{
         var p=JSON.parse(v);
@@ -334,10 +474,29 @@ input.ed{min-height:0}
         }
       }catch(e){}
       v=String(v).trim();
-      if(v)return v;
+      if(v.length>10)return v;
     }
     return '';
   }
+  function atualizaChave(){
+    var c=chaveGemini();
+    document.getElementById('chave-status').textContent=c
+      ?'Chave do Gemini encontrada neste navegador. Você não precisa fazer nada aqui.'
+      :'Nenhuma chave do Gemini encontrada neste navegador. Cole a chave abaixo e clique em Salvar chave.';
+  }
+  document.getElementById('chave-salvar').addEventListener('click',function(){
+    var campo=document.getElementById('chave-campo'), v=txt(campo.value);
+    if(v.length<10){document.getElementById('ia-status').textContent='Cole a chave completa do Gemini.';return;}
+    try{localStorage.setItem('gemini_chave',v);}catch(e){}
+    campo.value='';
+    document.getElementById('ia-status').textContent='Chave salva neste navegador.';
+    atualizaChave();
+  });
+  document.getElementById('chave-apagar').addEventListener('click',function(){
+    try{localStorage.removeItem('gemini_chave');}catch(e){}
+    document.getElementById('ia-status').textContent='Chave apagada desta tela.';
+    atualizaChave();
+  });
 
   // Dados do perfil usados pela IA (sem o nome da paciente)
   function contexto(p){
@@ -351,186 +510,72 @@ input.ed{min-height:0}
       var peso=num(u.peso), a=num(u.altura), alt=a==null?null:(a>3?a/100:a);
       if(peso!=null)linhas.push('Peso na última avaliação: '+peso+' kg');
       if(peso!=null&&alt)linhas.push('IMC na última avaliação: '+(peso/(alt*alt)).toFixed(1)+' kg/m²');
-      if(num(u.circ&&u.circ.cintura)!=null)linhas.push('Cintura: '+u.circ.cintura+' cm');
+      if(u.circ&&num(u.circ.cintura)!=null)linhas.push('Cintura: '+u.circ.cintura+' cm');
     }
     return linhas.join('\n');
   }
 
   function parseLista(t){
-    t=String(t||'').replace(/```json|```/g,'').trim();
-    var r;
-    try{r=JSON.parse(t);}
-    catch(e){
-      var a=t.indexOf('['),b=t.lastIndexOf(']');
-      if(a>=0&&b>a)r=JSON.parse(t.slice(a,b+1));
-    }
-    if(!Array.isArray(r))throw new Error('resposta fora do formato esperado');
-    return r;
+    t=String(t||'');
+    try{
+      var j=JSON.parse(t.trim());
+      if(Array.isArray(j))return j;
+      if(j&&Array.isArray(j.exames))return j.exames;
+    }catch(e){}
+    var a=t.indexOf('['), b=t.lastIndexOf(']');
+    if(a>=0&&b>a){try{return JSON.parse(t.slice(a,b+1));}catch(e){}}
+    return null;
   }
 
-  function analisarIA(){
-    var p=pac(), st=document.getElementById('ia-status'), btn=document.getElementById('ia-btn');
-    if(!p)return;
-    var n=p.nome, L=exames[n]||[], pend=[];
-    L.forEach(function(x,i){if(!x.iaEm)pend.push({i:i,x:x});});
-    if(!pend.length){
-      st.textContent='Todos os exames desta paciente já têm análise. Para refazer um exame, remova e lance de novo.';
-      return;
-    }
-    var chave=chaveGemini();
-    if(!chave){
-      st.textContent='Chave do Gemini não encontrada. Configure no painel (engrenagem de configurações) e volte aqui.';
-      return;
-    }
-    var lista=pend.map(function(o){
-      var x=o.x;
-      return {
-        indice:o.i,
-        exame:x.exame,
-        resultado:x.valor+' '+(x.unidade||''),
-        referencia:faixa(x.min,x.max),
-        sexo_da_referencia:x.sexo==='m'?'masculino':(x.sexo==='f'?'feminino':'não informado')
-      };
-    });
-    var prompt='Você apoia a nutricionista na leitura de exames laboratoriais. Os dados são de UMA paciente adulta, sem identificação.\n\n'
-      +'PERFIL DA PACIENTE:\n'+contexto(p)+'\n\n'
-      +'EXAMES A ANALISAR (JSON):\n'+JSON.stringify(lista)+'\n\n'
-      +'Devolva somente um array JSON, sem texto fora dele, com um objeto por exame:\n'
-      +'- "indice": o mesmo número recebido;\n'
-      +'- "valor_ideal": a faixa-alvo para ESTA paciente, com unidade (ex.: "70 a 99 mg/dL"). Considere sexo, idade, objetivo e condições informadas. Se nenhuma condição mudar a meta, use a faixa de referência;\n'
-      +'- "causa": 1 a 2 frases com a causa mais provável do resultado nesse perfil. Se o resultado estiver dentro da referência, diga que não há alteração a explicar;\n'
-      +'- "solucao": 1 a 3 frases com sugestão de conduta alimentar e de estilo de vida e, se couber, o tipo de suplemento com o motivo. Não informe dose. Para valor muito alterado ou com sinal de risco, oriente avaliação médica.\n\n'
-      +'Regras: não invente dados da paciente. Se faltar informação para explicar a causa, escreva "Dados insuficientes para afirmar a causa". Não dê diagnóstico. Use português claro.';
+  document.getElementById('ia-btn').addEventListener('click',function(){
+    var btn=this, st=document.getElementById('ia-status'), p=pac(), n=nome();
+    if(!p){st.textContent='Escolha uma paciente.';return;}
+    var L=exames[n]||[];
+    if(!L.length){st.textContent='Digite pelo menos um resultado na tabela antes de gerar a análise.';return;}
+    var key=chaveGemini();
+    if(!key){st.textContent='Salve a chave do Gemini abaixo para gerar a análise.';return;}
 
-    var url='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(chave);
-    var body={contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:'application/json',temperature:0.3}};
+    var lista=L.map(function(x,i){
+      var s=classif(num(x.valor),x.min,x.max);
+      return {i:i,exame:x.exame,valor:x.valor,unidade:x.unidade||'',referencia:faixa(x.min,x.max),situacao:ROT[s]};
+    });
+
+    var prompt='Você apoia uma nutricionista brasileira. Analise os exames abaixo para ESTA paciente e responda somente com um array JSON, sem texto fora dele. Cada item deve ter: "i" (o mesmo número recebido), "ideal" (o valor ou faixa-alvo mais adequado para esta paciente, considerando sexo, idade, objetivo e condições informadas; se não houver base suficiente, escreva "usar a faixa do laudo"), "causa" (causa provável do resultado, em linguagem simples; se estiver normal, escreva "Sem alteração a investigar"), "solucao" (orientações alimentares e, se fizer sentido, tipo de suplemento com o motivo, SEM dose; quando o caso pedir, escreva "avaliar com médico"). Não invente dados da paciente. Não faça diagnóstico. Seja objetivo, no máximo 2 frases por campo.\n\nDados da paciente:\n'
+      +contexto(p)+'\nSexo usado na faixa: '+(sexoEl.value==='m'?'masculino':'feminino')
+      +'\n\nExames:\n'+JSON.stringify(lista);
 
     btn.disabled=true;
-    st.textContent='Analisando '+pend.length+' exame(s) com a IA...';
-
-    fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
-      .then(function(r){
-        return r.json().then(function(j){
-          if(!r.ok)throw new Error((j.error&&j.error.message)||('erro '+r.status));
-          return j;
-        });
+    st.textContent='Gerando análise...';
+    fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(key),{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        contents:[{parts:[{text:prompt}]}],
+        generationConfig:{responseMimeType:'application/json',temperature:0.3}
       })
-      .then(function(j){
-        var c=(j.candidates||[])[0], txt=c&&c.content&&c.content.parts?c.content.parts.map(function(q){return q.text||'';}).join(''):'';
-        var arr=parseLista(txt), hoje=new Date().toISOString().slice(0,10), cont=0;
-        arr.forEach(function(r){
-          var x=L[+r.indice];
-          if(!x||x.iaEm)return;
-          x.ideal=String(r.valor_ideal||'').trim();
-          x.causa=String(r.causa||'').trim();
-          x.solucao=String(r.solucao||'').trim();
-          x.iaEm=hoje;
-          cont++;
-        });
-        salvar();
-        renderTabela();
-        st.textContent=cont+' exame(s) analisado(s). Revise o valor ideal, a causa e a solução antes de usar.';
-      })
-      .catch(function(e){
-        st.textContent='Não foi possível analisar agora: '+e.message+'. Os resultados continuam salvos.';
-      })
-      .then(function(){btn.disabled=false;});
-  }
-
-  function render(){
-    var p=pac();
-    if(!p){area.classList.add('oculto');return;}
-    area.classList.remove('oculto');
-    document.getElementById('titulo').textContent='Exames de '+p.nome;
-    document.getElementById('voltar').href='../perfil/index.html?i='+idx;
-    document.getElementById('ia-status').textContent='';
-    renderTabela();
-  }
-
-  function renderTabela(){
-    var p=pac(), box=document.getElementById('ex-lista');
-    if(!p){box.innerHTML='';return;}
-    var L=exames[p.nome]||[];
-    var cont={normal:0,baixo:0,alto:0};
-    L.forEach(function(x){
-      var s=classif(num(x.valor),num(x.min),num(x.max));
-      if(cont[s]!==undefined)cont[s]++;
-    });
-    document.getElementById('n-normal').textContent=cont.normal;
-    document.getElementById('n-baixo').textContent=cont.baixo;
-    document.getElementById('n-alto').textContent=cont.alto;
-
-    var ordem=L.map(function(x,i){return {x:x,i:i};});
-    ordem.sort(function(a,b){return String(b.x.data).localeCompare(String(a.x.data));});
-    if(!ordem.length){box.innerHTML='<p class="vazio">Nenhum exame lançado para esta paciente.</p>';return;}
-
-    var html='<div class="tabela-wrap"><table class="ex"><tr>'
-      +'<th>Exame</th><th>Resultado</th><th>Valor de referência</th><th>Valor ideal</th><th>Causa</th><th>Solução / suplementação</th></tr>';
-    ordem.forEach(function(o){
-      var x=o.x, i=o.i;
-      var s=classif(num(x.valor),num(x.min),num(x.max));
-      var ref=faixa(num(x.min),num(x.max));
-      html+='<tr>'
-        +'<td><b style="font-weight:normal">'+esc(x.exame)+'</b><small>'+esc(br(x.data))+'</small>'
-        +'<button class="mini" type="button" data-rem="'+i+'">Remover</button></td>'
-        +'<td class="c">'+esc(x.valor)+' '+esc(x.unidade||'')+'<br><span class="tag '+s+'">'+ROT[s]+'</span></td>'
-        +'<td class="c">'+esc(ref)+'</td>'
-        +'<td><input class="ed" type="text" data-f="ideal" data-i="'+i+'" value="'+ea(x.ideal||'')+'" placeholder="Gerar análise com IA"></td>'
-        +'<td><textarea class="ed" data-f="causa" data-i="'+i+'" placeholder="Gerar análise com IA">'+esc(x.causa||'')+'</textarea></td>'
-        +'<td><textarea class="ed" data-f="solucao" data-i="'+i+'" placeholder="Gerar análise com IA">'+esc(x.solucao||'')+'</textarea></td>'
-        +'</tr>';
-    });
-    html+='</table></div>';
-    box.innerHTML=html;
-  }
-
-  document.getElementById('ex-add').addEventListener('click',function(){
-    var n=nome(), st=document.getElementById('ex-status');
-    var i=selE.value;
-    var exame=i==='outro'?outroEl.value.trim():CAT[+i][0];
-    if(!exame){st.textContent='Escolha o exame ou digite o nome.';return;}
-    if(String(valEl.value).trim()===''){st.textContent='Digite o resultado.';return;}
-    var v=num(valEl.value);
-    if(v==null){st.textContent='Use número no resultado (ex.: 98 ou 5,4).';return;}
-    if(!exames[n])exames[n]=[];
-    exames[n].push({
-      data:document.getElementById('ex-data').value,
-      exame:exame,
-      valor:String(valEl.value).trim(),
-      unidade:unidEl.value.trim(),
-      min:num(minEl.value),
-      max:num(maxEl.value),
-      sexo:sexoEl.value
-    });
-    salvar();
-    valEl.value='';
-    document.getElementById('ex-prev').innerHTML='';
-    st.textContent='Exame adicionado. Use "Gerar análise com IA" para preencher valor ideal, causa e solução.';
-    renderTabela();
-    valEl.focus();
+    })
+    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+    .then(function(j){
+      var c=(j.candidates||[])[0], t='';
+      if(c&&c.content&&c.content.parts)t=c.content.parts.map(function(q){return q.text||'';}).join('');
+      var arr=parseLista(t);
+      if(!arr)throw new Error('resposta sem JSON');
+      var ok=0;
+      arr.forEach(function(a){
+        var i=parseInt(a.i,10);
+        if(isNaN(i)||!L[i])return;
+        L[i].ia={ideal:txt(a.ideal),causa:txt(a.causa),solucao:txt(a.solucao)};
+        ok++;
+      });
+      salvar();
+      renderTabela();
+      st.textContent=ok?'Análise pronta. Revise os textos antes de usar.':'A IA não retornou análises válidas. Tente de novo.';
+    })
+    .catch(function(e){
+      st.textContent='Não foi possível gerar a análise. Verifique a chave e a conexão.'+(e&&e.message?' ('+e.message+')':'');
+    })
+    .then(function(){btn.disabled=false;});
   });
-
-  document.getElementById('ex-lista').addEventListener('click',function(e){
-    var b=e.target.closest?e.target.closest('[data-rem]'):null;
-    if(!b)return;
-    var n=nome(), i=+b.getAttribute('data-rem');
-    (exames[n]||[]).splice(i,1);
-    salvar();
-    document.getElementById('ex-status').textContent='';
-    renderTabela();
-  });
-
-  document.getElementById('ex-lista').addEventListener('change',function(e){
-    var t=e.target;
-    var f=t.getAttribute?t.getAttribute('data-f'):null;
-    if(!f)return;
-    var n=nome(), x=(exames[n]||[])[+t.getAttribute('data-i')];
-    if(!x)return;
-    x[f]=String(t.value).trim();
-    salvar();
-  });
-
-  document.getElementById('ia-btn').addEventListener('click',analisarIA);
 
   render();
 })();
