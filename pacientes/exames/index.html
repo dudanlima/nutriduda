@@ -8,7 +8,7 @@
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%}
-body{font-family:"Times New Roman",Times,serif;color:#3B332C;background:#7A816C url("../../ceu.jpg") center/cover no-repeat fixed;min-height:100vh}
+body{font-family:"Times New Roman",Times,serif;color:#3B332C;background:#7A816C url("../../ceu.jpg") center/cover no-repeat fixed;min-height:100vh;overflow-x:hidden}
 body::before{content:"";position:fixed;inset:0;background:rgba(122,129,108,.55);z-index:0}
 .app{position:relative;z-index:1;display:flex;min-height:100vh}
 aside{width:230px;flex-shrink:0;background:rgba(122,129,108,.92);color:#E5DFD6;padding:22px 16px;transition:width .25s,padding .25s;overflow:hidden}
@@ -47,16 +47,16 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 .caixa{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:10px;padding:14px;text-align:center}
 .caixa strong{display:block;font-size:26px;font-weight:normal;color:#7A816C}
 .caixa span{font-size:15px;color:#A58B71}
-.tabela-wrap{overflow-x:auto;margin-top:8px}
-table.ex{border-collapse:collapse;width:100%;min-width:960px;background:#FFFFFF;font-size:15px}
+.tabela-wrap{overflow-x:auto;margin-top:8px;border-radius:10px}
+table.ex{border-collapse:collapse;width:100%;min-width:1000px;background:#FFFFFF;font-size:15px}
 table.ex th,table.ex td{border:1px solid #D1A9A5;padding:8px;vertical-align:top;text-align:left}
 table.ex th{background:#E5DFD6;color:#7A816C;font-weight:normal;text-align:center}
 table.ex tr.grupo td{background:#D1A9A5;color:#3B332C;padding:6px 8px}
 table.ex td.c{text-align:center;white-space:nowrap}
-.res{font:inherit;font-size:15px;width:110px;padding:6px;border:1px solid #A58B71;border-radius:6px;background:#FFFFFF;color:#3B332C}
-.u{display:inline;margin:0 0 0 6px;font-size:14px;color:#A58B71}
+.res{font:inherit;font-size:15px;width:100px;padding:6px;border:1px solid #A58B71;border-radius:6px;background:#FFFFFF;color:#3B332C}
+.u{margin-left:6px;font-size:14px;color:#A58B71}
 .tagwrap{min-height:24px}
-.ed{font:inherit;font-size:14px;width:100%;min-width:190px;border:1px solid #D1A9A5;border-radius:6px;padding:6px;background:#FFFFFF;color:#3B332C;resize:vertical;min-height:58px}
+.ed{font:inherit;font-size:14px;width:100%;min-width:180px;border:1px solid #D1A9A5;border-radius:6px;padding:6px;background:#FFFFFF;color:#3B332C;resize:vertical;min-height:58px}
 .ed:disabled{background:#E5DFD6}
 .mini{font:inherit;font-size:14px;padding:6px 10px;border:1px solid #7A816C;border-radius:8px;background:transparent;color:#7A816C;cursor:pointer;margin-top:6px}
 .mini:hover{background:#D1A9A5;border-color:#D1A9A5}
@@ -107,18 +107,15 @@ table.ex td.c{text-align:center;white-space:nowrap}
 <div class="cartao">
 <div class="acoes"><a class="btn secundario" id="voltar" href="../index.html">Voltar aos pacientes</a></div>
 <h1 id="titulo">Exames laboratoriais</h1>
-<p id="subtitulo">Digite só o número do resultado em cada linha. A situação sai na hora, pela faixa do laudo. Depois clique em Gerar análise com IA para preencher o valor ideal, a causa e a solução.</p>
+<p>Digite o resultado na linha de cada exame. A situação aparece na hora, pela faixa de referência. Depois clique em Gerar análise com IA para preencher valor ideal, causa e solução.</p>
 
-<div class="form">
+<div class="form" id="cab">
 <label>Paciente<select id="sel-paciente"></select></label>
-</div>
-
-<div id="area" class="oculto">
-<div class="form">
 <label>Data da coleta<input type="date" id="ex-data"></label>
 <label>Sexo (para a faixa)<select id="ex-sexo"><option value="f">Feminino</option><option value="m">Masculino</option></select></label>
 </div>
 
+<div id="area" class="oculto">
 <h2 class="dia-titulo">Tabela de exames</h2>
 <div class="acoes"><button class="btn" id="ia-btn" type="button">Gerar análise com IA</button></div>
 <p class="prev" id="ia-status"></p>
@@ -139,7 +136,7 @@ table.ex td.c{text-align:center;white-space:nowrap}
 <label>Referência mínima<input type="text" id="ex-min" inputmode="decimal" placeholder="vazio = sem mínimo"></label>
 <label>Referência máxima<input type="text" id="ex-max" inputmode="decimal" placeholder="vazio = sem máximo"></label>
 </div>
-<div class="acoes"><button class="btn secundario" id="ex-add" type="button">Adicionar outro exame</button></div>
+<div class="acoes"><button class="btn secundario" id="ex-add" type="button">Adicionar à tabela</button></div>
 <p class="vazio" id="add-status"></p>
 
 <div class="chave">
@@ -258,6 +255,7 @@ table.ex td.c{text-align:center;white-space:nowrap}
     return 'normal';
   }
   var ROT={baixo:'Baixo',normal:'Normal',alto:'Alto',sem:'Sem referência'};
+  function tagHtml(s){return s==='vazio'?'':'<span class="tag '+s+'">'+ROT[s]+'</span>';}
   function rf(e,sexo){return (sexo==='m'&&e.length>4)?[e[4],e[5]]:[e[2],e[3]];}
   function p2(n){return n<10?'0'+n:''+n;}
   function hoje(){var d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());}
@@ -270,13 +268,14 @@ table.ex td.c{text-align:center;white-space:nowrap}
 
   var selP=document.getElementById('sel-paciente');
   var area=document.getElementById('area');
+  var cab=document.getElementById('cab');
   var sexoEl=document.getElementById('ex-sexo');
   var dataEl=document.getElementById('ex-data');
   var box=document.getElementById('tabela');
 
   if(!pacientes.length){
     document.getElementById('sem-pacientes').classList.remove('oculto');
-    selP.parentNode.classList.add('oculto');
+    cab.classList.add('oculto');
     area.classList.add('oculto');
   }else{
     pacientes.forEach(function(p,i){
@@ -296,7 +295,6 @@ table.ex td.c{text-align:center;white-space:nowrap}
 
   function sexoDoPaciente(p){var s=String(p&&p.sexo||'').toLowerCase();return /^m|masc/.test(s)?'m':'f';}
 
-  // Atualiza faixa de referência dos exames da tabela conforme o sexo escolhido
   function sincronizaRef(){
     var L=exames[nome()]||[];
     L.forEach(function(x){
@@ -306,7 +304,6 @@ table.ex td.c{text-align:center;white-space:nowrap}
     salvar();
   }
 
-  // Grava o resultado de uma linha. Retorna false se não for número.
   function gravarValor(nomeEx,texto,unid){
     var n=nome(); if(!n)return true;
     var L=exames[n]||(exames[n]=[]);
@@ -315,13 +312,12 @@ table.ex td.c{text-align:center;white-space:nowrap}
     var v=num(t);
     if(v==null)return false;
     var c=CATN[nomeEx];
+    var r=c?rf(c,sexoEl.value):[null,null];
     if(j<0){
-      var mn=null,mx=null;
-      if(c){var r=rf(c,sexoEl.value);mn=r[0];mx=r[1];}
-      L.push({data:dataEl.value||hoje(),exame:nomeEx,valor:t,unidade:c?c[1]:(unid||''),min:mn,max:mx,ia:{}});
+      L.push({data:dataEl.value||hoje(),exame:nomeEx,valor:t,unidade:c?c[1]:(unid||''),min:r[0],max:r[1],ia:{}});
     }else{
       L[j].valor=t;
-      if(c){var r2=rf(c,sexoEl.value);L[j].min=r2[0];L[j].max=r2[1];}
+      if(c){L[j].min=r[0];L[j].max=r[1];}
       if(!L[j].data)L[j].data=dataEl.value||hoje();
     }
     salvar();
@@ -337,24 +333,25 @@ table.ex td.c{text-align:center;white-space:nowrap}
   }
 
   function linha(nomeEx,unid,en,custom){
-    var valor=en?en.valor:'', s=en?classif(num(en.valor),en.min,en.max):'vazio', ref;
-    if(!custom){var r=rf(CATN[nomeEx],sexoEl.value);ref=faixa(r[0],r[1]);}
-    else ref=en?faixa(en.min,en.max):'';
+    var valor=en?en.valor:'';
+    var s=en?classif(num(en.valor),en.min,en.max):'vazio';
+    var r=CATN[nomeEx]?rf(CATN[nomeEx],sexoEl.value):[en?en.min:null,en?en.max:null];
+    var ref=faixa(r[0],r[1]);
     var dis=en?'':' disabled';
     function ed(campo){
       var v=en&&en.ia&&en.ia[campo]?en.ia[campo]:'';
-      return '<textarea class="ed" data-nome="'+ea(nomeEx)+'" data-campo="'+campo+'" placeholder="Gerar análise ou digitar"'+dis+'>'+esc(v)+'</textarea>';
+      return '<textarea class="ed" data-nome="'+ea(nomeEx)+'" data-campo="'+campo+'"'+dis+' placeholder="'+(en?'Digite ou gere com IA':'Digite o resultado antes')+'">'+esc(v)+'</textarea>';
     }
     var nomeCel='<b style="font-weight:normal">'+esc(nomeEx)+'</b>'
       +(custom?'<br><button class="mini" type="button" data-rem="'+ea(nomeEx)+'">Remover</button>':'');
     var res='<input class="res" type="text" inputmode="decimal" data-nome="'+ea(nomeEx)+'" data-unid="'+ea(unid||'')+'" value="'+ea(valor)+'" placeholder="0">'
       +'<span class="u">'+esc(unid||'')+'</span>'
-      +'<div class="tagwrap">'+(s==='vazio'?'':'<span class="tag '+s+'">'+ROT[s]+'</span>')+'</div>';
+      +'<div class="tagwrap">'+tagHtml(s)+'</div>';
     return '<tr><td>'+nomeCel+'</td><td>'+res+'</td><td class="c">'+esc(ref)+'</td><td>'+ed('ideal')+'</td><td>'+ed('causa')+'</td><td>'+ed('solucao')+'</td></tr>';
   }
 
   function renderTabela(){
-    var n=nome(), L=exames[n]||[];
+    var L=exames[nome()]||[];
     var h='<div class="tabela-wrap"><table class="ex"><thead><tr>'
       +'<th>Exame</th><th>Resultado</th><th>Valor de referência</th><th>Valor ideal</th><th>Causa</th><th>Solução / suplementação</th>'
       +'</tr></thead><tbody>';
@@ -377,7 +374,7 @@ table.ex td.c{text-align:center;white-space:nowrap}
 
   function render(){
     var n=nome(), p=pac();
-    if(!n){area.classList.add('oculto');return;}
+    if(!n)return;
     area.classList.remove('oculto');
     document.getElementById('titulo').textContent='Exames de '+n;
     document.getElementById('voltar').href='../perfil/index.html?i='+idx;
@@ -397,24 +394,22 @@ table.ex td.c{text-align:center;white-space:nowrap}
     salvar();
   });
 
-  // Digitação do resultado: atualiza só a situação e os totais
   box.addEventListener('input',function(e){
     var t=e.target;
     if(!t.classList||!t.classList.contains('res'))return;
     var nm=t.getAttribute('data-nome');
     var ok=gravarValor(nm,t.value,t.getAttribute('data-unid'));
-    var cel=t.closest('td').querySelector('.tagwrap');
+    var cel=t.parentNode.querySelector('.tagwrap');
     var L=exames[nome()]||[], j=achar(L,nm);
     if(!ok){cel.innerHTML='<span class="tag sem">Use número</span>';}
-    else if(j>=0){var s=classif(num(L[j].valor),L[j].min,L[j].max);cel.innerHTML='<span class="tag '+s+'">'+ROT[s]+'</span>';}
+    else if(j>=0){cel.innerHTML=tagHtml(classif(num(L[j].valor),L[j].min,L[j].max));}
     else cel.innerHTML='';
     contar();
   });
 
-  // Saída do campo: libera a linha para a IA e salva a análise digitada
   box.addEventListener('change',function(e){
     var t=e.target;
-    if(!t.getAttribute)return;
+    if(!t.classList)return;
     if(t.classList.contains('res')){renderTabela();return;}
     var campo=t.getAttribute('data-campo');
     if(!campo)return;
@@ -454,11 +449,10 @@ table.ex td.c{text-align:center;white-space:nowrap}
     });
     salvar();
     ['ex-nome','ex-unid','ex-valor','ex-min','ex-max'].forEach(function(id){document.getElementById(id).value='';});
-    st.textContent='Exame adicionado.';
+    st.textContent='Exame adicionado à tabela.';
     renderTabela();
   });
 
-  // Chave do Gemini: primeiro a salva por esta tela, depois qualquer chave guardada no navegador com "gemini" no nome
   function chaveGemini(){
     var own=localStorage.getItem('gemini_chave');
     if(own&&own.trim())return own.trim();
@@ -498,7 +492,6 @@ table.ex td.c{text-align:center;white-space:nowrap}
     atualizaChave();
   });
 
-  // Dados do perfil usados pela IA (sem o nome da paciente)
   function contexto(p){
     var L=medidas[p.nome]||[], u=L.length?L[L.length-1]:null, linhas=[];
     linhas.push('Idade: '+(p.idade?p.idade+' anos':'não informada'));
