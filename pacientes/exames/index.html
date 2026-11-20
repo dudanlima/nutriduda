@@ -55,12 +55,16 @@ td.c{text-align:center;white-space:nowrap}
 .res{font:inherit;font-size:15px;width:96px;padding:6px;border:1px solid #A58B71;border-radius:6px;background:#FFFFFF;color:#3B332C}
 .ed{font:inherit;font-size:14px;width:100%;min-width:170px;min-height:56px;border:1px solid #D1A9A5;border-radius:6px;padding:6px;background:#FFFFFF;color:#3B332C;resize:vertical}
 .ed:disabled{background:#E5DFD6}
+.form select,.form input,.campo{font:inherit;font-size:16px;padding:9px;border:1px solid #A58B71;border-radius:8px;background:#FFFFFF;color:#3B332C}
 .tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:14px;border:1px solid #A58B71;color:#A58B71;white-space:nowrap}
 .tag.normal{border-color:#7A816C;color:#7A816C}
 .tag.baixo{border-color:#AE6965;color:#AE6965}
 .tag.alto{border-color:#AE6965;background:#D1A9A5;color:#3B332C}
 .mini{font:inherit;font-size:14px;padding:5px 9px;border:1px solid #7A816C;border-radius:8px;background:transparent;color:#7A816C;cursor:pointer;margin-top:4px}
 .mini:hover{background:#D1A9A5;border-color:#D1A9A5}
+.coleta{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
+.coleta label{display:flex;flex-direction:column;gap:6px;font-size:16px}
+.coleta select,.coleta input{font:inherit;font-size:16px;padding:9px;border:1px solid #A58B71;border-radius:8px;background:#FFFFFF;color:#3B332C}
 .chave{margin-top:18px;padding:14px;border:1px solid #D1A9A5;border-radius:10px;background:#FFFFFF}
 .nota{font-size:14px;color:#A58B71;font-style:italic;margin:12px 0 0}
 .subtitulo{font-size:20px;color:#7A816C;margin:22px 0 8px;font-weight:normal}
@@ -96,13 +100,19 @@ aside.fechado .menu{display:none}
 <div class="cartao">
 <a class="btn sec" id="voltar" href="../index.html" style="margin-bottom:12px">Voltar aos pacientes</a>
 <h1 id="titulo">Exames laboratoriais</h1>
-<p class="intro">Anexe o laudo em PDF (ou foto) para a IA preencher os resultados, ou digite o resultado na linha de cada exame. A situação, a faixa e a unidade aparecem na hora. Depois clique em Gerar análise com IA para preencher valor ideal, causa e solução.</p>
+<p class="intro">Escolha a coleta pela data ou crie uma nova. Anexe o laudo em PDF para a IA preencher a coleta, ou digite o resultado na linha de cada exame. Depois clique em Gerar análise com IA.</p>
 
 <div class="form">
 <label>Paciente<select id="sel"></select></label>
 <label>Ou digite o nome<input type="text" id="livre" placeholder="Nome da paciente"></label>
-<label>Data da coleta<input type="date" id="data"></label>
 <label>Sexo (para a faixa)<select id="sexo"><option value="f">Feminino</option><option value="m">Masculino</option></select></label>
+</div>
+
+<div class="coleta">
+<label style="flex:1 1 220px">Coleta<select id="col-sel"></select></label>
+<label>Data da coleta<input type="date" id="data"></label>
+<button class="btn sec" id="col-nova" type="button">Nova coleta</button>
+<button class="mini" id="col-apagar" type="button">Apagar coleta</button>
 </div>
 
 <div class="resumo">
@@ -146,7 +156,7 @@ aside.fechado .menu{display:none}
 </div>
 </div>
 
-<p class="nota">Faixas de referência gerais para adultos. Se o laudo usar outros valores, ajuste os campos do exame fora da lista. Valor ideal, causa e solução são sugestões da IA: revise antes de usar. Suplementação sem dose: a prescrição é da nutricionista. Os valores vindos do PDF também devem ser conferidos com o laudo original.</p>
+<p class="nota">Faixas de referência gerais para adultos. Valor ideal, causa e solução são sugestões da IA: revise antes de usar. Suplementação sem dose: a prescrição é da nutricionista. Os valores vindos do PDF também devem ser conferidos com o laudo original.</p>
 </div>
 </main>
 </div>
@@ -160,122 +170,75 @@ aside.fechado .menu{display:none}
   });
 
   var G=[
-    ['Hematologia',[
-      ['Hemoglobina','g/dL',12,16,13.5,17.5],
-      ['Hematócrito','%',36,46,41,53],
-      ['Eritrócitos','milhões/mm³',4.0,5.2,4.5,5.9],
-      ['Leucócitos','/mm³',4000,11000],
-      ['Plaquetas','/mm³',150000,450000],
-      ['VCM','fL',80,100],
-      ['HCM','pg',27,33],
-      ['RDW','%',11.5,14.5]
-    ]],
-    ['Metabolismo glicídico',[
-      ['Glicemia de jejum','mg/dL',70,99],
-      ['Insulina de jejum','µUI/mL',2.6,24.9],
-      ['Hemoglobina glicada (HbA1c)','%',4,5.6]
-    ]],
-    ['Lipídios',[
-      ['Colesterol total','mg/dL',0,190],
-      ['LDL','mg/dL',0,130],
-      ['HDL','mg/dL',50,null,40,null],
-      ['VLDL','mg/dL',5,40],
-      ['Triglicerídeos','mg/dL',0,150]
-    ]],
-    ['Função hepática',[
-      ['TGO (AST)','U/L',0,31,0,41],
-      ['TGP (ALT)','U/L',0,33,0,41],
-      ['GGT','U/L',0,38,0,55],
-      ['Fosfatase alcalina','U/L',40,129],
-      ['Bilirrubina total','mg/dL',0.2,1.2],
-      ['Bilirrubina direta','mg/dL',0,0.3]
-    ]],
-    ['Função renal',[
-      ['Ureia','mg/dL',15,45],
-      ['Creatinina','mg/dL',0.6,1.1,0.7,1.3],
-      ['Ácido úrico','mg/dL',2.5,6,3.5,7.2],
-      ['Sódio','mEq/L',135,145],
-      ['Potássio','mEq/L',3.5,5.1]
-    ]],
-    ['Proteínas',[
-      ['Albumina','g/dL',3.5,5.2],
-      ['Proteína total','g/dL',6,8.3],
-      ['Proteína C reativa','mg/L',0,5]
-    ]],
-    ['Minerais e vitaminas',[
-      ['Ferritina','ng/mL',15,150,30,400],
-      ['Ferro sérico','µg/dL',60,170],
-      ['Cálcio total','mg/dL',8.5,10.5],
-      ['Magnésio','mg/dL',1.7,2.2],
-      ['Fósforo','mg/dL',2.5,4.5],
-      ['Zinco','µg/dL',70,120],
-      ['Vitamina D (25-OH)','ng/mL',30,100],
-      ['Vitamina B12','pg/mL',200,900],
-      ['Ácido fólico','ng/mL',3,17]
-    ]],
-    ['Tireoide',[
-      ['TSH','µUI/mL',0.4,4],
-      ['T4 livre','ng/dL',0.8,1.8]
-    ]]
+    ['Hematologia',[['Hemoglobina','g/dL',12,16,13.5,17.5],['Hematócrito','%',36,46,41,53],['Eritrócitos','milhões/mm³',4.0,5.2,4.5,5.9],['Leucócitos','/mm³',4000,11000],['Plaquetas','/mm³',150000,450000],['VCM','fL',80,100],['HCM','pg',27,33],['RDW','%',11.5,14.5]]],
+    ['Metabolismo glicídico',[['Glicemia de jejum','mg/dL',70,99],['Insulina de jejum','µUI/mL',2.6,24.9],['Hemoglobina glicada (HbA1c)','%',4,5.6]]],
+    ['Lipídios',[['Colesterol total','mg/dL',0,190],['LDL','mg/dL',0,130],['HDL','mg/dL',50,null,40,null],['VLDL','mg/dL',5,40],['Triglicerídeos','mg/dL',0,150]]],
+    ['Função hepática',[['TGO (AST)','U/L',0,31,0,41],['TGP (ALT)','U/L',0,33,0,41],['GGT','U/L',0,38,0,55],['Fosfatase alcalina','U/L',40,129],['Bilirrubina total','mg/dL',0.2,1.2],['Bilirrubina direta','mg/dL',0,0.3]]],
+    ['Função renal',[['Ureia','mg/dL',15,45],['Creatinina','mg/dL',0.6,1.1,0.7,1.3],['Ácido úrico','mg/dL',2.5,6,3.5,7.2],['Sódio','mEq/L',135,145],['Potássio','mEq/L',3.5,5.1]]],
+    ['Proteínas',[['Albumina','g/dL',3.5,5.2],['Proteína total','g/dL',6,8.3],['Proteína C reativa','mg/L',0,5]]],
+    ['Minerais e vitaminas',[['Ferritina','ng/mL',15,150,30,400],['Ferro sérico','µg/dL',60,170],['Cálcio total','mg/dL',8.5,10.5],['Magnésio','mg/dL',1.7,2.2],['Fósforo','mg/dL',2.5,4.5],['Zinco','µg/dL',70,120],['Vitamina D (25-OH)','ng/mL',30,100],['Vitamina B12','pg/mL',200,900],['Ácido fólico','ng/mL',3,17]]],
+    ['Tireoide',[['TSH','µUI/mL',0.4,4],['T4 livre','ng/dL',0.8,1.8]]]
   ];
 
-  var CAT={};
-  G.forEach(function(g){g[1].forEach(function(e){CAT[e[0]]=e;});});
+  var CAT={},NOMES={};
+  function semAcento(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();}
+  G.forEach(function(g){g[1].forEach(function(e){CAT[e[0]]=e;NOMES[semAcento(e[0])]=e[0];});});
 
-  var pacientes=[],exames={};
+  var pacientes=[],colecoes=null,medidas={},curId=null;
   try{pacientes=JSON.parse(localStorage.getItem('pacientes')||'[]')||[];}catch(e){pacientes=[];}
-  try{exames=JSON.parse(localStorage.getItem('exames')||'{}')||{};}catch(e){exames={};}
-  function salvar(){try{localStorage.setItem('exames',JSON.stringify(exames));}catch(e){}}
+  try{colecoes=JSON.parse(localStorage.getItem('coletas')||'null');}catch(e){colecoes=null;}
+  try{medidas=JSON.parse(localStorage.getItem('medidas')||'{}')||{};}catch(e){medidas={};}
 
   function esc(t){var d=document.createElement('div');d.textContent=t==null?'':String(t);return d.innerHTML;}
   function ea(t){return esc(t).replace(/"/g,'&quot;');}
   function txt(v){return String(v==null?'':v).trim();}
-  function num(v){
-    var s=txt(v).replace(',','.');
-    if(s==='')return null;
-    var n=parseFloat(s);
-    return isNaN(n)||!/^-?\d/.test(s)?null:n;
-  }
-  function faixa(a,b){
-    if(a==null&&b==null)return 'sem referência';
-    if(b==null)return 'acima de '+a;
-    if(a==null||a===0)return 'até '+b;
-    return a+' a '+b;
-  }
-  function classif(v,a,b){
-    if(v==null||(a==null&&b==null))return 'sem';
-    if(a!=null&&v<a)return 'baixo';
-    if(b!=null&&v>b)return 'alto';
-    return 'normal';
-  }
+  function num(v){var s=txt(v).replace(',','.');if(s==='')return null;var n=parseFloat(s);return isNaN(n)||!/^-?\d/.test(s)?null:n;}
+  function faixa(a,b){if(a==null&&b==null)return 'sem referência';if(b==null)return 'acima de '+a;if(a==null||a===0)return 'até '+b;return a+' a '+b;}
+  function classif(v,a,b){if(v==null||(a==null&&b==null))return 'sem';if(a!=null&&v<a)return 'baixo';if(b!=null&&v>b)return 'alto';return 'normal';}
   var ROT={baixo:'Baixo',normal:'Normal',alto:'Alto',sem:'Sem referência'};
   function tagHtml(s){return ROT[s]?'<span class="tag '+s+'">'+ROT[s]+'</span>':'';}
   function rf(e,sexo){return (sexo==='m'&&e.length>4)?[e[4],e[5]]:[e[2],e[3]];}
   function p2(n){return n<10?'0'+n:''+n;}
   function hoje(){var d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());}
+  function br(d){return /^\d{4}-\d{2}-\d{2}$/.test(d||'')?d.split('-').reverse().join('/'):'sem data';}
   function achar(L,nm){for(var j=L.length-1;j>=0;j--){if(L[j].exame===nm)return j;}return -1;}
   function sexoDe(p){return /^m|masc/i.test(String((p&&p.sexo)||''))?'m':'f';}
-  function semAcento(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();}
 
-  var NOMES={};
-  G.forEach(function(g){g[1].forEach(function(e){NOMES[semAcento(e[0])]=e[0];});});
+  if(!colecoes){
+    colecoes={};
+    var old={};
+    try{old=JSON.parse(localStorage.getItem('exames')||'{}')||{};}catch(e){old={};}
+    Object.keys(old).forEach(function(n){
+      var g={}, L=Array.isArray(old[n])?old[n]:[];
+      L.forEach(function(x){
+        if(!x||txt(x.valor)==='')return;
+        var d=/^\d{4}-\d{2}-\d{2}$/.test(x.data||'')?x.data:hoje();
+        (g[d]=g[d]||[]).push({exame:x.exame,valor:String(x.valor),unidade:x.unidade||'',min:x.min==null?null:x.min,max:x.max==null?null:x.max,ia:x.ia||{}});
+      });
+      colecoes[n]=Object.keys(g).map(function(d,k){return {id:'c'+Date.now()+k,data:d,itens:g[d]};});
+    });
+  }
 
-  var selP=document.getElementById('sel'),
-      livre=document.getElementById('livre'),
-      sexoEl=document.getElementById('sexo'),
-      dataEl=document.getElementById('data'),
-      corpo=document.getElementById('corpo');
+  function salvar(){
+    var flat={};
+    Object.keys(colecoes).forEach(function(n){
+      flat[n]=[];
+      colecoes[n].forEach(function(c){
+        c.itens.forEach(function(it){
+          flat[n].push({data:c.data,exame:it.exame,valor:it.valor,unidade:it.unidade,min:it.min,max:it.max,ref:faixa(it.min,it.max),ia:it.ia||{}});
+        });
+      });
+    });
+    try{localStorage.setItem('coletas',JSON.stringify(colecoes));localStorage.setItem('exames',JSON.stringify(flat));}catch(e){}
+  }
+
+  var selP=document.getElementById('sel'),livre=document.getElementById('livre'),sexoEl=document.getElementById('sexo'),
+      dataEl=document.getElementById('data'),corpo=document.getElementById('corpo'),colSel=document.getElementById('col-sel');
 
   if(pacientes.length){
-    pacientes.forEach(function(p,i){
-      var o=document.createElement('option');
-      o.value=String(i);o.textContent=p.nome||('Paciente '+(i+1));
-      selP.appendChild(o);
-    });
+    pacientes.forEach(function(p,i){var o=document.createElement('option');o.value=String(i);o.textContent=p.nome||('Paciente '+(i+1));selP.appendChild(o);});
   }else{
-    var o0=document.createElement('option');
-    o0.value='';o0.textContent='Nenhum paciente cadastrado';
-    selP.appendChild(o0);
+    var o0=document.createElement('option');o0.value='';o0.textContent='Nenhum paciente cadastrado';selP.appendChild(o0);
   }
 
   var idx=parseInt(new URLSearchParams(location.search).get('i'),10);
@@ -283,42 +246,45 @@ aside.fechado .menu{display:none}
   if(idx>=0)selP.value=String(idx);
 
   function pac(){return selP.value!==''&&pacientes[selP.value]?pacientes[selP.value]:null;}
-  function nome(){
-    var t=txt(livre.value);
-    if(t)return t;
-    var p=pac();
-    return p&&p.nome?p.nome:'Sem paciente';
-  }
+  function nome(){var t=txt(livre.value);if(t)return t;var p=pac();return p&&p.nome?p.nome:'Sem paciente';}
   function refDe(x){var c=CAT[x.exame];return c?rf(c,sexoEl.value):[x.min,x.max];}
+  function lista(n){return (colecoes[n]||[]).slice().sort(function(a,b){return a.data<b.data?1:a.data>b.data?-1:0;});}
 
-  function lerData(){
-    var L=exames[nome()]||[];
-    var u=L.length?L[L.length-1].data:'';
-    dataEl.value=/^\d{4}-\d{2}-\d{2}$/.test(u||'')?u:hoje();
+  function atual(criar){
+    var n=nome(), L=colecoes[n]||(colecoes[n]=[]), c=null;
+    for(var i=0;i<L.length;i++){if(L[i].id===curId)c=L[i];}
+    if(!c&&L.length){c=lista(n)[0];curId=c.id;}
+    if(!c&&criar){c={id:'c'+Date.now(),data:dataEl.value||hoje(),itens:[]};L.push(c);curId=c.id;}
+    return c;
   }
+
+  function lerData(){var L=lista(nome());curId=L.length?L[0].id:null;}
 
   function sincronizaRef(){
-    var L=exames[nome()]||[];
-    L.forEach(function(x){
-      if(CAT[x.exame]){var r=rf(CAT[x.exame],sexoEl.value);x.min=r[0];x.max=r[1];}
+    (colecoes[nome()]||[]).forEach(function(c){
+      c.itens.forEach(function(it){if(CAT[it.exame]){var r=rf(CAT[it.exame],sexoEl.value);it.min=r[0];it.max=r[1];}});
     });
     salvar();
   }
 
-  function contar(){
-    var L=exames[nome()]||[], c={normal:0,baixo:0,alto:0};
-    L.forEach(function(x){
-      var r=refDe(x), s=classif(num(x.valor),r[0],r[1]);
-      if(c[s]!==undefined)c[s]++;
-    });
-    document.getElementById('n-normal').textContent=c.normal;
-    document.getElementById('n-baixo').textContent=c.baixo;
-    document.getElementById('n-alto').textContent=c.alto;
+  function renderSel(){
+    var L=lista(nome()), c=atual(false);
+    colSel.innerHTML=L.length
+      ?L.map(function(x){return '<option value="'+x.id+'">'+br(x.data)+' ('+x.itens.length+' exame(s))</option>';}).join('')
+      :'<option value="">Nenhuma coleta ainda</option>';
+    if(c)colSel.value=c.id;
+    dataEl.value=c?c.data:hoje();
   }
 
-  function ta(campo,val,dis){
-    return '<textarea class="ed" data-campo="'+campo+'"'+dis+'>'+esc(val||'')+'</textarea>';
+  function contar(){
+    var c=atual(false), L=c?c.itens:[], k={normal:0,baixo:0,alto:0};
+    L.forEach(function(x){var r=refDe(x),s=classif(num(x.valor),r[0],r[1]);if(k[s]!==undefined)k[s]++;});
+    document.getElementById('n-normal').textContent=k.normal;
+    document.getElementById('n-baixo').textContent=k.baixo;
+    document.getElementById('n-alto').textContent=k.alto;
   }
+
+  function ta(campo,val,dis){return '<textarea class="ed" data-campo="'+campo+'"'+dis+'>'+esc(val||'')+'</textarea>';}
 
   function linha(nm,unid,en,custom){
     var valor=en?en.valor:'';
@@ -339,13 +305,10 @@ aside.fechado .menu{display:none}
   }
 
   function renderTabela(){
-    var L=exames[nome()]||[], h='';
+    var c=atual(false), L=c?c.itens:[], h='';
     G.forEach(function(g){
       h+='<tr class="grupo"><td colspan="8">'+esc(g[0])+'</td></tr>';
-      g[1].forEach(function(e){
-        var j=achar(L,e[0]);
-        h+=linha(e[0],e[1],j>=0?L[j]:null,false);
-      });
+      g[1].forEach(function(e){var j=achar(L,e[0]);h+=linha(e[0],e[1],j>=0?L[j]:null,false);});
     });
     var outros=L.filter(function(x){return !CAT[x.exame];});
     if(outros.length){
@@ -356,20 +319,13 @@ aside.fechado .menu{display:none}
     contar();
   }
 
-  function gravar(nm,v){
-    var n=nome();
-    var L=exames[n]||(exames[n]=[]);
-    var j=achar(L,nm), c=CAT[nm];
-    if(v===''){if(j>=0)L.splice(j,1);salvar();return true;}
+  function gravarEm(c,nm,v){
+    var L=c.itens, j=achar(L,nm), cat=CAT[nm];
+    if(v===''){if(j>=0)L.splice(j,1);return true;}
     if(num(v)==null)return false;
-    var r=c?rf(c,sexoEl.value):(j>=0?[L[j].min,L[j].max]:[null,null]);
-    if(j<0){
-      L.push({data:dataEl.value||hoje(),exame:nm,valor:v,unidade:c?c[1]:'',min:r[0],max:r[1],ia:{}});
-    }else{
-      L[j].valor=v;L[j].min=r[0];L[j].max=r[1];
-      if(!L[j].data)L[j].data=dataEl.value||hoje();
-    }
-    salvar();
+    var r=cat?rf(cat,sexoEl.value):(j>=0?[L[j].min,L[j].max]:[null,null]);
+    if(j<0)L.push({exame:nm,valor:v,unidade:cat?cat[1]:'',min:r[0],max:r[1],ia:{}});
+    else{L[j].valor=v;L[j].min=r[0];L[j].max=r[1];}
     return true;
   }
 
@@ -377,8 +333,9 @@ aside.fechado .menu{display:none}
     var t=e.target;
     if(!t.classList.contains('res'))return;
     var tr=t.closest('tr'), nm=tr.getAttribute('data-nm'), v=txt(t.value);
-    var ok=gravar(nm,v);
-    var L=exames[nome()]||[], j=achar(L,nm);
+    var c=atual(v!==''), ok=c?gravarEm(c,nm,v):true;
+    if(c)salvar();
+    var L=c?c.itens:[], j=achar(L,nm);
     var sit=tr.querySelector('.sit'), ted=tr.querySelectorAll('textarea.ed');
     if(!ok){
       sit.innerHTML='<span class="tag sem">Use número</span>';
@@ -394,17 +351,16 @@ aside.fechado .menu{display:none}
   });
 
   corpo.addEventListener('change',function(e){
-    var t=e.target;
-    var tr=t.closest('tr');
+    var t=e.target, tr=t.closest('tr');
     if(t.classList.contains('res')){
       if(txt(t.value)===''&&tr.querySelector('[data-rem]'))renderTabela();
       return;
     }
     if(t.classList.contains('ed')){
-      var nm=tr.getAttribute('data-nm'), L=exames[nome()]||[], j=achar(L,nm);
+      var c=atual(false), nm=tr.getAttribute('data-nm'), j=c?achar(c.itens,nm):-1;
       if(j<0)return;
-      L[j].ia=L[j].ia||{};
-      L[j].ia[t.getAttribute('data-campo')]=t.value.trim();
+      c.itens[j].ia=c.itens[j].ia||{};
+      c.itens[j].ia[t.getAttribute('data-campo')]=t.value.trim();
       salvar();
     }
   });
@@ -412,10 +368,27 @@ aside.fechado .menu{display:none}
   corpo.addEventListener('click',function(e){
     var b=e.target.closest?e.target.closest('[data-rem]'):null;
     if(!b)return;
-    var tr=b.closest('tr'), nm=tr.getAttribute('data-nm');
-    var L=exames[nome()]||[], j=achar(L,nm);
-    if(j>=0){L.splice(j,1);salvar();}
+    var c=atual(false), nm=b.closest('tr').getAttribute('data-nm');
+    if(c){var j=achar(c.itens,nm);if(j>=0){c.itens.splice(j,1);salvar();}}
     renderTabela();
+  });
+
+  colSel.addEventListener('change',function(){curId=colSel.value;render();});
+
+  document.getElementById('col-nova').addEventListener('click',function(){
+    var n=nome(), c={id:'c'+Date.now(),data:hoje(),itens:[]};
+    (colecoes[n]=colecoes[n]||[]).push(c);
+    curId=c.id;salvar();render();
+    document.getElementById('status').textContent='Nova coleta criada. Digite os resultados ou anexe o laudo.';
+  });
+
+  document.getElementById('col-apagar').addEventListener('click',function(){
+    var n=nome(), c=atual(false), st=document.getElementById('status');
+    if(!c){st.textContent='Não há coleta para apagar.';return;}
+    if(!confirm('Apagar esta coleta com todos os resultados?'))return;
+    colecoes[n]=colecoes[n].filter(function(x){return x.id!==c.id;});
+    curId=null;salvar();render();
+    st.textContent='Coleta apagada.';
   });
 
   selP.addEventListener('change',function(){
@@ -424,8 +397,7 @@ aside.fechado .menu{display:none}
     var u=new URL(location.href);
     if(selP.value!=='')u.searchParams.set('i',selP.value);
     history.replaceState(null,'',u.toString());
-    lerData();
-    render();
+    lerData();render();
   });
 
   livre.addEventListener('change',function(){lerData();render();});
@@ -433,34 +405,24 @@ aside.fechado .menu{display:none}
   sexoEl.addEventListener('change',function(){sincronizaRef();renderTabela();});
 
   dataEl.addEventListener('change',function(){
-    var L=exames[nome()]||[];
-    L.forEach(function(x){x.data=dataEl.value;});
-    salvar();
+    var c=atual(false);
+    if(c){c.data=dataEl.value||hoje();salvar();render();}
   });
 
   document.getElementById('ex-add').addEventListener('click',function(){
     var st=document.getElementById('add-status');
-    var nm=txt(document.getElementById('ex-nome').value);
-    var vt=txt(document.getElementById('ex-valor').value);
+    var nm=txt(document.getElementById('ex-nome').value), vt=txt(document.getElementById('ex-valor').value);
     if(!nm){st.textContent='Digite o nome do exame.';return;}
     if(CAT[nm]){st.textContent='Este exame já está na tabela: digite o resultado na linha dele.';return;}
     if(vt===''){st.textContent='Digite o resultado.';return;}
     if(num(vt)==null){st.textContent='Use número no resultado (ex.: 98 ou 5,4).';return;}
-    var n=nome();
-    var L=exames[n]||(exames[n]=[]);
-    L.push({
-      data:dataEl.value||hoje(),
-      exame:nm,
-      valor:vt,
-      unidade:txt(document.getElementById('ex-unid').value),
-      min:num(document.getElementById('ex-min').value),
-      max:num(document.getElementById('ex-max').value),
-      ia:{}
-    });
+    var c=atual(true), j=achar(c.itens,nm);
+    var it={exame:nm,valor:vt,unidade:txt(document.getElementById('ex-unid').value),min:num(document.getElementById('ex-min').value),max:num(document.getElementById('ex-max').value),ia:{}};
+    if(j>=0)c.itens[j]=it;else c.itens.push(it);
     salvar();
     ['ex-nome','ex-unid','ex-valor','ex-min','ex-max'].forEach(function(id){document.getElementById(id).value='';});
-    st.textContent='Exame adicionado à tabela.';
-    renderTabela();
+    st.textContent='Exame adicionado à coleta.';
+    render();
   });
 
   function chaveGemini(){
@@ -473,9 +435,7 @@ aside.fechado .menu{display:none}
       try{
         var p=JSON.parse(v);
         if(typeof p==='string')v=p;
-        else if(p&&typeof p==='object'){
-          for(var q in p){if(typeof p[q]==='string'&&p[q].length>10){v=p[q];break;}}
-        }
+        else if(p&&typeof p==='object'){for(var q in p){if(typeof p[q]==='string'&&p[q].length>10){v=p[q];break;}}}
       }catch(e){}
       v=String(v).trim();
       if(v.length>10)return v;
@@ -505,9 +465,6 @@ aside.fechado .menu{display:none}
     atualizaChave();
   });
 
-  var medidas={};
-  try{medidas=JSON.parse(localStorage.getItem('medidas')||'{}')||{};}catch(e){medidas={};}
-
   function contexto(p){
     var L=medidas[p.nome]||[], u=L.length?L[L.length-1]:null, linhas=[];
     linhas.push('Idade: '+(p.idade?p.idade+' anos':'não informada'));
@@ -526,11 +483,7 @@ aside.fechado .menu{display:none}
 
   function parseLista(t){
     t=String(t||'');
-    try{
-      var j=JSON.parse(t.trim());
-      if(Array.isArray(j))return j;
-      if(j&&Array.isArray(j.exames))return j.exames;
-    }catch(e){}
+    try{var j=JSON.parse(t.trim());if(Array.isArray(j))return j;if(j&&Array.isArray(j.exames))return j.exames;}catch(e){}
     var a=t.indexOf('['), b=t.lastIndexOf(']');
     if(a>=0&&b>a){try{return JSON.parse(t.slice(a,b+1));}catch(e){}}
     return null;
@@ -544,7 +497,6 @@ aside.fechado .menu{display:none}
     return null;
   }
 
-  // Anexar PDF (ou foto do laudo) e preencher os resultados
   var pdfBtn=document.getElementById('pdf-btn'), pdfFile=document.getElementById('pdf-file');
   pdfBtn.addEventListener('click',function(){pdfFile.click();});
 
@@ -560,70 +512,53 @@ aside.fechado .menu{display:none}
     pdfBtn.disabled=true;
     var mime=f.type||'application/pdf';
     var rd=new FileReader();
-    rd.onload=function(){
-      var b64=String(rd.result).split(',')[1]||'';
-      preencherComPdf(b64,mime,key);
-    };
-    rd.onerror=function(){
-      st.textContent='Não consegui ler o arquivo. Tente de novo.';
-      pdfBtn.disabled=false;
-    };
+    rd.onload=function(){preencherComPdf(String(rd.result).split(',')[1]||'',mime,key);};
+    rd.onerror=function(){st.textContent='Não consegui ler o arquivo. Tente de novo.';pdfBtn.disabled=false;};
     rd.readAsDataURL(f);
   });
 
   function preencherComPdf(b64,mime,key){
     var st=document.getElementById('status');
-    var names=Object.keys(CAT).join('; ');
-    var prompt='Você lê laudos de exames laboratoriais. Leia o documento anexado e extraia os resultados. Responda somente com um objeto JSON neste formato: {"data_coleta":"AAAA-MM-DD ou vazio","exames":[{"exame":"nome","valor":"número","unidade":"unidade"}]}.\n\nRegras:\n- Em "exame", use o nome da lista abaixo quando o exame do laudo corresponder a ele. Se o exame não estiver na lista, use o nome que aparece no laudo.\n- "valor" é só o número do resultado, com ponto como separador decimal (ex.: 13.5). Em números de milhar, tire o separador (7.500 vira 7500). Não inclua unidade, sinal de alto ou baixo nem texto.\n- Não invente. Se um exame não aparece no documento, não o inclua.\n- Não inclua nome, idade, endereço, documento ou médico da pessoa na resposta.\n- Use a data da coleta, convertida para AAAA-MM-DD.\n\nLista de exames do sistema: '+names;
+    var prompt='Você lê laudos de exames laboratoriais. Leia o documento anexado e extraia os resultados. Responda somente com um objeto JSON neste formato: {"data_coleta":"AAAA-MM-DD ou vazio","exames":[{"exame":"nome","valor":"número","unidade":"unidade"}]}.\n\nRegras:\n- Em "exame", use o nome da lista abaixo quando o exame do laudo corresponder a ele. Se não estiver na lista, use o nome que aparece no laudo.\n- "valor" é só o número, com ponto como separador decimal (ex.: 13.5). Em milhar, tire o separador (7.500 vira 7500). Sem unidade, sinal de alto ou baixo.\n- Não invente. Se um exame não aparece no documento, não o inclua.\n- Não inclua nome, idade, endereço, documento ou médico da pessoa.\n- Data da coleta em AAAA-MM-DD.\n\nLista de exames do sistema: '+Object.keys(CAT).join('; ');
 
     fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(key),{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        contents:[{parts:[{inline_data:{mime_type:mime,data:b64}},{text:prompt}]}],
-        generationConfig:{responseMimeType:'application/json',temperature:0.1}
-      })
+      body:JSON.stringify({contents:[{parts:[{inline_data:{mime_type:mime,data:b64}},{text:prompt}]}],generationConfig:{responseMimeType:'application/json',temperature:0.1}})
     })
     .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
     .then(function(j){
-      var c=(j.candidates||[])[0], t='';
-      if(c&&c.content&&c.content.parts)t=c.content.parts.map(function(q){return q.text||'';}).join('');
+      var c0=(j.candidates||[])[0], t='';
+      if(c0&&c0.content&&c0.content.parts)t=c0.content.parts.map(function(q){return q.text||'';}).join('');
       var doc=parseDoc(t);
       if(!doc)throw new Error('resposta sem JSON');
 
-      var n=nome();
-      var L=exames[n]||(exames[n]=[]);
-
-      if(/^\d{4}-\d{2}-\d{2}$/.test(txt(doc.data_coleta))){
-        dataEl.value=txt(doc.data_coleta);
-        L.forEach(function(x){x.data=dataEl.value;});
+      var n=nome(), dt=txt(doc.data_coleta), c;
+      if(/^\d{4}-\d{2}-\d{2}$/.test(dt)){
+        c=(colecoes[n]||[]).filter(function(x){return x.data===dt;})[0];
+        if(!c){c={id:'c'+Date.now(),data:dt,itens:[]};(colecoes[n]=colecoes[n]||[]).push(c);}
+      }else{
+        c=atual(true);
       }
+      curId=c.id;
 
-      var lista=Array.isArray(doc.exames)?doc.exames:[];
       var ok=0, ign=0;
-      lista.forEach(function(x){
+      (Array.isArray(doc.exames)?doc.exames:[]).forEach(function(x){
         if(!x)return;
-        var nm0=txt(x.exame);
-        var nm=NOMES[semAcento(nm0)]||nm0;
+        var nm=NOMES[semAcento(txt(x.exame))]||txt(x.exame);
         var v=txt(x.valor).replace(',','.');
         if(!nm||num(v)==null){ign++;return;}
-        if(gravar(nm,v)){
+        if(gravarEm(c,nm,v)){
           ok++;
-          if(!CAT[nm]){
-            var jj=achar(L,nm);
-            if(jj>=0&&txt(x.unidade))L[jj].unidade=txt(x.unidade);
-          }
-        }else{
-          ign++;
-        }
+          var jj=achar(c.itens,nm);
+          if(!CAT[nm]&&jj>=0&&txt(x.unidade))c.itens[jj].unidade=txt(x.unidade);
+        }else{ign++;}
       });
       salvar();
-      renderTabela();
-      if(ok){
-        st.textContent=ok+' resultado(s) preenchido(s) a partir do PDF. Confira com o laudo antes de gerar a análise.'+(ign?' '+ign+' item(ns) não couberam e ficaram de fora.':'');
-      }else{
-        st.textContent='Não encontrei resultados que correspondam aos exames da tabela neste arquivo.';
-      }
+      render();
+      st.textContent=ok
+        ?ok+' resultado(s) preenchido(s) na coleta de '+br(c.data)+'. Confira com o laudo antes de gerar a análise.'+(ign?' '+ign+' item(ns) ficaram de fora.':'')
+        :'Não encontrei resultados que correspondam aos exames deste arquivo.';
     })
     .catch(function(e){
       st.textContent='Não foi possível ler o exame. Verifique a chave e a conexão, ou tente um arquivo mais nítido.'+(e&&e.message?' ('+e.message+')':'');
@@ -633,44 +568,40 @@ aside.fechado .menu{display:none}
 
   document.getElementById('ia-btn').addEventListener('click',function(){
     var btn=this, st=document.getElementById('status');
-    var p=pac()||{nome:nome()}, n=nome(), L=exames[n]||[];
-    var idxs=[];
+    var p=pac()||{nome:nome()}, c=atual(false), L=c?c.itens:[], idxs=[];
     L.forEach(function(x,i){
       var semAnalise=!(x.ia&&(x.ia.ideal||x.ia.causa||x.ia.solucao));
       if(txt(x.valor)!==''&&semAnalise)idxs.push(i);
     });
     if(!idxs.length){
       st.textContent=L.some(function(x){return txt(x.valor)!=='';})
-        ?'Todos os exames preenchidos já têm análise. Para refazer, apague o texto do campo.'
-        :'Digite pelo menos um resultado na tabela antes de gerar a análise.';
+        ?'Todos os exames desta coleta já têm análise. Para refazer, apague o texto do campo.'
+        :'Digite ou anexe pelo menos um resultado antes de gerar a análise.';
       return;
     }
     var key=chaveGemini();
     if(!key){st.textContent='Salve a chave do Gemini abaixo para gerar a análise.';return;}
 
-    var lista=idxs.map(function(i){
+    var lista2=idxs.map(function(i){
       var x=L[i], r=refDe(x);
       return {i:i,exame:x.exame,valor:x.valor,unidade:x.unidade||'',referencia:faixa(r[0],r[1]),situacao:ROT[classif(num(x.valor),r[0],r[1])]};
     });
 
     var prompt='Você apoia uma nutricionista brasileira. Analise os exames abaixo para ESTA paciente e responda somente com um array JSON, sem texto fora dele. Cada item deve ter: "i" (o mesmo número recebido), "ideal" (o valor ou faixa-alvo mais adequado para esta paciente, considerando sexo, idade, objetivo e condições informadas; se não houver base suficiente, escreva "usar a faixa do laudo"), "causa" (causa provável do resultado, em linguagem simples; se estiver normal, escreva "Sem alteração a investigar"), "solucao" (orientações alimentares e, se fizer sentido, tipo de suplemento com o motivo, SEM dose; quando o caso pedir, escreva "avaliar com médico"). Não invente dados da paciente. Não faça diagnóstico. Seja objetivo, no máximo 2 frases por campo.\n\nDados da paciente:\n'
       +contexto(p)+'\nSexo usado na faixa: '+(sexoEl.value==='m'?'masculino':'feminino')
-      +'\n\nExames:\n'+JSON.stringify(lista);
+      +'\n\nExames:\n'+JSON.stringify(lista2);
 
     btn.disabled=true;
     st.textContent='Gerando análise...';
     fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(key),{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        contents:[{parts:[{text:prompt}]}],
-        generationConfig:{responseMimeType:'application/json',temperature:0.3}
-      })
+      body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:'application/json',temperature:0.3}})
     })
     .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
     .then(function(j){
-      var c=(j.candidates||[])[0], t='';
-      if(c&&c.content&&c.content.parts)t=c.content.parts.map(function(q){return q.text||'';}).join('');
+      var c0=(j.candidates||[])[0], t='';
+      if(c0&&c0.content&&c0.content.parts)t=c0.content.parts.map(function(q){return q.text||'';}).join('');
       var arr=parseLista(t);
       if(!arr)throw new Error('resposta sem JSON');
       var ok=0;
@@ -695,6 +626,7 @@ aside.fechado .menu{display:none}
     document.getElementById('titulo').textContent=n==='Sem paciente'?'Exames laboratoriais':'Exames de '+n;
     document.getElementById('voltar').href=pac()?'../perfil/index.html?i='+selP.value:'../index.html';
     sincronizaRef();
+    renderSel();
     renderTabela();
     atualizaChave();
   }
