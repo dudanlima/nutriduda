@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#7A816C">
+<title>Configurações</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{font-family:"Times New Roman",Times,serif;color:#3B332C;background:#7A816C url("../../ceu.jpg") center/cover no-repeat fixed;min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;background:rgba(122,129,108,.55);z-index:0}
+.app{position:relative;z-index:1;display:flex;min-height:100vh}
+aside{width:230px;flex-shrink:0;background:rgba(122,129,108,.92);color:#E5DFD6;padding:22px 16px;transition:width .25s,padding .25s;overflow:hidden}
+aside.recolhido{width:72px;padding:22px 10px}
+.topo-menu{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:8px}
+.alternar{width:38px;height:38px;border:1px solid #D1A9A5;border-radius:8px;background:transparent;color:#E5DFD6;font-size:20px;flex-shrink:0;cursor:pointer}
+.alternar:hover{background:#D1A9A5;color:#7A816C}
+.titulo-menu{font-size:17px;white-space:nowrap}
+aside.recolhido .titulo-menu,aside.recolhido .rotulo{display:none}
+.menu{display:flex;flex-direction:column;gap:8px}
+.menu a{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1px solid transparent;border-radius:8px;color:#E5DFD6;font-size:17px;white-space:nowrap;text-decoration:none}
+.menu a:hover{background:rgba(229,223,214,.18)}
+.menu a.ativo{background:#E5DFD6;color:#7A816C;border-color:#E5DFD6}
+.icone{width:22px;text-align:center;flex-shrink:0;font-weight:bold;color:#D1A9A5}
+.menu a.ativo .icone{color:#AE6965}
+main{flex:1;min-width:0;padding:clamp(18px,3vw,36px)}
+.topo{display:flex;justify-content:flex-end;margin-bottom:24px}
+.botao-topo{padding:10px 18px;border:1px solid #D1A9A5;border-radius:8px;color:#E5DFD6;text-decoration:none;font-size:16px;background:rgba(122,129,108,.35)}
+.botao-topo:hover{background:#D1A9A5;color:#7A816C}
+.cartao{background:rgba(229,223,214,.94);border:1px solid #D1A9A5;border-radius:14px;padding:clamp(18px,4vw,36px);box-shadow:0 8px 24px rgba(59,51,44,.18);min-width:0}
+h1{margin:0 0 8px;font-weight:normal;font-size:clamp(24px,4vw,34px);color:#7A816C}
+h2{font-weight:normal;font-size:20px;color:#7A816C;margin:24px 0 10px}
+p{font-size:17px;line-height:1.5;margin:0 0 12px}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:10px 0}
+.form label{display:flex;flex-direction:column;gap:6px;font-size:15px}
+.form input{font:inherit;font-size:16px;padding:10px;border:1px solid #A58B71;border-radius:8px;background:#FFFFFF;color:#3B332C;width:100%;max-width:100%}
+.btn{padding:12px 20px;border:1px solid #7A816C;border-radius:10px;background:#7A816C;color:#FFFFFF;font:inherit;font-size:17px;cursor:pointer}
+.btn:hover{background:#AE6965;border-color:#AE6965}
+.btn.secundario{background:transparent;color:#7A816C}
+.btn.secundario:hover{background:#D1A9A5;color:#7A816C;border-color:#D1A9A5}
+.btn.pequeno{padding:8px 14px;font-size:15px}
+.acoes{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+.arquivo{background:#FFFFFF;border:1px solid #D1A9A5;border-radius:12px;padding:14px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:10px}
+.prev{width:150px;height:100px;border:1px dashed #A58B71;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#A58B71;font-style:italic;font-size:14px;background:#E5DFD6;flex-shrink:0}
+.prev img{max-width:100%;max-height:100%;object-fit:contain}
+.info{flex:1;min-width:180px;font-size:16px}
+.info input[type=file]{font:inherit;font-size:15px;margin:8px 0}
+.vazio{font-style:italic;color:#A58B71}
+.msg{font-style:italic;color:#AE6965;min-height:20px;margin-top:10px}
+@media(max-width:700px){
+  .app{flex-direction:column}
+  aside{width:100%;padding:14px 16px}
+  aside.recolhido{width:100%;padding:14px 16px}
+  aside.recolhido .titulo-menu,aside.recolhido .rotulo{display:inline}
+  .menu{flex-direction:row;flex-wrap:wrap}
+  .menu a{flex:1 1 auto;justify-content:center}
+  .rotulo{display:inline}
+  aside.fechado .menu{display:none}
+  .botao-topo,.btn{width:100%;text-align:center}
+  .prev{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside id="menu">
+<div class="topo-menu">
+<span class="titulo-menu">Menu</span>
+<button class="alternar" id="alternar" aria-label="Recolher ou expandir menu">&#9776;</button>
+</div>
+<nav class="menu">
+<a href="../index.html"><span class="icone">I</span><span class="rotulo">Início</span></a>
+<a href="../index.html#agenda"><span class="icone">A</span><span class="rotulo">Agenda</span></a>
+<a href="../plano/index.html"><span class="icone">N</span><span class="rotulo">Plano alimentar</span></a>
+<a href="../../pacientes/index.html"><span class="icone">P</span><span class="rotulo">Pacientes</span></a>
+<a href="../../pacientes/cadastro.html"><span class="icone">+</span><span class="rotulo">Cadastrar paciente</span></a>
+<a href="index.html" class="ativo"><span class="icone">C</span><span class="rotulo">Configurações</span></a>
+</nav>
+</aside>
+<main>
+<div class="topo"><a class="botao-topo" href="../../login/index.html">Sair</a></div>
+<section class="cartao">
+<h1>Configurações</h1>
+<p>Estes dados ficam salvos e preenchem sozinhos a exportação do plano alimentar em PDF.</p>
+
+<h2>Dados da nutricionista</h2>
+<div class="form">
+<label>Nome completo<input id="nome" autocomplete="name"></label>
+<label>CRN<input id="crn"></label>
+<label>Celular<input id="cel" inputmode="tel"></label>
+<label>E-mail<input id="email" type="email"></label>
+</div>
+
+<h2>Identidade visual do PDF</h2>
+<div class="arquivo">
+<div class="prev" id="prevLogo">Sem logo</div>
+<div class="info">
+<b>Logo</b><br>
+<span id="stLogo" class="vazio">Nenhuma logo enviada.</span>
+<br><input type="file" id="fLogo" accept="image/*">
+<br><button class="btn secundario pequeno" id="rLogo" type="button">Remover logo</button>
+</div>
+</div>
+
+<div class="arquivo">
+<div class="prev" id="prevFundo">Sem papel</div>
+<div class="info">
+<b>Papel de fundo do PDF</b><br>
+<span id="stFundo" class="vazio">Nenhum papel enviado.</span>
+<br><input type="file" id="fFundo" accept="image/*">
+<br><button class="btn secundario pequeno" id="rFundo" type="button">Remover papel de fundo</button>
+</div>
+</div>
+
+<div class="acoes"><button class="btn" id="salvar" type="button">Salvar configurações</button></div>
+<div class="msg" id="msg"></div>
+</section>
+</main>
+</div>
+
+<script>
+(function(){
+  var menu=document.getElementById('menu');
+  document.getElementById('alternar').addEventListener('click',function(){
+    menu.classList.toggle('recolhido');
+    menu.classList.toggle('fechado');
+  });
+
+  function g(i){return document.getElementById(i);}
+  function ler(k,d){try{var v=JSON.parse(localStorage.getItem(k)||'null');return v==null?d:v;}catch(e){return d;}}
+  function gravar(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}}
+  function msg(t){g('msg').textContent=t;}
+
+  var ec=ler('exportConfig',{})||{};
+  var c=ler('configNutri',null)||{nome:ec.nome||'',crn:ec.crn||'',celular:ec.contato||'',email:''};
+  g('nome').value=c.nome||'';
+  g('crn').value=c.crn||'';
+  g('cel').value=c.celular||'';
+  g('email').value=c.email||'';
+
+  function mostrarImagens(){
+    var logo=localStorage.getItem('exportLogo'), fundo=localStorage.getItem('exportFundo');
+    if(logo){g('prevLogo').innerHTML='<img src="'+logo+'" alt="">';g('stLogo').textContent='Logo salva. Ela aparece no topo do PDF.';}
+    else{g('prevLogo').textContent='Sem logo';g('stLogo').textContent='Nenhuma logo enviada.';}
+    if(fundo){g('prevFundo').innerHTML='<img src="'+fundo+'" alt="">';g('stFundo').textContent='Papel salvo. Ele fica atrás de todo o plano no PDF.';}
+    else{g('prevFundo').textContent='Sem papel';g('stFundo').textContent='Nenhum papel enviado.';}
+  }
+
+  function arquivo(input,chave){
+    input.addEventListener('change',function(){
+      var a=this.files&&this.files[0];
+      if(!a)return;
+      var r=new FileReader();
+      r.onload=function(){
+        try{
+          localStorage.setItem(chave,r.result);
+          mostrarImagens();
+          msg('Imagem salva.');
+        }catch(e){
+          msg('Imagem grande demais para guardar no navegador. Use um arquivo menor.');
+        }
+        input.value='';
+      };
+      r.readAsDataURL(a);
+    });
+  }
+
+  arquivo(g('fLogo'),'exportLogo');
+  arquivo(g('fFundo'),'exportFundo');
+
+  g('rLogo').addEventListener('click',function(){
+    localStorage.removeItem('exportLogo');
+    mostrarImagens();
+    msg('Logo removida.');
+  });
+  g('rFundo').addEventListener('click',function(){
+    localStorage.removeItem('exportFundo');
+    mostrarImagens();
+    msg('Papel de fundo removido.');
+  });
+
+  g('salvar').addEventListener('click',function(){
+    var d={
+      nome:g('nome').value.trim(),
+      crn:g('crn').value.trim(),
+      celular:g('cel').value.trim(),
+      email:g('email').value.trim()
+    };
+    var contato=[d.celular,d.email].filter(Boolean).join(' · ');
+    var ok1=gravar('configNutri',d);
+    var ok2=gravar('exportConfig',{nome:d.nome,crn:d.crn,contato:contato});
+    msg(ok1&&ok2?'Configurações salvas. Elas preenchem a exportação do plano.':'Não foi possível salvar: o armazenamento do navegador está cheio.');
+  });
+
+  mostrarImagens();
+})();
+</script>
+</body>
+</html>
