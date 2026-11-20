@@ -109,13 +109,31 @@ canvas{display:block;max-width:100%}
   function ler(k,d){try{var v=JSON.parse(localStorage.getItem(k)||'null');return v==null?d:v;}catch(e){return d;}}
   function gravar(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}}
   function esc(t){var d=document.createElement('div');d.textContent=t==null?'':String(t);return d.innerHTML;}
+  function txt(v){return String(v==null?'':v).trim();}
   function num(v){var n=parseFloat(String(v==null?'':v).replace(',','.'));return isNaN(n)?0:n;}
+  function numOrNull(v){var s=txt(v).replace(',','.');if(!/^-?\d/.test(s))return null;var n=parseFloat(s);return isNaN(n)?null:n;}
+  function nz(v){if(v==null||v==='')return null;var n=typeof v==='number'?v:numOrNull(v);return (n==null||isNaN(n))?null:n;}
   function fx(v,c){return v.toFixed(c).replace('.',',');}
-  function nf(v){return (Math.round(v*10)/10).toString().replace('.',',');}
+  function fmtD(v,d){var k=Math.pow(10,d);return (Math.round(v*k)/k).toString().replace('.',',');}
   function br(s){var p=String(s||'').split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:'Sem data';}
   function porData(a,b){return a.data<b.data?-1:a.data>b.data?1:0;}
+  function p2(n){return n<10?'0'+n:''+n;}
+  function hoje(){var d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());}
+  function faixaTxt(a,b){
+    if(a==null&&b==null)return 'sem referência';
+    if(b==null)return 'acima de '+fmtD(a,2);
+    if(a==null||a===0)return 'até '+fmtD(b,2);
+    return fmtD(a,2)+' a '+fmtD(b,2);
+  }
+  function classif(v,a,b){
+    if(v==null||(a==null&&b==null))return null;
+    if(a!=null&&v<a)return 'baixo';
+    if(b!=null&&v>b)return 'alto';
+    return 'normal';
+  }
 
-  var pacientes=ler('pacientes',[]), medidas=ler('medidas',{}), exames=ler('exames',{}), evolucoes=ler('evolucoes',{});
+  var pacientes=ler('pacientes',[]), medidas=ler('medidas',{}), exames=ler('exames',{}),
+      coletas=ler('coletas',null), evolucoes=ler('evolucoes',{});
   var cartao=document.getElementById('cartao');
   var idx=parseInt(new URLSearchParams(location.search).get('i'),10);
   var exSel=null;
@@ -125,6 +143,25 @@ canvas{display:block;max-width:100%}
     return;
   }
   if(isNaN(idx)||!pacientes[idx])idx=0;
+
+  // Coletas de exames do paciente, da mais antiga para a mais recente.
+  // Usa as coletas salvas pela aba de exames; se não houver, monta a partir dos exames soltos.
+  function coletasDe(n){
+    var out=[];
+    if(coletas&&coletas[n]&&coletas[n].length){
+      coletas[n].forEach(function(c){
+        if(c&&c.data&&c.itens&&c.itens.length)out.push({data:c.data,itens:c.itens});
+      });
+    }else{
+      var g={};
+      (exames[n]||[]).forEach(function(x){
+        if(!x||!x.data||txt(x.valor)==='')return;
+        (g[x.data]=g[x.data]||[]).push(x);
+      });
+      Object.keys(g).forEach(function(d){out.push({data:d,itens:g[d]});});
+    }
+    return out.sort(porData);
+  }
 
   function calc(e,p){
     var r={imc:0,rcq:0,gord:null,classe:''};
@@ -148,34 +185,55 @@ canvas{display:block;max-width:100%}
     return r;
   }
 
-  function desenhar(id,pts,un){
-    var c=document.getElementById(id); if(!c)return;
+  // ref: {min, max, dec} opcional. Com faixa, a escala inclui os limites e desenha as linhas tracejadas.
+  function desenhar(id,pts,un,ref){
+    var c=document.getElementById(id);
+    if(!c||!pts.length)return;
+    ref=ref||{};
+    var d=ref.dec||1;
     var dpr=window.devicePixelRatio||1, w=Math.max(260,c.parentNode.clientWidth-28), h=200;
     c.style.width=w+'px';c.style.height=h+'px';c.width=w*dpr;c.height=h*dpr;
     var g=c.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
     g.font='13px "Times New Roman",serif';
     var P=40,W=w-P*2,H=h-P*2;
-    var ys=pts.map(function(q){return q.y;}), mn=Math.min.apply(null,ys), mx=Math.max.apply(null,ys);
+    var ys=pts.map(function(q){return q.y;});
+    if(ref.min!=null)ys.push(ref.min);
+    if(ref.max!=null)ys.push(ref.max);
+    var mn=Math.min.apply(null,ys), mx=Math.max.apply(null,ys);
     if(mn===mx){mn-=1;mx+=1;}
     var m=(mx-mn)*0.12; mn-=m; mx+=m;
     function X(i){return pts.length===1?P+W/2:P+i*W/(pts.length-1);}
     function Y(v){return h-P-(v-mn)/(mx-mn)*H;}
+
     g.strokeStyle='#A58B71';g.lineWidth=1;g.beginPath();g.moveTo(P,P);g.lineTo(P,h-P);g.lineTo(w-P,h-P);g.stroke();
+
+    [['min',ref.min],['max',ref.max]].forEach(function(r){
+      if(r[1]==null||(r[0]==='min'&&r[1]===0))return;
+      g.save();
+      g.setLineDash([5,4]);g.strokeStyle='#AE6965';g.lineWidth=1;
+      g.beginPath();g.moveTo(P,Y(r[1]));g.lineTo(w-P,Y(r[1]));g.stroke();
+      g.restore();
+      g.textAlign='right';g.fillStyle='#AE6965';
+      g.fillText((r[0]==='min'?'mín ':'máx ')+fmtD(r[1],d),w-P-4,Y(r[1])-4);
+    });
+
     if(pts.length>1){
       g.strokeStyle='#7A816C';g.lineWidth=2;g.beginPath();
       pts.forEach(function(q,i){if(i)g.lineTo(X(i),Y(q.y));else g.moveTo(X(i),Y(q.y));});
       g.stroke();
     }
+
     g.textAlign='center';
     var step=Math.ceil(pts.length/6);
     pts.forEach(function(q,i){
-      g.fillStyle='#AE6965';g.beginPath();g.arc(X(i),Y(q.y),4,0,Math.PI*2);g.fill();
-      g.fillStyle='#3B332C';g.fillText(nf(q.y),X(i),Y(q.y)-9);
+      g.fillStyle=q.c||'#AE6965';g.beginPath();g.arc(X(i),Y(q.y),4,0,Math.PI*2);g.fill();
+      g.fillStyle='#3B332C';g.fillText(fmtD(q.y,d),X(i),Y(q.y)-9);
       if(i%step===0||i===pts.length-1){g.fillStyle='#A58B71';g.fillText(br(q.d),X(i),h-P+16);}
     });
+
     g.textAlign='left';g.fillStyle='#A58B71';
     g.fillText(un,4,14);
-    g.fillText(nf(mx),4,P+4);g.fillText(nf(mn),4,h-P);
+    g.fillText(fmtD(mx,d),4,P+4);g.fillText(fmtD(mn,d),4,h-P);
   }
 
   function tendencia(pts,un,dec){
@@ -187,7 +245,7 @@ canvas{display:block;max-width:100%}
   function render(){
     var p=pacientes[idx], n=p.nome||'Paciente';
     var med=(medidas[n]||[]).slice().sort(porData);
-    var exs=exames[n]||[];
+    var cols=coletasDe(n);
     var evo=evolucoes[n]||[];
 
     var sPeso=[],sImc=[],sGord=[],sCint=[];
@@ -199,33 +257,71 @@ canvas{display:block;max-width:100%}
       if(num((e.circ||{}).cintura))sCint.push({d:e.data,y:num(e.circ.cintura)});
     });
 
+    // Exames numéricos por nome, em todas as coletas
     var nomesNum=[];
-    exs.forEach(function(x){if(num(x.valor)&&nomesNum.indexOf(x.exame)<0&&x.valor.match(/[0-9]/))nomesNum.push(x.exame);});
+    cols.forEach(function(c){
+      c.itens.forEach(function(it){
+        if(numOrNull(it.valor)!=null&&nomesNum.indexOf(it.exame)<0)nomesNum.push(it.exame);
+      });
+    });
     if(nomesNum.indexOf(exSel)<0)exSel=nomesNum[0]||null;
-    var sExame=exs.filter(function(x){return x.exame===exSel&&x.valor.match(/[0-9]/);})
-      .map(function(x){return {d:x.data,y:num(x.valor),ref:x.ref,un:x.unidade};}).sort(porData);
+
+    var sExame=[];
+    cols.forEach(function(c){
+      c.itens.forEach(function(it){
+        if(it.exame!==exSel)return;
+        var v=numOrNull(it.valor);
+        if(v==null)return;
+        var mnR=nz(it.min), mxR=nz(it.max), k=classif(v,mnR,mxR);
+        sExame.push({d:c.data,y:v,min:mnR,max:mxR,un:it.unidade||'',c:(k==='baixo'||k==='alto')?'#AE6965':'#7A816C'});
+      });
+    });
+    sExame.sort(porData);
+    var ultEx=sExame.length?sExame[sExame.length-1]:null;
+    var refEx={min:ultEx?ultEx.min:null,max:ultEx?ultEx.max:null,dec:2};
 
     var datas=[];
     function addD(d){if(d&&datas.indexOf(d)<0)datas.push(d);}
     med.forEach(function(e){addD(e.data);});
-    exs.forEach(function(x){addD(x.data);});
+    cols.forEach(function(c){addD(c.data);});
     evo.forEach(function(x){addD(x.data);});
     datas.sort();datas.reverse();
+
+    // Exames fora da faixa na coleta mais recente
+    var ultC=cols.length?cols[cols.length-1]:null;
+    var foraFaixa=[];
+    if(ultC){
+      ultC.itens.forEach(function(it){
+        var k=classif(numOrNull(it.valor),nz(it.min),nz(it.max));
+        if(k==='baixo'||k==='alto')foraFaixa.push(it.exame+(k==='baixo'?' (baixo)':' (alto)'));
+      });
+    }
 
     var ultM=med.length?calc(med[med.length-1],p):null;
     var opts=pacientes.map(function(x,i){return '<option value="'+i+'"'+(i===idx?' selected':'')+'>'+esc(x.nome||('Paciente '+(i+1)))+'</option>';}).join('');
 
     var cards='<div class="cards">'
       +'<div class="card"><span class="rotulo-c">Consultas registradas</span><span class="valor">'+datas.length+'</span></div>'
+      +'<div class="card"><span class="rotulo-c">Coletas de exames</span><span class="valor">'+cols.length+'</span></div>'
       +'<div class="card"><span class="rotulo-c">Peso (evolução)</span><span class="valor" style="font-size:16px">'+esc(tendencia(sPeso,'kg',1))+'</span></div>'
       +'<div class="card"><span class="rotulo-c">IMC atual</span><span class="valor">'+(ultM&&ultM.imc?fx(ultM.imc,1):'-')+'</span></div>'
       +'<div class="card"><span class="rotulo-c">Gordura (evolução)</span><span class="valor" style="font-size:16px">'+esc(tendencia(sGord,'%',1))+'</span></div>'
       +'<div class="card"><span class="rotulo-c">Cintura (evolução)</span><span class="valor" style="font-size:16px">'+esc(tendencia(sCint,'cm',1))+'</span></div>'
+      +'<div class="card"><span class="rotulo-c">Exames fora da faixa (última coleta)</span><span class="valor">'+(ultC?foraFaixa.length:'-')+'</span>'
+      +(foraFaixa.length?'<span class="detalhe">'+esc(foraFaixa.slice(0,3).join(', '))+(foraFaixa.length>3?' e outros':'')+'</span>':'')
+      +'</div>'
       +'</div>';
 
-    function bloco(titulo,id,vazio,un){
+    function bloco(titulo,id,vazio){
       return '<div class="bloco"><h2>'+titulo+'</h2>'+(vazio?'<p class="vazio">'+vazio+'</p>':'<canvas id="'+id+'"></canvas>')+'</div>';
     }
+
+    var optsEx=nomesNum.map(function(x){return '<option value="'+esc(x)+'"'+(x===exSel?' selected':'')+'>'+esc(x)+'</option>';}).join('');
+    var notaEx=ultEx
+      ?(refEx.min!=null||refEx.max!=null
+        ?'Faixa do último resultado: '+esc(faixaTxt(refEx.min,refEx.max))+'. Pontos em vinho ficaram fora dela.'
+        :'Sem faixa de referência para este exame. Pontos em verde: sem alerta.')
+      :'';
 
     var graf='<div class="graficos">'
       +bloco('Peso (kg)','c-peso',sPeso.length?'':'Nenhuma avaliação de peso ainda. Registre em Medidas.')
@@ -234,23 +330,29 @@ canvas{display:block;max-width:100%}
       +bloco('Cintura (cm)','c-cint',sCint.length?'':'Nenhuma medida de cintura ainda.')
       +'<div class="bloco"><h2>Exames</h2>'
       +(nomesNum.length
-        ?'<select id="sel-ex" style="margin-bottom:10px;max-width:100%">'+nomesNum.map(function(x){return '<option value="'+esc(x)+'"'+(x===exSel?' selected':'')+'>'+esc(x)+'</option>';}).join('')+'</select>'
+        ?'<select id="sel-ex" style="margin-bottom:10px;max-width:100%">'+optsEx+'</select>'
           +'<canvas id="c-ex"></canvas>'
-          +'<p class="nota">'+(sExame.length&&sExame[sExame.length-1].ref?'Referência do último laudo: '+esc(sExame[sExame.length-1].ref)+'.':'Sem referência informada para este exame.')+'</p>'
+          +'<p class="nota">'+notaEx+'</p>'
         :'<p class="vazio">Nenhum exame numérico lançado. Lance em Exames do perfil.</p>')
       +'</div></div>';
 
     var timeline=datas.map(function(d){
       var m=med.filter(function(e){return e.data===d;})[0];
-      var ex=exs.filter(function(x){return x.data===d;});
+      var cl=cols.filter(function(c){return c.data===d;})[0];
       var ev=[];evo.forEach(function(x,i){if(x.data===d)ev.push({x:x,i:i});});
-      var partes=[];
+      var corpo='';
       if(m){
         var r=calc(m,p);
-        partes.push('peso '+(m.peso||'-')+' kg'+(r.imc?' · IMC '+fx(r.imc,1):'')+(r.gord!=null?' · gordura '+fx(r.gord,1)+'%':''));
+        corpo+='<p class="reg" style="margin:4px 0">'+esc('peso '+(m.peso||'-')+' kg'+(r.imc?' · IMC '+fx(r.imc,1):'')+(r.gord!=null?' · gordura '+fx(r.gord,1)+'%':''))+'</p>';
       }
-      if(ex.length)partes.push('exames: '+ex.map(function(x){return x.exame+' '+x.valor+(x.unidade?' '+x.unidade:'');}).join(', '));
-      var corpo=partes.length?'<p class="reg" style="margin:4px 0">'+esc(partes.join(' · '))+'</p>':'';
+      if(cl&&cl.itens.length){
+        corpo+='<p class="reg" style="margin:4px 0"><strong>Exames</strong></p>';
+        cl.itens.forEach(function(it){
+          var k=classif(numOrNull(it.valor),nz(it.min),nz(it.max));
+          var sit=k==='baixo'?' (baixo)':k==='alto'?' (alto)':'';
+          corpo+='<p class="reg" style="margin:2px 0">'+esc(it.exame+': '+txt(it.valor)+(it.unidade?' '+it.unidade:'')+sit)+'</p>';
+        });
+      }
       ev.forEach(function(o){
         corpo+='<p class="reg">'+esc(o.x.texto)+'</p><button class="mini" type="button" data-rem="'+o.i+'">Apagar registro</button>';
       });
@@ -260,13 +362,13 @@ canvas{display:block;max-width:100%}
     cartao.innerHTML=
       '<h1>Evolução de '+esc(n)+'</h1>'
       +'<p>'+esc(p.objetivo||'Objetivo não informado')+' · '+esc(p.idade||'?')+' anos</p>'
-      +'<div class="acoes"><a class="btn secundario" href="../perfil/index.html?i='+idx+'">Voltar ao perfil</a></div>'
+      +'<div class="acoes"><a class="btn secundario" href="../perfil/index.html?i='+idx+'">Voltar ao perfil</a><a class="btn secundario" href="../exames/index.html?i='+idx+'">Lançar exames</a></div>'
       +'<div class="form"><label>Paciente<select id="sel-p">'+opts+'</select></label></div>'
       +'<h2>Resumo</h2>'+cards
       +'<h2>Gráficos da evolução</h2>'+graf
       +'<h2>Registrar consulta</h2>'
       +'<div class="form">'
-      +'<label>Data da consulta<input type="date" id="v-data" value="'+new Date().toISOString().slice(0,10)+'"></label>'
+      +'<label>Data da consulta<input type="date" id="v-data" value="'+hoje()+'"></label>'
       +'<label style="grid-column:1/-1">Registro da evolução<textarea id="v-texto" placeholder="Descreva o que foi observado e combinado nesta consulta."></textarea></label>'
       +'</div>'
       +'<div class="acoes"><button class="btn" id="v-salvar">Salvar registro</button></div>'
@@ -286,7 +388,7 @@ canvas{display:block;max-width:100%}
     desenhar('c-imc',sImc,'IMC');
     desenhar('c-gord',sGord,'%');
     desenhar('c-cint',sCint,'cm');
-    if(nomesNum.length)desenhar('c-ex',sExame,sExame.length&&sExame[0].un?sExame[0].un:'');
+    if(nomesNum.length)desenhar('c-ex',sExame,ultEx?ultEx.un:'',refEx);
 
     document.getElementById('v-salvar').addEventListener('click',function(){
       var msg=document.getElementById('v-msg');
