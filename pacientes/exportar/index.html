@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#7A816C">
+<title>Exportar plano alimentar</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{font-family:"Times New Roman",Times,serif;color:#3B332C;background:#7A816C url("../../ceu.jpg") center/cover no-repeat fixed;min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;background:rgba(122,129,108,.55);z-index:0}
+.tela{position:relative;z-index:1;max-width:900px;margin:24px auto;background:rgba(229,223,214,.94);border:1px solid #D1A9A5;border-radius:14px;padding:clamp(18px,4vw,36px);box-shadow:0 8px 24px rgba(59,51,44,.18)}
+.tela h1{margin:0 0 8px;font-weight:normal;font-size:clamp(24px,4vw,34px);color:#7A816C}
+.tela p{font-size:17px;line-height:1.5;margin:0 0 12px}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:14px 0}
+.form label{display:flex;flex-direction:column;gap:6px;font-size:15px}
+.form input,.form select{font:inherit;font-size:16px;padding:10px;border:1px solid #A58B71;border-radius:8px;background:#FFFFFF;color:#3B332C;width:100%;max-width:100%}
+.acoes{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.btn{padding:12px 20px;border:1px solid #7A816C;border-radius:10px;background:#7A816C;color:#FFFFFF;font:inherit;font-size:17px;cursor:pointer}
+.btn:hover{background:#AE6965;border-color:#AE6965}
+.btn.secundario{background:transparent;color:#7A816C}
+.btn.secundario:hover{background:#D1A9A5;color:#7A816C;border-color:#D1A9A5}
+.vazio{font-style:italic;color:#A58B71}
+.msg{font-style:italic;color:#AE6965;min-height:20px}
+#folha{display:none;position:relative;z-index:1;width:210mm;max-width:100%;margin:24px auto;background:#FFFFFF;padding:16mm 18mm;color:#3B332C;font-size:12pt;box-shadow:0 8px 24px rgba(59,51,44,.25)}
+body.ver #folha{display:block}
+#fundoImg{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;z-index:0}
+#folha>*:not(#fundoImg){position:relative;z-index:1}
+#folha h1{font-weight:normal;color:#7A816C;font-size:24pt;margin:6px 0 10px}
+#folha h2{font-size:12pt;color:#7A816C;margin:14px 0 4px;font-weight:bold}
+.cab{display:flex;align-items:center;gap:14px;border-bottom:1px solid #D1A9A5;padding-bottom:10px}
+.logo{max-height:70px;max-width:180px}
+.dados{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;font-size:11pt}
+table{width:100%;border-collapse:collapse;font-size:10.5pt}
+th,td{border-bottom:1px solid #E5DFD6;padding:4px 6px;text-align:left}
+th{color:#7A816C;font-weight:normal;border-bottom:1px solid #A58B71}
+tr{page-break-inside:avoid}
+.rodape{margin-top:18px;border-top:2px solid #7A816C;padding-top:10px;page-break-inside:avoid}
+.grade{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.obs{font-size:9pt;color:#A58B71;margin:8px 0 0}
+@media(max-width:600px){.dados,.grade{grid-template-columns:1fr}}
+@page{size:A4;margin:0}
+@media print{
+  body{background:#FFFFFF!important}
+  body::before,.tela{display:none!important}
+  #folha{display:block!important;margin:0;width:210mm;min-height:297mm;box-shadow:none;padding:16mm 18mm}
+  #fundoImg{position:fixed;left:0;top:0;width:210mm;height:297mm}
+}
+</style>
+</head>
+<body>
+<section class="tela" id="tela"></section>
+<div id="folha"></div>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i);};
+function ler(k,d){try{var v=JSON.parse(localStorage.getItem(k)||'null');return v==null?d:v;}catch(e){return d;}}
+function gravar(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}}
+function esc(t){var d=document.createElement('div');d.textContent=t==null?'':String(t);return d.innerHTML;}
+function p2(n){return n<10?'0'+n:''+n;}
+function hoje(){var d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());}
+function br(s){var p=String(s||'').split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:'';}
+function f(v,c){return (v==null||isNaN(v))?'-':Number(v).toFixed(c).replace('.',',');}
+function chave(p){return p.nome||'';}
+function msg(t){var m=$('msg');if(m)m.textContent=t;}
+
+var pacientes=ler('pacientes',[]), planos=ler('planosAlimentares',{}), cfg=ler('exportConfig',{});
+var idx=parseInt(new URLSearchParams(location.search).get('i'),10);
+var dataC=hoje();
+if(!pacientes.length){$('tela').innerHTML='<h1>Nenhuma paciente cadastrada</h1><p>Cadastre a paciente antes de exportar o plano.</p>';return;}
+if(isNaN(idx)||!pacientes[idx])idx=0;
+
+var EXEMPLO={modelo:'Emagrecimento (exemplo)',exemplo:true,refeicoes:[
+ {horario:'07:00',nome:'Café da manhã',itens:[
+  {alimento:'Pão integral',peso:25,caseira:'1 fatia',kcal:62,ptn:2.5,cho:11.5,lip:0.9,fib:1.6,ca:20,fe:0.6,na:130,k:100,vitc:0},
+  {alimento:'Maçã',peso:130,caseira:'1 unidade média',kcal:68,ptn:0.3,cho:18,lip:0.2,fib:2.3,ca:8,fe:0.2,na:1,k:150,vitc:5}]},
+ {horario:'12:00',nome:'Almoço',itens:[
+  {alimento:'Arroz cozido',peso:100,caseira:'4 colheres de sopa',kcal:128,ptn:2.5,cho:28,lip:0.2,fib:1.6,ca:10,fe:0.2,na:1,k:35,vitc:0},
+  {alimento:'Peito de frango cozido',peso:100,caseira:'1 filé médio',kcal:163,ptn:31.5,cho:0,lip:3.2,fib:0,ca:13,fe:0.9,na:60,k:260,vitc:0}]}
+]};
+
+function salvarCfg(){
+  cfg={nome:$('cn').value.trim(),crn:$('ccrn').value.trim(),contato:$('cc').value.trim()};
+  gravar('exportConfig',cfg);
+}
+
+function somar(pl){
+  var T={kcal:0,ptn:0,cho:0,lip:0,fib:0,ca:0,fe:0,na:0,k:0,vitc:0},has={};
+  (pl.refeicoes||[]).forEach(function(r){(r.itens||[]).forEach(function(it){
+    for(var k in T){if(typeof it[k]==='number'){T[k]+=it[k];has[k]=true;}}
+  });});
+  return {T:T,has:has};
+}
+
+function folha(pl,p){
+  var s=somar(pl),T=s.T,has=s.has;
+  function por(g,fa){return (has.kcal&&T.kcal)?f(g*fa/T.kcal*100,0)+'%':'-';}
+  function lm(nome,k,un,c,fa){
+    return '<tr><td>'+nome+'</td><td>'+(has[k]?f(T[k],c)+' '+un:'-')+'</td><td>'+(fa?por(T[k],fa):'')+'</td></tr>';
+  }
+  function lmi(nome,k,un,c){
+    return '<tr><td>'+nome+'</td><td>'+(has[k]?f(T[k],c)+' '+un:'-')+'</td></tr>';
+  }
+  var logo=localStorage.getItem('exportLogo'), fundo=localStorage.getItem('exportFundo');
+  var h=fundo?'<img id="fundoImg" src="'+fundo+'" alt="">':'';
+  h+='<div class="cab">'+(logo?'<img class="logo" src="'+logo+'" alt="">':'')
+    +'<div><strong>'+esc(cfg.nome||'')+'</strong>'+(cfg.crn?'<br>CRN '+esc(cfg.crn):'')+(cfg.contato?'<br>'+esc(cfg.contato):'')+'</div></div>';
+  h+='<h1>Plano alimentar</h1>';
+  h+='<div class="dados"><div><b>Paciente:</b> '+esc(p.nome)+'</div><div><b>Data da consulta:</b> '+esc(br(dataC))+'</div>'
+    +'<div><b>Idade:</b> '+esc(p.idade||'-')+' anos</div><div><b>Modelo:</b> '+esc(pl.modelo||'-')+'</div>'
+    +'<div style="grid-column:1/-1"><b>Objetivo:</b> '+esc(p.objetivo||'-')+'</div></div>';
+  (pl.refeicoes||[]).forEach(function(r){
+    h+='<h2>'+esc(r.horario)+' · '+esc(r.nome)+'</h2><table><thead><tr><th>Alimento</th><th>Peso</th><th>Medida caseira</th><th>kcal</th></tr></thead><tbody>';
+    (r.itens||[]).forEach(function(it){
+      h+='<tr><td>'+esc(it.alimento)+'</td><td>'+f(it.peso,0)+' g</td><td>'+esc(it.caseira||'-')+'</td><td>'+f(it.kcal,0)+'</td></tr>';
+    });
+    h+='</tbody></table>';
+  });
+  h+='<div class="rodape"><div class="grade"><div><h2>Macronutrientes</h2><table><thead><tr><th>Nutriente</th><th>Total</th><th>% das kcal</th></tr></thead><tbody>'
+    +lm('Energia','kcal','kcal',0,0)+lm('Proteínas','ptn','g',1,4)+lm('Carboidratos','cho','g',1,4)+lm('Lipídios','lip','g',1,9)+lm('Fibras','fib','g',1,0)
+    +'</tbody></table></div>'
+    +'<div><h2>Micronutrientes</h2><table><thead><tr><th>Nutriente</th><th>Total</th></tr></thead><tbody>'
+    +lmi('Cálcio','ca','mg',0)+lmi('Ferro','fe','mg',1)+lmi('Sódio','na','mg',0)+lmi('Potássio','k','mg',0)+lmi('Vitamina C','vitc','mg',0)
+    +'</tbody></table></div></div>'
+    +(pl.exemplo?'':'<p class="obs">Valores somados dos alimentos e porções deste plano, com composição da Tabela TACO.</p>')
+    +'</div>';
+  return h;
+}
+
+function preparar(){
+  salvarCfg();
+  dataC=$('dc').value||hoje();
+  var p=pacientes[idx], pl=planos[chave(p)];
+  if(!pl){msg('Esta paciente ainda não tem plano salvo.');return false;}
+  $('folha').innerHTML=folha(pl,p);
+  return true;
+}
+
+function arq(id,k){
+  $(id).onchange=function(){
+    var a=this.files&&this.files[0];
+    if(!a)return;
+    var r=new FileReader();
+    r.onload=function(){
+      try{localStorage.setItem(k,r.result);msg('Imagem salva. Ela aparece no plano ao exportar.');}
+      catch(e){msg('Imagem grande demais para guardar no navegador. Use um arquivo menor.');}
+    };
+    r.readAsDataURL(a);
+  };
+}
+
+function montar(){
+  var p=pacientes[idx], pl=planos[chave(p)]||null;
+  var opts=pacientes.map(function(x,i){return '<option value="'+i+'"'+(i===idx?' selected':'')+'>'+esc(x.nome||('Paciente '+(i+1)))+'</option>';}).join('');
+  var botaoEx=pl?(pl.exemplo?'<button class="btn secundario" id="bx">Apagar plano de exemplo</button>':''):'<button class="btn secundario" id="bex">Usar plano de exemplo</button>';
+  $('tela').innerHTML='<h1>Exportar plano alimentar</h1>'
+    +'<div class="form">'
+    +'<label>Paciente<select id="sel">'+opts+'</select></label>'
+    +'<label>Data da consulta<input type="date" id="dc" value="'+dataC+'"></label>'
+    +'<label>Nome da nutricionista<input id="cn" value="'+esc(cfg.nome||'')+'"></label>'
+    +'<label>CRN<input id="ccrn" value="'+esc(cfg.crn||'')+'"></label>'
+    +'<label>Contato (telefone, e-mail)<input id="cc" value="'+esc(cfg.contato||'')+'"></label>'
+    +'<label>Logo da clínica<input type="file" id="fl" accept="image/*"></label>'
+    +'<label>Papel de fundo do PDF<input type="file" id="ff" accept="image/*"></label>'
+    +'</div>'
+    +'<div class="acoes"><button class="btn" id="bp">Exportar PDF</button><button class="btn secundario" id="bv">Visualizar</button><button class="btn secundario" id="bl">Remover logo e fundo</button>'+botaoEx+'</div>'
+    +(pl?(pl.exemplo?'<p class="vazio">Plano de exemplo: valores ilustrativos, só para testar o layout.</p>':''):'<p class="vazio">Esta paciente ainda não tem plano salvo. Salve o plano na tela de plano alimentar ou use o exemplo para testar.</p>')
+    +'<p class="msg" id="msg"></p>';
+
+  $('sel').onchange=function(){
+    idx=parseInt(this.value,10);
+    var u=new URL(location.href);u.searchParams.set('i',idx);history.replaceState(null,'',u.toString());
+    montar();
+  };
+  $('dc').onchange=function(){dataC=this.value||hoje();};
+  ['cn','ccrn','cc'].forEach(function(i){$(i).onchange=salvarCfg;});
+  arq('fl','exportLogo');
+  arq('ff','exportFundo');
+  $('bp').onclick=function(){if(preparar())window.print();};
+  $('bv').onclick=function(){
+    var on=!document.body.classList.contains('ver');
+    if(on&&!preparar())return;
+    document.body.classList.toggle('ver',on);
+  };
+  $('bl').onclick=function(){
+    localStorage.removeItem('exportLogo');
+    localStorage.removeItem('exportFundo');
+    msg('Logo e papel de fundo removidos.');
+  };
+  var bex=$('bex');
+  if(bex)bex.onclick=function(){planos[chave(p)]=JSON.parse(JSON.stringify(EXEMPLO));gravar('planosAlimentares',planos);montar();};
+  var bx=$('bx');
+  if(bx)bx.onclick=function(){delete planos[chave(p)];gravar('planosAlimentares',planos);montar();};
+}
+
+montar();
+})();
+</script>
+</body>
+</html>
