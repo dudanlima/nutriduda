@@ -118,7 +118,7 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 <button onclick="location.href='plano/index.html'"><span class="icone">N</span><span class="rotulo">Plano alimentar</span></button>
 <button data-visao="pacientes"><span class="icone">P</span><span class="rotulo">Pacientes</span></button>
 <button data-visao="cadastro"><span class="icone">+</span><span class="rotulo">Cadastrar paciente</span></button>
-<button data-visao="configuracoes"><span class="icone">C</span><span class="rotulo">Configurações</span></button>
+<button onclick="location.href='configuracoes/index.html'"><span class="icone">C</span><span class="rotulo">Configurações</span></button>
 </nav>
 </aside>
 <main>
@@ -133,7 +133,7 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 <div class="grade">
 <div class="caixa"><strong id="total-pacientes">0</strong><span>Pacientes cadastrados</span></div>
 <div class="caixa"><strong id="total-hoje">0</strong><span>Consultas hoje</span></div>
-<div class="caixa"><strong>0</strong><span>Planos em andamento</span></div>
+<div class="caixa"><strong id="total-planos">0</strong><span>Planos em andamento</span></div>
 </div>
 </div>
 <div class="cartao" id="home-cal">
@@ -229,13 +229,6 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
 <button type="button" class="btn secundario" data-ir="pacientes">Cancelar</button>
 </div>
 </form>
-</div>
-</section>
-
-<section class="visao" id="configuracoes">
-<div class="cartao">
-<h1>Configurações</h1>
-<p>Aqui ficarão as preferências do painel.</p>
 </div>
 </section>
 </main>
@@ -407,6 +400,9 @@ header.cabecalho{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;m
     homeVisao=new Date(homeVisao.getFullYear(),homeVisao.getMonth()+1,1);renderHome();
   });
   function renderHome(){
+    document.getElementById('total-pacientes').textContent=pacientes.length;
+    document.getElementById('total-planos').textContent=Object.keys(planos).length;
+    document.getElementById('total-hoje').textContent=consultas.filter(function(c){return c.data===hojeIso;}).length;
     var ano=homeVisao.getFullYear(), mes=homeVisao.getMonth();
     document.getElementById('home-mes-titulo').textContent=meses[mes]+' de '+ano;
     var grade=document.getElementById('home-dias');
